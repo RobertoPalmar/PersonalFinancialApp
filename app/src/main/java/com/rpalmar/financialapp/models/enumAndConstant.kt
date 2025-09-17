@@ -1,6 +1,8 @@
 package com.rpalmar.financialapp.models
 
-object enumAndConstant {
+object Constants {
+    //ROOM DB
+    const val ROOM_DB_NAME = "FINANCIAL_DB"
 }
 
 enum class EnvelopStatus {
