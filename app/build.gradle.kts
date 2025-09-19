@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.animation)
     implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.accompanist.navigation.animation)
 
     //DAGGER HILL
     implementation(libs.hilt.android)

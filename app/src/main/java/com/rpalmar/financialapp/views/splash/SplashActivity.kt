@@ -15,14 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.R
-import com.rpalmar.financialapp.views.main.MainActivity
+import com.rpalmar.financialapp.views.navigation.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlin.jvm.java
 
 @AndroidEntryPoint
@@ -52,6 +54,11 @@ fun SplashScreen(
     goToNextActivity: () -> Unit = {}
 ) {
 
+    LaunchedEffect(Unit) {
+        delay(3000L);
+        goToNextActivity()
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -66,7 +73,7 @@ fun SplashScreen(
             ) {
                 Image(
                     contentDescription = "Splash Logo Icon",
-                    painter = painterResource(id = R.drawable.ic_money),
+                    painter = painterResource(id = R.drawable.ic_financial),
                     modifier = Modifier.fillMaxSize(0.3f)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
