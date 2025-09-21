@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -30,66 +27,100 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.R
+import com.rpalmar.financialapp.models.ButtonType
+import com.rpalmar.financialapp.models.ui.NavigationItem
+import com.rpalmar.financialapp.views.ui.componentes.SimpleButton
+import com.rpalmar.financialapp.views.ui.componentes.MainLayout
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
-import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Orange
+import com.rpalmar.financialapp.views.ui.theme.Yellow
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun MainMenuScreen(
-    onNavigateToTransactions: () -> Unit,
+    onNavigateToCurrencies: () -> Unit,
     onNavigateToAccounts: () -> Unit,
     onNavigateToEnvelopes: () -> Unit,
 ) {
+
+    MainLayout {
+        NavigationSection(
+            onNavigateToCurrencies = onNavigateToCurrencies,
+            onNavigateToAccounts = onNavigateToAccounts,
+            onNavigateToEnvelopes = onNavigateToEnvelopes
+        )
+    }
+
+}
+
+@Composable
+fun NavigationSection(
+    onNavigateToCurrencies: () -> Unit,
+    onNavigateToAccounts: () -> Unit,
+    onNavigateToEnvelopes: () -> Unit,
+){
     val overscrollEffect = rememberOverscrollEffect()
+
+    val navigationItems = listOf(
+        NavigationItem(
+            title = "Envelopes",
+            subtitle = "Organiza tu dinero en sobres de presupuesto",
+            buttonName = "Manage",
+            mainColor = Orange,
+            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_envelope),
+            onNavigate = onNavigateToEnvelopes
+        ),
+        NavigationItem(
+            title = "Accounts",
+            subtitle = "Consulta tus saldos y movimientos por cuenta",
+            buttonName = "Manage",
+            mainColor = Blue,
+            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_wallet),
+            onNavigate = onNavigateToAccounts
+        ),
+        NavigationItem(
+            title = "Currencies",
+            subtitle = "Administra y consulta las diferentes monedas que utilizas",
+            buttonName = "Manage",
+            mainColor = Yellow,
+            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_currency),
+            onNavigate = onNavigateToCurrencies
+        )
+        // NavigationItem(
+        //     title = "Transactions",
+        //     subtitle = "Revisa el historial de ingresos y gastos",
+        //     buttonName = "View",
+        //     mainColor = Green,
+        //     backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_transactions),
+        //     onNavigate = onNavigateToTransactions
+        // )
+    )
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize(1f)
-            .padding(25.dp)
+            .fillMaxHeight(1f)
             .overscroll(overscrollEffect),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item {
-            SectionCard(
-                title = "Envelopes",
-                subtitle = "Organiza tu dinero en sobres de presupuesto",
-                buttonName = "Manage",
-                mainColor = Orange,
-                backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_envelope),
-                onNavigate = onNavigateToEnvelopes
-            )
-        }
-        item {
-            SectionCard(
-                title = "Accounts",
-                subtitle = "Consulta tus saldos y movimientos por cuenta",
-                buttonName = "Manage",
-                mainColor = Blue,
-                backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_wallet),
-                onNavigate = onNavigateToAccounts
-            )
-        }
-        item {
-            SectionCard(
-                title = "Transactions",
-                subtitle = "Revisa el historial de ingresos y gastos",
-                buttonName = "View",
-                mainColor = Green,
-                backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_transactions),
-                onNavigate = onNavigateToTransactions
+        items(items = navigationItems) { item ->
+            NavigationCard(
+                title = item.title,
+                subtitle = item.subtitle,
+                buttonName = item.buttonName,
+                mainColor = item.mainColor,
+                backgroundImage = item.backgroundImage,
+                onNavigate = item.onNavigate
             )
         }
     }
 }
 
 @Composable
-fun SectionCard(
+fun NavigationCard(
     title: String,
     subtitle: String,
     buttonName: String,
@@ -142,26 +173,12 @@ fun SectionCard(
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
-                    Button(
+                    SimpleButton(
                         onClick = { onNavigate() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = mainColor
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(1f),
-                            color = mainColor,
-                            text = buttonName,
-                            maxLines = 2,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                        text = buttonName,
+                        color = mainColor,
+                        type = ButtonType.OUTLINE
+                    )
                 }
             }
         }
@@ -177,7 +194,7 @@ fun ExamplePreview() {
         MainMenuScreen(
             onNavigateToAccounts = {},
             onNavigateToEnvelopes = {},
-            onNavigateToTransactions = {}
+            onNavigateToCurrencies = {}
         )
     }
 }

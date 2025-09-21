@@ -24,3 +24,9 @@ enum class TransactionSourceType{
     ENVELOP,
     EXTERNAL_INCOME
 }
+
+enum class ButtonType{
+    PRIMARY,
+    SECONDARY,
+    OUTLINE
+}

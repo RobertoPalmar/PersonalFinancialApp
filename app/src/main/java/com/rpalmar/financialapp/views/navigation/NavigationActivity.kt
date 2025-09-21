@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rpalmar.financialapp.views.account.AccountScreen
+import com.rpalmar.financialapp.views.currency.CurrencyScreen
+import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,14 +45,21 @@ fun AppNavigation() {
     ){
         composable("main_menu"){
             MainMenuScreen(
-                onNavigateToTransactions = { navController.navigate("transactions") },
+                onNavigateToCurrencies = { navController.navigate("currencies") },
                 onNavigateToAccounts = { navController.navigate("accounts") },
-                onNavigateToEnvelopes = { navController.navigate("envelopes") },
+                onNavigateToEnvelopes = { navController.navigate("envelopes") }
             )
         }
-        composable("transactions"){
+        composable("accounts"){
             AccountScreen()
         }
+        composable("envelopes"){
+            EnvelopeScreen()
+        }
+        composable("currencies"){
+            CurrencyScreen()
+        }
+
     }
 }
 
