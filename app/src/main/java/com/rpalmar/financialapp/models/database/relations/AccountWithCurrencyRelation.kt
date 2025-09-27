@@ -20,7 +20,8 @@ data class AccountWithCurrencyRelation(
             id = account.id,
             name = account.name,
             description = account.description,
-            balance = account.balance,
+            initBalance = account.balance,
+            initBalanceInBaseCurrency = account.balance * currency.exchangeRate,
             style = account.style,
             currency = currency.toDomain()
         )

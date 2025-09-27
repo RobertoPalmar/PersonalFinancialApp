@@ -10,7 +10,8 @@ data class AccountDomain(
     val id: Long = 0,
     override val name: String,
     override val description: String,
-    val balance: Double,
+    val initBalance: Double,
+    val initBalanceInBaseCurrency: Double,
     val currency: CurrencyDomain,
     val style:StyleEntity?,
 ): IDomain, ITransaction {
@@ -19,7 +20,7 @@ data class AccountDomain(
             id = id,
             name = name,
             description = description,
-            balance = balance,
+            balance = initBalance,
             currencyID = currency.id,
             style = style,
             createAt = Date()

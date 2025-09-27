@@ -10,7 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rpalmar.financialapp.views.account.AccountScreen
+import com.rpalmar.financialapp.views.account.AccountFormScreen
+import com.rpalmar.financialapp.views.account.AccountListScreen
 import com.rpalmar.financialapp.views.currency.CurrencyScreen
 import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
@@ -51,8 +52,20 @@ fun AppNavigation() {
             )
         }
         composable("accounts"){
-            AccountScreen()
+            AccountListScreen(
+                onNavigateToForm = { navController.navigate("accountForm") },
+                onBackPressed = {navController.popBackStack()}
+            )
         }
+        composable("accountForm"){
+            AccountFormScreen(
+                onBackPressed = { navController.popBackStack() }
+            )
+        }
+        composable("accountDetails"){
+
+        }
+
         composable("envelopes"){
             EnvelopeScreen()
         }

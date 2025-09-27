@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -49,26 +48,43 @@ import com.rpalmar.financialapp.views.ui.theme.White
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import com.rpalmar.financialapp.mock.MockupProvider
-import com.rpalmar.financialapp.models.database.StyleEntity
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.componentes.SummarySection
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Red
 
 @Composable
-fun AccountScreen() {
+fun AccountListScreen(
+    viewModel: AccountViewModel = hiltViewModel(),
+    onNavigateToForm: () -> Unit,
+    onBackPressed: () -> Unit
+) {
+    val context = LocalContext.current
+
+    //ACCOUNT STATE DATA
+    val accountFormState = viewModel.accountFormState.collectAsState()
+
+    //LOAD ACCOUNT LIST
+    LaunchedEffect(true) {
+        viewModel.loadAccountLisData()
+    }
+
     MainLayout {
         SummarySection(
             sectionName = "Accounts",
-            totalEntities = 15,
+            totalEntities = accountFormState.value.accountList.size,
             mainSummaryData = "Balance: 1850.15 $",
             mainColor = Blue,
             icon = ImageVector.vectorResource(id = R.drawable.ic_wallet)
@@ -76,14 +92,26 @@ fun AccountScreen() {
         Spacer(modifier = Modifier.height(8.dp))
         SearchBarSection()
         Spacer(modifier = Modifier.height(3.dp))
-        ButtonsSection()
-        Spacer(modifier = Modifier.height(8.dp))
-        AccountListSection(
-            accountList = MockupProvider.getMockAccounts()
-        )
+        ButtonsSection( onNavigateToForm = onNavigateToForm )
+
+        if (accountFormState.value.isLoading) {
+            Column(
+                modifier = Modifier.fillMaxSize(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.weight(.7f))
+                CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        } else {
+            AccountListSection(
+                accountList = accountFormState.value.accountList,
+                mainCurrency = accountFormState.value.mainCurrency!!,
+            )
+        }
     }
 }
-
 
 
 @Composable
@@ -109,188 +137,35 @@ fun SearchBarSection() {
 }
 
 @Composable
-fun ButtonsSection() {
-
-    SimpleButton(
-        onClick = { /*TODO*/ },
-        icon = ImageVector.vectorResource(R.drawable.ic_plus),
-        text = "New",
-        color = Blue
-    )
+fun ButtonsSection(
+    onNavigateToForm: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(1f)
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        SimpleButton(
+            onClick = { onNavigateToForm() },
+            icon = ImageVector.vectorResource(R.drawable.ic_plus),
+            text = "New",
+            color = Blue
+        )
+    }
 }
 
 @Composable
 fun AccountListSection(
-    accountList: List<AccountDomain>
+    accountList: List<AccountDomain>,
+    mainCurrency: CurrencyDomain
 ) {
-    val baseCurrency = CurrencyDomain(
-        id = 1L,
-        name = "US Dollar",
-        ISO = "USD",
-        symbol = "$",
-        exchangeRate = 1.0,
-        currencyPriority = 1
-    )
-    val mockCurrencies = listOf(
-        CurrencyDomain(
-            id = 1L,
-            name = "US Dollar",
-            ISO = "USD",
-            symbol = "$",
-            exchangeRate = 1.0,
-            currencyPriority = 1
-        ),
-        CurrencyDomain(
-            id = 2L,
-            name = "Euro",
-            ISO = "EUR",
-            symbol = "€",
-            exchangeRate = 0.92,
-            currencyPriority = 2
-        ),
-        CurrencyDomain(
-            id = 3L,
-            name = "Japanese Yen",
-            ISO = "JPY",
-            symbol = "¥",
-            exchangeRate = 145.3,
-            currencyPriority = 3
-        ),
-        CurrencyDomain(
-            id = 4L,
-            name = "Mexican Peso",
-            ISO = "MXN",
-            symbol = "$",
-            exchangeRate = 17.1,
-            currencyPriority = 4
-        )
-    )
 
-    val mockAccounts = listOf(
-        AccountDomain(
-            id = 101L,
-            name = "Personal Checking",
-            description = "Main account for daily expenses",
-            balance = 2450.75,
-            currency = mockCurrencies[0], // USD
-            style = StyleEntity(
-                backgroundColor = "#2196F3", // Azul vivo
-                textColor = "#FFFFFF",       // Texto blanco
-                icon = "ic_account_balance_wallet"
-            )
-        ),
-        AccountDomain(
-            id = 102L,
-            name = "Savings Account",
-            description = "Emergency fund and savings",
-            balance = 12000.00,
-            currency = mockCurrencies[0], // USD
-            style = StyleEntity(
-                backgroundColor = "#4CAF50", // Verde intenso
-                textColor = "#FFFFFF",
-                icon = "ic_savings"
-            )
-        ),
-        AccountDomain(
-            id = 103L,
-            name = "Travel Fund",
-            description = "Money saved for trips",
-            balance = 3500.00,
-            currency = mockCurrencies[1], // EUR
-            style = StyleEntity(
-                backgroundColor = "#FF9800", // Naranja fuerte
-                textColor = "#FFFFFF",
-                icon = "ic_flight"
-            )
-        ),
-        AccountDomain(
-            id = 104L,
-            name = "Investments",
-            description = "Stock and ETF portfolio",
-            balance = 580000.0,
-            currency = mockCurrencies[2], // JPY
-            style = StyleEntity(
-                backgroundColor = "#9C27B0", // Morado vibrante
-                textColor = "#FFFFFF",
-                icon = "ic_trending_up"
-            )
-        ),
-        AccountDomain(
-            id = 105L,
-            name = "Business Checking",
-            description = "Company operations account",
-            balance = 185000.25,
-            currency = mockCurrencies[3], // MXN
-            style = StyleEntity(
-                backgroundColor = "#F44336", // Rojo vivo
-                textColor = "#FFFFFF",
-                icon = "ic_business"
-            )
-        ),
-        AccountDomain(
-            id = 101L,
-            name = "Personal Checking",
-            description = "Main account for daily expenses",
-            balance = 2450.75,
-            currency = mockCurrencies[0], // USD
-            style = StyleEntity(
-                backgroundColor = "#2196F3", // Azul vivo
-                textColor = "#FFFFFF",       // Texto blanco
-                icon = "ic_account_balance_wallet"
-            )
-        ),
-        AccountDomain(
-            id = 102L,
-            name = "Savings Account",
-            description = "Emergency fund and savings",
-            balance = 12000.00,
-            currency = mockCurrencies[0], // USD
-            style = StyleEntity(
-                backgroundColor = "#4CAF50", // Verde intenso
-                textColor = "#FFFFFF",
-                icon = "ic_savings"
-            )
-        ),
-        AccountDomain(
-            id = 103L,
-            name = "Travel Fund",
-            description = "Money saved for trips",
-            balance = 3500.00,
-            currency = mockCurrencies[1], // EUR
-            style = StyleEntity(
-                backgroundColor = "#FF9800", // Naranja fuerte
-                textColor = "#FFFFFF",
-                icon = "ic_flight"
-            )
-        ),
-        AccountDomain(
-            id = 104L,
-            name = "Investments",
-            description = "Stock and ETF portfolio",
-            balance = 580000.0,
-            currency = mockCurrencies[2], // JPY
-            style = StyleEntity(
-                backgroundColor = "#9C27B0", // Morado vibrante
-                textColor = "#FFFFFF",
-                icon = "ic_trending_up"
-            )
-        ),
-        AccountDomain(
-            id = 105L,
-            name = "Business Checking",
-            description = "Company operations account",
-            balance = 185000.25,
-            currency = mockCurrencies[3], // MXN
-            style = StyleEntity(
-                backgroundColor = "#F44336", // Rojo vivo
-                textColor = "#FFFFFF",
-                icon = "ic_business"
-            )
-        )
-    )
 
     val overscrollEffect = rememberOverscrollEffect()
 
+    Text(
+        text = "Account List",
+        style = MaterialTheme.typography.bodyLarge,
+    )
     LazyColumn(
         modifier = Modifier
             .fillMaxHeight(1f)
@@ -302,23 +177,24 @@ fun AccountListSection(
         state = rememberLazyListState(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(mockAccounts) { account ->
+        items(accountList) { account ->
             AccountItemCard(
                 account = account,
-                baseCurrency = baseCurrency
+                baseCurrency = mainCurrency
             )
         }
     }
 }
 
-@SuppressLint("DefaultLocale")
+@SuppressLint("DefaultLocale", "UseKtx")
 @Composable
 fun AccountItemCard(
     account: AccountDomain,
     baseCurrency: CurrencyDomain
 ) {
-    val balanceFormated = String.format("%.2f", account.balance)
-    val balanceInBaseCurrency = String.format("%.2f", account.balance * account.currency.exchangeRate)
+    //FORMAT BALANCE AMOUNT
+    val balanceFormated = String.format("%.2f", account.initBalance)
+    val balanceInBaseCurrency = String.format("%.2f", account.initBalanceInBaseCurrency)
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -350,7 +226,7 @@ fun AccountItemCard(
             ) {
                 CircleIcon(
                     icon = ImageVector.vectorResource(R.drawable.ic_financial),
-                    iconColor = Color(android.graphics.Color.parseColor(account.style?.backgroundColor)),
+                    iconColor = Blue,
                     contentDescription = account.name,
                     size = 100.dp
                 )
@@ -377,17 +253,17 @@ fun AccountItemCard(
             Column(
                 modifier = Modifier
                     .fillMaxHeight(1f)
-                    .weight(0.4f),
+                    .weight(0.5f),
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "$balanceFormated ${account.currency.symbol}",
+                    text = "${balanceFormated} ${account.currency.symbol}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (account.balance > 0) Green else Red
+                    color = if (account.initBalance > 0) Green else Red
                 )
                 Text(
-                    text = "$balanceInBaseCurrency ${baseCurrency.symbol}",
+                    text = "${balanceInBaseCurrency} ${baseCurrency.symbol}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = DarkGrey
@@ -421,10 +297,13 @@ fun CircleIcon(
 
 @Composable
 @Preview(showBackground = true)
-fun ExamplePreview() {
+fun ExampleAccountListPreview() {
     FinancialTheme(
         darkTheme = false
     ) {
-        AccountScreen()
+        AccountListScreen(
+            onNavigateToForm = {},
+            onBackPressed = {},
+        )
     }
 }

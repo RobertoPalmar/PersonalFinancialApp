@@ -8,14 +8,13 @@ import java.util.Date
 
 class RoomConverter {
     @TypeConverter
-    fun fromStyle(style: StyleEntity): String {
-        return Gson().toJson(style)
+    fun fromStyle(style: StyleEntity?): String? {
+        return style?.let{ Gson().toJson(it) }
     }
 
     @TypeConverter
-    fun toStyle(data: String): StyleEntity {
-        val type = object : TypeToken<StyleEntity>() {}.type
-        return Gson().fromJson(data, type)
+    fun toStyle(json: String?): StyleEntity? {
+        return json?.let { Gson().fromJson(it, StyleEntity::class.java) }
     }
 
     @TypeConverter

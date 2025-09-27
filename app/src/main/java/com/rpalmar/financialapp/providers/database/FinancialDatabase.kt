@@ -1,6 +1,8 @@
 package com.rpalmar.financialapp.providers.database
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.rpalmar.financialapp.models.database.AccountEntity
@@ -19,10 +21,9 @@ import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
         EnvelopeEntity::class,
         TransactionEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
-
 
 @TypeConverters(RoomConverter::class)
 abstract class FinancialDatabase: RoomDatabase() {

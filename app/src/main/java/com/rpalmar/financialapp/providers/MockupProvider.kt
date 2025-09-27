@@ -56,7 +56,8 @@ object MockupProvider {
                 id = 101L,
                 name = "Personal Checking",
                 description = "Main account for daily expenses",
-                balance = 2450.75,
+                initBalance = 2450.75,
+                initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     backgroundColor = "#E3F2FD",
@@ -68,7 +69,8 @@ object MockupProvider {
                 id = 102L,
                 name = "Savings Account",
                 description = "Emergency fund and savings",
-                balance = 12000.00,
+                initBalance = 12000.00,
+                initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     backgroundColor = "#E8F5E9",
@@ -80,7 +82,8 @@ object MockupProvider {
                 id = 103L,
                 name = "Travel Fund",
                 description = "Money saved for trips",
-                balance = 3500.00,
+                initBalance = 3500.00,
+                initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[1], // EUR
                 style = StyleEntity(
                     backgroundColor = "#FFF3E0",
@@ -92,7 +95,8 @@ object MockupProvider {
                 id = 104L,
                 name = "Investments",
                 description = "Stock and ETF portfolio",
-                balance = 580000.0,
+                initBalance = 580000.0,
+                initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[2], // JPY
                 style = StyleEntity(
                     backgroundColor = "#F3E5F5",
@@ -104,7 +108,8 @@ object MockupProvider {
                 id = 105L,
                 name = "Business Checking",
                 description = "Company operations account",
-                balance = 185000.25,
+                initBalance = 185000.25,
+                initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[3], // MXN
                 style = StyleEntity(
                     backgroundColor = "#FFEBEE",
