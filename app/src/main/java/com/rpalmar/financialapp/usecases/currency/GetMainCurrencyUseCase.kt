@@ -26,7 +26,7 @@ class GetMainCurrencyUseCase @Inject constructor(
             val currencyDomain = mainCurrency.toDomain();
 
             //RETURN DATA
-            Log.i("GetMainCurrencyUseCase", "💳 Entity retrieved: $currencyDomain")
+            Log.i("GetMainCurrencyUseCase", "💳 Currency Obtain: $currencyDomain")
             return currencyDomain;
         } catch (ex: Exception) {
             Log.e("GetMainCurrencyUseCase", ex.message.toString());

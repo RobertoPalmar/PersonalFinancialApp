@@ -2,6 +2,7 @@ package com.rpalmar.financialapp.views.account
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +55,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -81,11 +84,13 @@ fun AccountListScreen(
         viewModel.loadAccountLisData()
     }
 
+    var totalAccountBalanceFormated = String.format("%.2f", accountFormState.value.totalAccountBalance)
+
     MainLayout {
         SummarySection(
             sectionName = "Accounts",
             totalEntities = accountFormState.value.accountList.size,
-            mainSummaryData = "Balance: 1850.15 $",
+            mainSummaryData = "Total Balance: ${totalAccountBalanceFormated} ${accountFormState.value.mainCurrency?.symbol ?: ""}",
             mainColor = Blue,
             icon = ImageVector.vectorResource(id = R.drawable.ic_wallet)
         )
@@ -101,7 +106,10 @@ fun AccountListScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Spacer(modifier = Modifier.weight(.7f))
-                CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                CircularProgressIndicator(
+                    strokeWidth = 4.dp,
+                    modifier = Modifier.size(50.dp)
+                )
                 Spacer(modifier = Modifier.weight(1f))
             }
         } else {
@@ -164,7 +172,8 @@ fun AccountListSection(
 
     Text(
         text = "Account List",
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(0.dp, 10.dp)
     )
     LazyColumn(
         modifier = Modifier
@@ -186,19 +195,37 @@ fun AccountListSection(
     }
 }
 
-@SuppressLint("DefaultLocale", "UseKtx")
+@SuppressLint("DefaultLocale", "UseKtx", "LocalContextResourcesRead")
 @Composable
 fun AccountItemCard(
     account: AccountDomain,
     baseCurrency: CurrencyDomain
 ) {
-    //FORMAT BALANCE AMOUNT
-    val balanceFormated = String.format("%.2f", account.initBalance)
-    val balanceInBaseCurrency = String.format("%.2f", account.initBalanceInBaseCurrency)
+    val context = LocalContext.current
+
+    // FORMAT BALANCE AMOUNT
+    val balanceFormatted = remember(account.initBalance) {
+        String.format("%.2f", account.initBalance)
+    }
+    val balanceInBaseCurrency = remember(account.initBalanceInBaseCurrency) {
+        String.format("%.2f", account.initBalanceInBaseCurrency)
+    }
+
+    // ICON RESOURCE
+    val iconResourceID = remember(account.style?.icon) {
+        account.style?.icon?.let {
+            context.resources.getIdentifier(it, "drawable", context.packageName)
+        } ?: 0
+    }
+
+    // COLOR RESOURCE
+    val styleColor = remember(account.style?.color) {
+        account.style?.color?.let { Color(android.graphics.Color.parseColor(it)) } ?: Blue
+    }
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val animatedElevation by animateDpAsState(if (isPressed) 8.dp else 4.dp)
+    val animatedElevation by animateDpAsState(if (isPressed) 8.dp else 4.dp, label = "cardElevation")
 
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = White),
@@ -208,33 +235,44 @@ fun AccountItemCard(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = {}
+                onClick = { /* TODO: acción al hacer clic */ }
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize(1f)
+                .fillMaxSize()
                 .padding(15.dp)
         ) {
-            //ICON SECTION
+            // ICON SECTION
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(1f)
-                    .weight(0.22f),
+                    .fillMaxHeight()
+                    .weight(0.25f),
                 horizontalAlignment = Alignment.Start
             ) {
-                CircleIcon(
-                    icon = ImageVector.vectorResource(R.drawable.ic_financial),
-                    iconColor = Blue,
-                    contentDescription = account.name,
-                    size = 100.dp
-                )
+                if (iconResourceID != 0) {
+                    CircleIcon(
+                        painter = painterResource(id = iconResourceID),
+                        iconColor = styleColor,
+                        contentDescription = account.name,
+                        size = 48.dp
+                    )
+                } else {
+                    // fallback si no existe el drawable
+                    CircleIcon(
+                        painter = painterResource(id = R.drawable.ic_financial),
+                        iconColor = styleColor,
+                        contentDescription = account.name,
+                        size = 48.dp
+                    )
+                }
             }
-            //ACCOUNT DESCRIPTION
+
+            // ACCOUNT DESCRIPTION
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(1f)
+                    .fillMaxHeight()
                     .weight(0.6f),
                 horizontalAlignment = Alignment.Start
             ) {
@@ -249,21 +287,22 @@ fun AccountItemCard(
                     color = DarkGrey
                 )
             }
-            //ACCOUNT BALANCE
+
+            // ACCOUNT BALANCE
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(1f)
+                    .fillMaxHeight()
                     .weight(0.5f),
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "${balanceFormated} ${account.currency.symbol}",
+                    text = "$balanceFormatted ${account.currency.symbol}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = if (account.initBalance > 0) Green else Red
                 )
                 Text(
-                    text = "${balanceInBaseCurrency} ${baseCurrency.symbol}",
+                    text = "$balanceInBaseCurrency ${baseCurrency.symbol}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = DarkGrey
@@ -273,24 +312,25 @@ fun AccountItemCard(
     }
 }
 
+
 @Composable
 fun CircleIcon(
-    icon: ImageVector,
-    size: Dp = 56.dp,
-    iconColor: Color = Grey,
-    contentDescription: String? = "",
+    painter: Painter,
+    iconColor: Color,
+    contentDescription: String?,
+    size: Dp
 ) {
     Box(
         modifier = Modifier
             .size(size)
-            .clip(CircleShape)
+            .background(iconColor.copy(alpha = 0.1f), CircleShape),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = icon,
+            modifier = Modifier.size(size - 8.dp),
+            painter = painter,
             contentDescription = contentDescription,
-            tint = iconColor,
-            modifier = Modifier
-                .size(size * 0.5f)
+            tint = iconColor
         )
     }
 }
@@ -301,9 +341,33 @@ fun ExampleAccountListPreview() {
     FinancialTheme(
         darkTheme = false
     ) {
-        AccountListScreen(
-            onNavigateToForm = {},
-            onBackPressed = {},
+        AccountListSection(
+            accountList = listOf(
+                AccountDomain(
+                    id = 1,
+                    name = "Banco BDV",
+                    description = "Cuenta Principal",
+                    initBalance = 1850.15,
+                    initBalanceInBaseCurrency = 1850.15,
+                    currency = CurrencyDomain(
+                        id = 1,
+                        name = "Dolar",
+                        symbol = "$",
+                        exchangeRate = 1.0,
+                        currencyPriority = 1,
+                        ISO = "USD"
+                    ),
+                    style = null
+                )
+            ),
+            mainCurrency = CurrencyDomain(
+                id = 1,
+                name = "Dolar",
+                symbol = "$",
+                exchangeRate = 1.0,
+                currencyPriority = 1,
+                ISO = "USD"
+            )
         )
     }
 }

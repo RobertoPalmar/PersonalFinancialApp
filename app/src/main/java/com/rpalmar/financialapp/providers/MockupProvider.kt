@@ -60,8 +60,7 @@ object MockupProvider {
                 initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
-                    backgroundColor = "#E3F2FD",
-                    textColor = "#0D47A1",
+                    color = "#E3F2FD",
                     icon = "ic_account_balance_wallet"
                 )
             ),
@@ -73,8 +72,7 @@ object MockupProvider {
                 initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
-                    backgroundColor = "#E8F5E9",
-                    textColor = "#1B5E20",
+                    color = "#1B5E20",
                     icon = "ic_savings"
                 )
             ),
@@ -86,8 +84,7 @@ object MockupProvider {
                 initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[1], // EUR
                 style = StyleEntity(
-                    backgroundColor = "#FFF3E0",
-                    textColor = "#E65100",
+                    color = "#FFF3E0",
                     icon = "ic_flight"
                 )
             ),
@@ -99,8 +96,7 @@ object MockupProvider {
                 initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[2], // JPY
                 style = StyleEntity(
-                    backgroundColor = "#F3E5F5",
-                    textColor = "#4A148C",
+                    color = "#F3E5F5",
                     icon = "ic_trending_up"
                 )
             ),
@@ -112,8 +108,7 @@ object MockupProvider {
                 initBalanceInBaseCurrency = 5161.65,
                 currency = currencies[3], // MXN
                 style = StyleEntity(
-                    backgroundColor = "#FFEBEE",
-                    textColor = "#B71C1C",
+                    color = "#FFEBEE",
                     icon = "ic_business"
                 )
             )
@@ -130,8 +125,7 @@ object MockupProvider {
                 balance = 300.0,
                 status = EnvelopStatus.ACTIVE,
                 style = StyleEntity(
-                    backgroundColor = "#FFFDE7",
-                    textColor = "#F57F17",
+                    color = "#FFFDE7",
                     icon = "ic_shopping_cart"
                 ),
                 goalAmount = 400.0,
@@ -147,8 +141,7 @@ object MockupProvider {
                 balance = 1500.0,
                 status = EnvelopStatus.ACTIVE,
                 style = StyleEntity(
-                    backgroundColor = "#E0F7FA",
-                    textColor = "#006064",
+                    color = "#006064",
                     icon = "ic_beach_access"
                 ),
                 goalAmount = 5000.0,
@@ -164,8 +157,7 @@ object MockupProvider {
                 balance = 2500.0,
                 status = EnvelopStatus.ACTIVE,
                 style = StyleEntity(
-                    backgroundColor = "#F3E5F5",
-                    textColor = "#4A148C",
+                    color = "#F3E5F5",
                     icon = "ic_health_and_safety"
                 ),
                 goalAmount = 10000.0,
@@ -181,8 +173,7 @@ object MockupProvider {
                 balance = 200.0,
                 status = EnvelopStatus.ACTIVE,
                 style = StyleEntity(
-                    backgroundColor = "#E8F5E9",
-                    textColor = "#1B5E20",
+                    color = "#1B5E20",
                     icon = "ic_local_activity"
                 ),
                 goalAmount = 300.0,

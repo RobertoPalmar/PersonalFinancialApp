@@ -9,6 +9,8 @@ data class AccountFormState(
     var description: String = "",
     var currency: CurrencyDomain? = null,
     var initBalance: String = "",
+    var color: String = "",
+    var icon: String = "",
     var errors:Map<String,String?> = emptyMap(),
 
     //AUX DATA
@@ -16,7 +18,8 @@ data class AccountFormState(
     var mainCurrency: CurrencyDomain? = null,
     var accountList: List<AccountDomain> = emptyList(),
     var totalAccountBalance:Double = 0.0,
-    var isLoading: Boolean = true
+    var isLoading: Boolean = true,
+    var isSaving: Boolean = false
 )
 
 sealed class AccountFormEvent{
@@ -24,6 +27,8 @@ sealed class AccountFormEvent{
     data class OnDescriptionChange(val value:String): AccountFormEvent()
     data class OnCurrencyChange(val value: CurrencyDomain): AccountFormEvent()
     data class OnInitBalanceChange(val value:String): AccountFormEvent()
+    data class OnColorChange(val value:String): AccountFormEvent()
+    data class OnIconChange(val value:String): AccountFormEvent()
     object Submit: AccountFormEvent()
     object Reset: AccountFormEvent()
 }

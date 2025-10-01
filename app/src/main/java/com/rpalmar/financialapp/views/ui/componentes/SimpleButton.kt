@@ -31,20 +31,22 @@ import com.rpalmar.financialapp.views.ui.theme.Blue
 
 @Composable
 fun SimpleButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     text: String? = null,
     icon: ImageVector? = null,
     color: Color,
     type: ButtonType = ButtonType.PRIMARY,
-    modifier:Modifier = Modifier
+    content: (@Composable () -> Unit)? = null,
+    enable: Boolean = true
 ) {
     val width = 110.dp;
-    val primaryColor = when(type){
+    val primaryColor = when (type) {
         ButtonType.PRIMARY -> color
         ButtonType.SECONDARY -> Color.White
         ButtonType.OUTLINE -> Color.White
     }
-    val onPrimaryColor = when(type){
+    val onPrimaryColor = when (type) {
         ButtonType.PRIMARY -> Color.White
         ButtonType.SECONDARY -> color
         ButtonType.OUTLINE -> color
@@ -53,6 +55,7 @@ fun SimpleButton(
     //OUTLINE BUTTON
     if (type == ButtonType.OUTLINE) {
         OutlinedButton(
+            enabled = enable,
             onClick = onClick,
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(2.dp, primaryColor),
@@ -65,17 +68,23 @@ fun SimpleButton(
             ),
             modifier = modifier.width(width)
         ) {
-            ButtonContent(
-                icon = icon,
-                text = text,
-                primaryColor = onPrimaryColor,
-                onPrimaryColor = primaryColor
-            )
+            if (content != null) {
+                content()
+            } else {
+                ButtonContent(
+                    icon = icon,
+                    text = text,
+                    primaryColor = onPrimaryColor,
+                    onPrimaryColor = primaryColor
+                )
+            }
         }
     }
+
     //MAIN BUTTON
     else {
         Button(
+            enabled = enable,
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = primaryColor,
@@ -87,12 +96,16 @@ fun SimpleButton(
             ),
             modifier = modifier.width(width)
         ) {
-            ButtonContent(
-                icon = icon,
-                text = text,
-                primaryColor = primaryColor,
-                onPrimaryColor = onPrimaryColor
-            )
+            if (content != null) {
+                content()
+            } else {
+                ButtonContent(
+                    icon = icon,
+                    text = text,
+                    primaryColor = primaryColor,
+                    onPrimaryColor = onPrimaryColor
+                )
+            }
         }
     }
 }
@@ -101,14 +114,14 @@ fun SimpleButton(
 fun ButtonContent(
     icon: ImageVector? = null,
     text: String? = null,
-    primaryColor:Color,
-    onPrimaryColor:Color
-){
+    primaryColor: Color,
+    onPrimaryColor: Color
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         //ICON SECTION
-        if(icon != null){
+        if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -118,9 +131,9 @@ fun ButtonContent(
         //TEXT SECTION
         Text(
             modifier =
-                if(icon != null) Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp)
+                if (icon != null) Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp)
                 else Modifier.padding(0.dp),
-            text = text?: "",
+            text = text ?: "",
             maxLines = 2,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
@@ -131,7 +144,7 @@ fun ButtonContent(
 
 @Composable
 @Preview
-fun ButtonPreview(){
+fun ButtonPreview() {
     SimpleButton(
         onClick = {},
         icon = ImageVector.vectorResource(R.drawable.ic_plus),
@@ -143,7 +156,7 @@ fun ButtonPreview(){
 
 @Composable
 @Preview
-fun ButtonOutlinePreview(){
+fun ButtonOutlinePreview() {
     SimpleButton(
         onClick = {},
         icon = ImageVector.vectorResource(R.drawable.ic_plus),
@@ -155,7 +168,7 @@ fun ButtonOutlinePreview(){
 
 @Composable
 @Preview
-fun ButtonSecondaryPreview(){
+fun ButtonSecondaryPreview() {
     SimpleButton(
         onClick = {},
         icon = ImageVector.vectorResource(R.drawable.ic_plus),

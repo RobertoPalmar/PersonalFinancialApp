@@ -9,19 +9,19 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetAccountsUseCase @Inject constructor(
+class GetAccountsListUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
     suspend operator fun invoke(): Flow<List<AccountDomain>>? {
         try {
             //GET ACCOUNTS
-            val accounts = accountRepository.getAllAccountsWithCurrency();
+            val accounts = accountRepository.getAccountListWithCurrency();
 
             //MAP TO DOMAIN
             val accountsDomainList = accounts.map { list -> list.map { it.toDomain() } };
 
             //RETURN DATA
-            Log.i("GetAccountsUseCase", "💳 Entity retrieved: $accountsDomainList")
+            Log.i("GetAccountsUseCase", "💳 Account Obtain: ${accountsDomainList.map { it.toString() }}")
             return accountsDomainList;
         } catch (ex: Exception) {
             Log.e("GetAccountsUseCase", ex.message.toString());

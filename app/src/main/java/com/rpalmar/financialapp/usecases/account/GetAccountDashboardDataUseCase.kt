@@ -9,13 +9,13 @@ import javax.inject.Singleton
 
 @Singleton
 class GetAccountDashboardDataUseCase @Inject constructor(
-    private val getAccountsUseCase: GetAccountsUseCase,
+    private val getAccountsListUseCase: GetAccountsListUseCase,
     private val getMainCurrencyUseCase: GetMainCurrencyUseCase
 ) {
     suspend operator fun invoke(): AccountDashboardData?{
         try{
             //GET ACCOUNT DATA
-            var accountListFlow = getAccountsUseCase();
+            var accountListFlow = getAccountsListUseCase();
             if(accountListFlow == null){
                 Log.e("GetAccountDashboardDataUseCase", "Error al obtener la lista de cuentas")
                 return null;

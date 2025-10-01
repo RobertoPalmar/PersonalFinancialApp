@@ -40,7 +40,7 @@ fun SummarySection(
     ElevatedCard(
         colors = CardDefaults.cardColors(mainColor),
         modifier = Modifier
-            .height(100.dp)
+            .height(120.dp)
             .fillMaxWidth(1f),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp,
@@ -82,7 +82,7 @@ fun SummarySection(
                     Text(
                         text = mainSummaryData,
                         color = White,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight =  FontWeight.Bold
                     )
                 }

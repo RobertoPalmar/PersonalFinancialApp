@@ -90,6 +90,10 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.accompanist.navigation.animation)
 
+    //PAGINATION
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.paging.compose)
+
     //DAGGER HILL
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

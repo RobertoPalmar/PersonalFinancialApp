@@ -12,16 +12,20 @@ class AccountRepository @Inject constructor(
     private val accountDAO: AccountDAO
 ): BaseEntityRepository<AccountEntity, AccountDAO>(accountDAO) {
 
-    suspend fun getByID(id: Long): AccountEntity? {
+    fun getByID(id: Long): AccountEntity? {
         return accountDAO.getByID(id)
+    }
+
+    suspend fun getAccountWithCurrencyByID(id:Long): AccountWithCurrencyRelation?{
+        return accountDAO.getAccountWithCurrencyByID(id);
     }
 
     suspend fun getAll():List<AccountEntity>{
         return accountDAO.getAll()
     }
 
-    suspend fun getAllAccountsWithCurrency():Flow<List<AccountWithCurrencyRelation>>{
-        return accountDAO.getAllAccountsWithCurrency()
+    suspend fun getAccountListWithCurrency():Flow<List<AccountWithCurrencyRelation>>{
+        return accountDAO.getAccountListWithCurrency()
     }
 
     suspend fun deleteAll(){

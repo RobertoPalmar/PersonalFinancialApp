@@ -21,7 +21,7 @@ class GetCurrenciesUseCase @Inject constructor(
             val currencyDomainList = currencies.map { list -> list.map { it.toDomain() } };
 
             //RETURN DATA
-            Log.i("GetCurrenciesUseCase", "💳 Entity retrieved: $currencyDomainList")
+            Log.i("GetCurrenciesUseCase", "💳 Currencies obtain: ${currencyDomainList.map { it.toString() }}")
             return currencyDomainList;
         } catch (ex: Exception) {
             Log.e("GetCurrenciesUseCase", ex.message.toString());

@@ -11,8 +11,8 @@ data class AccountDomain(
     override val name: String,
     override val description: String,
     val initBalance: Double,
-    val initBalanceInBaseCurrency: Double,
     val currency: CurrencyDomain,
+    val initBalanceInBaseCurrency: Double,
     val style:StyleEntity?,
 ): IDomain, ITransaction {
     override fun toEntity(): AccountEntity{

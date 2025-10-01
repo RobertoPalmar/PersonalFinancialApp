@@ -16,8 +16,12 @@ interface AccountDAO: BaseDao<AccountEntity> {
     fun getAll(): List<AccountEntity>
 
     @Transaction
+    @Query("SELECT * FROM accounts_table WHERE id = :id")
+    fun getAccountWithCurrencyByID(id:Long): AccountWithCurrencyRelation?
+
+    @Transaction
     @Query("SELECT * FROM accounts_table")
-    fun getAllAccountsWithCurrency():Flow<List<AccountWithCurrencyRelation>>
+    fun getAccountListWithCurrency():Flow<List<AccountWithCurrencyRelation>>
 
     @Query("DELETE FROM accounts_table")
     suspend fun deleteAll();
