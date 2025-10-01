@@ -33,18 +33,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.R
 import com.rpalmar.financialapp.views.ui.componentes.SimpleButton
 import com.rpalmar.financialapp.views.ui.componentes.MainLayout
 import com.rpalmar.financialapp.views.ui.theme.Blue
-import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import com.rpalmar.financialapp.models.domain.AccountDomain
-import com.rpalmar.financialapp.views.ui.theme.Grey
 import com.rpalmar.financialapp.views.ui.theme.White
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,7 +50,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +57,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.componentes.SummarySection
@@ -70,14 +67,17 @@ import com.rpalmar.financialapp.views.ui.theme.Red
 
 @Composable
 fun AccountListScreen(
-    viewModel: AccountViewModel = hiltViewModel(),
+    navController: NavHostController,
     onNavigateToForm: () -> Unit,
+    onNavigateToAccountDetail: (Long) -> Unit,
     onBackPressed: () -> Unit
 ) {
-    val context = LocalContext.current
+    //SET UP VIEW MODEL
+    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("account_flow")}
+    val viewModel: AccountViewModel = hiltViewModel(backStackEntry)
 
     //ACCOUNT STATE DATA
-    val accountFormState = viewModel.accountFormState.collectAsState()
+    val accountFormState = viewModel.accountUIState.collectAsState()
 
     //LOAD ACCOUNT LIST
     LaunchedEffect(true) {
@@ -97,7 +97,7 @@ fun AccountListScreen(
         Spacer(modifier = Modifier.height(8.dp))
         SearchBarSection()
         Spacer(modifier = Modifier.height(3.dp))
-        ButtonsSection( onNavigateToForm = onNavigateToForm )
+        ButtonsSection(onNavigateToForm = onNavigateToForm)
 
         if (accountFormState.value.isLoading) {
             Column(
@@ -112,10 +112,24 @@ fun AccountListScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
+        } else if (accountFormState.value.accountList.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.weight(.7f))
+                Text(
+                    text = "No Data",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
         } else {
             AccountListSection(
                 accountList = accountFormState.value.accountList,
                 mainCurrency = accountFormState.value.mainCurrency!!,
+                onNavigateToAccountDetails = { onNavigateToAccountDetail(it) }
             )
         }
     }
@@ -164,7 +178,8 @@ fun ButtonsSection(
 @Composable
 fun AccountListSection(
     accountList: List<AccountDomain>,
-    mainCurrency: CurrencyDomain
+    mainCurrency: CurrencyDomain,
+    onNavigateToAccountDetails:(Long) -> Unit
 ) {
 
 
@@ -189,7 +204,10 @@ fun AccountListSection(
         items(accountList) { account ->
             AccountItemCard(
                 account = account,
-                baseCurrency = mainCurrency
+                baseCurrency = mainCurrency,
+                onClick = {
+                    onNavigateToAccountDetails(account.id)
+                }
             )
         }
     }
@@ -199,16 +217,17 @@ fun AccountListSection(
 @Composable
 fun AccountItemCard(
     account: AccountDomain,
-    baseCurrency: CurrencyDomain
+    baseCurrency: CurrencyDomain,
+    onClick: () -> Unit
 ) {
     val context = LocalContext.current
 
     // FORMAT BALANCE AMOUNT
-    val balanceFormatted = remember(account.initBalance) {
-        String.format("%.2f", account.initBalance)
+    val balanceFormatted = remember(account.balance) {
+        String.format("%.2f", account.balance)
     }
-    val balanceInBaseCurrency = remember(account.initBalanceInBaseCurrency) {
-        String.format("%.2f", account.initBalanceInBaseCurrency)
+    val balanceInBaseCurrency = remember(account.balanceInBaseCurrency) {
+        String.format("%.2f", account.balanceInBaseCurrency)
     }
 
     // ICON RESOURCE
@@ -237,7 +256,8 @@ fun AccountItemCard(
                 indication = null,
                 onClick = { /* TODO: acción al hacer clic */ }
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
+        elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation),
+        onClick = { onClick() }
     ) {
         Row(
             modifier = Modifier
@@ -297,13 +317,13 @@ fun AccountItemCard(
             ) {
                 Text(
                     text = "$balanceFormatted ${account.currency.symbol}",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (account.initBalance > 0) Green else Red
+                    color = if (account.balance > 0) Green else Red
                 )
                 Text(
                     text = "$balanceInBaseCurrency ${baseCurrency.symbol}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = DarkGrey
                 )
@@ -331,43 +351,6 @@ fun CircleIcon(
             painter = painter,
             contentDescription = contentDescription,
             tint = iconColor
-        )
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun ExampleAccountListPreview() {
-    FinancialTheme(
-        darkTheme = false
-    ) {
-        AccountListSection(
-            accountList = listOf(
-                AccountDomain(
-                    id = 1,
-                    name = "Banco BDV",
-                    description = "Cuenta Principal",
-                    initBalance = 1850.15,
-                    initBalanceInBaseCurrency = 1850.15,
-                    currency = CurrencyDomain(
-                        id = 1,
-                        name = "Dolar",
-                        symbol = "$",
-                        exchangeRate = 1.0,
-                        currencyPriority = 1,
-                        ISO = "USD"
-                    ),
-                    style = null
-                )
-            ),
-            mainCurrency = CurrencyDomain(
-                id = 1,
-                name = "Dolar",
-                symbol = "$",
-                exchangeRate = 1.0,
-                currencyPriority = 1,
-                ISO = "USD"
-            )
         )
     }
 }

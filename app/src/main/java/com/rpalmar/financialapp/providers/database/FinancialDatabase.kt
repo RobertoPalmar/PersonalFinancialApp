@@ -21,7 +21,7 @@ import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
         EnvelopeEntity::class,
         TransactionEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 

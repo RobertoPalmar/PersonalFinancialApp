@@ -11,7 +11,7 @@ import javax.inject.Singleton
 class GetAccountByIDUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
-    suspend fun invoke(accountID:Long): AccountDomain?{
+    suspend operator fun invoke(accountID:Long): AccountDomain?{
         try {
             //GET ACCOUNTS
             val accountEntity = accountRepository.getAccountWithCurrencyByID(accountID);

@@ -56,8 +56,8 @@ object MockupProvider {
                 id = 101L,
                 name = "Personal Checking",
                 description = "Main account for daily expenses",
-                initBalance = 2450.75,
-                initBalanceInBaseCurrency = 5161.65,
+                balance = 2450.75,
+                balanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     color = "#E3F2FD",
@@ -68,8 +68,8 @@ object MockupProvider {
                 id = 102L,
                 name = "Savings Account",
                 description = "Emergency fund and savings",
-                initBalance = 12000.00,
-                initBalanceInBaseCurrency = 5161.65,
+                balance = 12000.00,
+                balanceInBaseCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     color = "#1B5E20",
@@ -80,8 +80,8 @@ object MockupProvider {
                 id = 103L,
                 name = "Travel Fund",
                 description = "Money saved for trips",
-                initBalance = 3500.00,
-                initBalanceInBaseCurrency = 5161.65,
+                balance = 3500.00,
+                balanceInBaseCurrency = 5161.65,
                 currency = currencies[1], // EUR
                 style = StyleEntity(
                     color = "#FFF3E0",
@@ -92,8 +92,8 @@ object MockupProvider {
                 id = 104L,
                 name = "Investments",
                 description = "Stock and ETF portfolio",
-                initBalance = 580000.0,
-                initBalanceInBaseCurrency = 5161.65,
+                balance = 580000.0,
+                balanceInBaseCurrency = 5161.65,
                 currency = currencies[2], // JPY
                 style = StyleEntity(
                     color = "#F3E5F5",
@@ -104,8 +104,8 @@ object MockupProvider {
                 id = 105L,
                 name = "Business Checking",
                 description = "Company operations account",
-                initBalance = 185000.25,
-                initBalanceInBaseCurrency = 5161.65,
+                balance = 185000.25,
+                balanceInBaseCurrency = 5161.65,
                 currency = currencies[3], // MXN
                 style = StyleEntity(
                     color = "#FFEBEE",

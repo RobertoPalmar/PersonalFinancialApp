@@ -3,7 +3,7 @@ package com.rpalmar.financialapp.views.account.data
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 
-data class AccountFormState(
+data class AccountUIState(
     //FORM INPUT FIELDS
     var accountName: String = "",
     var description: String = "",
@@ -19,7 +19,9 @@ data class AccountFormState(
     var accountList: List<AccountDomain> = emptyList(),
     var totalAccountBalance:Double = 0.0,
     var isLoading: Boolean = true,
-    var isSaving: Boolean = false
+    var isSaving: Boolean = false,
+
+    var currentSelectedAccount: AccountDomain? = null
 )
 
 sealed class AccountFormEvent{

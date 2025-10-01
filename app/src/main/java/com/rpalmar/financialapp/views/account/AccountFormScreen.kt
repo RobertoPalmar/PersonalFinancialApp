@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.models.ButtonType
 import com.rpalmar.financialapp.views.account.data.AccountFormEvent
-import com.rpalmar.financialapp.views.account.data.AccountFormState
+import com.rpalmar.financialapp.views.account.data.AccountUIState
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
 import com.rpalmar.financialapp.views.ui.componentes.MainLayout
@@ -57,7 +57,7 @@ fun AccountFormScreen(
     val context = LocalContext.current
 
     //ACCOUNT STATE DATA
-    val accountFormState = viewModel.accountFormState.collectAsState()
+    val accountFormState = viewModel.accountUIState.collectAsState()
 
     //HANDLE CLEAN ACCOUNT FORM
     LaunchedEffect(Unit) {
@@ -91,13 +91,13 @@ fun AccountFormScreen(
             )
             AccountFormSection(
                 accountViewModel = viewModel,
-                accountFormState = accountFormState.value
+                accountUIState = accountFormState.value
             )
             Spacer(modifier = Modifier.weight(1f))
             NavigatorButtonSection(
                 accountViewModel = viewModel,
                 onBackPressed = onBackPressed,
-                accountFormState = accountFormState.value
+                accountUIState = accountFormState.value
             )
         }
     }
@@ -141,7 +141,7 @@ fun TitleSection(
 @Composable
 fun AccountFormSection(
     accountViewModel: AccountViewModel,
-    accountFormState: AccountFormState
+    accountUIState: AccountUIState
 ) {
 
     Column(
@@ -151,23 +151,23 @@ fun AccountFormSection(
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         BaseTextField(
-            value = accountFormState.accountName,
+            value = accountUIState.accountName,
             onValueChange = { accountViewModel.onAccountFormEvent(AccountFormEvent.OnAccountNameChange(it)) },
             label = "Account Name"
         )
         BaseTextField(
-            value = accountFormState.description,
+            value = accountUIState.description,
             onValueChange = { accountViewModel.onAccountFormEvent(AccountFormEvent.OnDescriptionChange(it)) },
             label = "Account Description"
         )
         SimpleSelector(
             placeholder = "Select a Currency",
-            itemList = accountFormState.currencyList,
+            itemList = accountUIState.currencyList,
             itemLabel = { "${it.name} (${it.symbol})" },
             onItemSelected = { currency -> accountViewModel.onAccountFormEvent(AccountFormEvent.OnCurrencyChange(currency)) }
         )
         BaseTextField(
-            value = accountFormState.initBalance,
+            value = accountUIState.initBalance,
             onValueChange = { accountViewModel.onAccountFormEvent(AccountFormEvent.OnInitBalanceChange(it)) },
             label = "Initial Balance",
             keyboardOptions = KeyboardOptions(
@@ -194,7 +194,7 @@ fun AccountFormSection(
 @Composable
 fun NavigatorButtonSection(
     accountViewModel: AccountViewModel,
-    accountFormState: AccountFormState,
+    accountUIState: AccountUIState,
     onBackPressed: () -> Unit
 ) {
     Row(
@@ -207,7 +207,7 @@ fun NavigatorButtonSection(
             onClick = { onBackPressed() },
             type = ButtonType.PRIMARY,
             modifier = Modifier.weight(1f),
-            enable = !accountFormState.isSaving
+            enable = !accountUIState.isSaving
         )
         Spacer(modifier = Modifier.width(10.dp))
         SimpleButton(
@@ -216,8 +216,8 @@ fun NavigatorButtonSection(
             color = Blue,
             onClick = { accountViewModel.onAccountFormEvent(AccountFormEvent.Submit) },
             type = ButtonType.PRIMARY,
-            enable = !accountFormState.isSaving,
-            content = if (accountFormState.isSaving) {
+            enable = !accountUIState.isSaving,
+            content = if (accountUIState.isSaving) {
                 {
                     CircularProgressIndicator(
                         color = White,

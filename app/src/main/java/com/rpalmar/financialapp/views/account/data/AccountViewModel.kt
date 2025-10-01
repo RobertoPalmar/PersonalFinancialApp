@@ -5,17 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.rpalmar.financialapp.models.database.relations.TransactionWithCurrencyRelation
 import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.usecases.account.CreateAccountUseCase
 import com.rpalmar.financialapp.usecases.account.DeleteAccountUseCase
 import com.rpalmar.financialapp.usecases.account.GetAccountByIDUseCase
 import com.rpalmar.financialapp.usecases.account.GetAccountDashboardDataUseCase
-import com.rpalmar.financialapp.usecases.account.GetAccountsListUseCase
 import com.rpalmar.financialapp.usecases.account.GetTransactionListPerAccount
 import com.rpalmar.financialapp.usecases.account.UpdateAccountUseCase
 import com.rpalmar.financialapp.usecases.currency.GetCurrenciesUseCase
-import com.rpalmar.financialapp.usecases.currency.GetMainCurrencyUseCase
 import com.rpalmar.financialapp.views.ui.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
@@ -39,8 +38,8 @@ class AccountViewModel @Inject constructor(
 ) : ViewModel() {
 
     //CREATION FORM STATE
-    private val _accountFormState = MutableStateFlow(AccountFormState())
-    val accountFormState = _accountFormState.asStateFlow();
+    private val _accountUIState = MutableStateFlow(AccountUIState())
+    val accountUIState = _accountUIState.asStateFlow();
 
     //UI EVENT LISTENER
     private val _uiEvent = Channel<UIEvent>()
@@ -52,46 +51,46 @@ class AccountViewModel @Inject constructor(
     fun onAccountFormEvent(event: AccountFormEvent) {
         when (event) {
             is AccountFormEvent.OnAccountNameChange -> {
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     accountName = event.value,
-                    errors = _accountFormState.value.errors - "accountName"
+                    errors = _accountUIState.value.errors - "accountName"
                 )
             }
 
             is AccountFormEvent.OnDescriptionChange -> {
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     description = event.value,
-                    errors = _accountFormState.value.errors - "description"
+                    errors = _accountUIState.value.errors - "description"
                 )
             }
 
             is AccountFormEvent.OnCurrencyChange -> {
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     currency = event.value,
-                    errors = _accountFormState.value.errors - "currency"
+                    errors = _accountUIState.value.errors - "currency"
                 )
             }
 
             is AccountFormEvent.OnColorChange -> {
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     color = event.value,
-                    errors = _accountFormState.value.errors - "color"
+                    errors = _accountUIState.value.errors - "color"
                 )
             }
 
             is AccountFormEvent.OnIconChange -> {
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     icon = event.value,
-                    errors = _accountFormState.value.errors - "icon"
+                    errors = _accountUIState.value.errors - "icon"
                 )
             }
 
             is AccountFormEvent.OnInitBalanceChange -> {
                 val regex = Regex("^\\d*\\.?\\d{0,2}$")
                 if (event.value.isEmpty() || event.value.matches(regex)) {
-                    _accountFormState.value = _accountFormState.value.copy(
+                    _accountUIState.value = _accountUIState.value.copy(
                         initBalance = event.value,
-                        errors = _accountFormState.value.errors - "initBalance"
+                        errors = _accountUIState.value.errors - "initBalance"
                     )
                 }
             }
@@ -108,7 +107,7 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             try{
                 //START LOADING
-                _accountFormState.value = _accountFormState.value.copy(
+                _accountUIState.value = _accountUIState.value.copy(
                     isSaving = true
                 )
 
@@ -121,14 +120,14 @@ class AccountViewModel @Inject constructor(
 
                 //MAP TO DOMAIN ENTITY
                 val account = AccountDomain(
-                    name = _accountFormState.value.accountName,
-                    description = _accountFormState.value.description,
-                    currency = _accountFormState.value.currency!!,
-                    initBalance = _accountFormState.value.initBalance.toDouble(),
-                    initBalanceInBaseCurrency = 0.0,
+                    name = _accountUIState.value.accountName,
+                    description = _accountUIState.value.description,
+                    currency = _accountUIState.value.currency!!,
+                    balance = _accountUIState.value.initBalance.toDouble(),
+                    balanceInBaseCurrency = 0.0,
                     style = com.rpalmar.financialapp.models.database.StyleEntity(
-                        color = _accountFormState.value.color,
-                        icon = _accountFormState.value.icon
+                        color = _accountUIState.value.color,
+                        icon = _accountUIState.value.icon
                     )
                 )
 
@@ -145,7 +144,7 @@ class AccountViewModel @Inject constructor(
 
             } finally {
                 //FINISH LOADING
-                _accountFormState.value = _accountFormState.value.copy(isSaving = false)
+                _accountUIState.value = _accountUIState.value.copy(isSaving = false)
             }
         }
     }
@@ -155,39 +154,39 @@ class AccountViewModel @Inject constructor(
      */
     fun validateFormFields(): Boolean{
         var errorCount = 0;
-        if(_accountFormState.value.accountName.isEmpty()){
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("accountName" to "Campo Obligatorio")
+        if(_accountUIState.value.accountName.isEmpty()){
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("accountName" to "Campo Obligatorio")
             )
             errorCount++;
         }
-        if(_accountFormState.value.description.isEmpty()){
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("description" to "Campo Obligatorio")
+        if(_accountUIState.value.description.isEmpty()){
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("description" to "Campo Obligatorio")
             )
             errorCount++;
         }
-        if(_accountFormState.value.currency == null) {
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("currency" to "Campo Obligatorio")
+        if(_accountUIState.value.currency == null) {
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("currency" to "Campo Obligatorio")
             )
             errorCount++;
         }
-        if(_accountFormState.value.initBalance.isEmpty()) {
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("initBalance" to "Campo Obligatorio")
+        if(_accountUIState.value.initBalance.isEmpty()) {
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("initBalance" to "Campo Obligatorio")
             )
             errorCount++;
         }
-        if(_accountFormState.value.color.isEmpty()) {
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("color" to "Campo Obligatorio")
+        if(_accountUIState.value.color.isEmpty()) {
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("color" to "Campo Obligatorio")
             )
             errorCount++;
         }
-        if(_accountFormState.value.icon.isEmpty()) {
-            _accountFormState.value = _accountFormState.value.copy(
-                errors = _accountFormState.value.errors + ("icon" to "Campo Obligatorio")
+        if(_accountUIState.value.icon.isEmpty()) {
+            _accountUIState.value = _accountUIState.value.copy(
+                errors = _accountUIState.value.errors + ("icon" to "Campo Obligatorio")
             )
             errorCount++;
         }
@@ -201,17 +200,17 @@ class AccountViewModel @Inject constructor(
     fun loadAuxData() {
         viewModelScope.launch {
             //LOADING CURRENCIES
-            _accountFormState.value = _accountFormState.value.copy(isLoading = true)
+            _accountUIState.value = _accountUIState.value.copy(isLoading = true)
 
             try {
                 val currencyListFlow = getCurrenciesUseCase()
                 currencyListFlow?.collectLatest { currencyList ->
-                    _accountFormState.value = _accountFormState.value.copy(
+                    _accountUIState.value = _accountUIState.value.copy(
                         currencyList = currencyList
                     )
                 }
             } finally {
-                _accountFormState.value = _accountFormState.value.copy(isLoading = false)
+                _accountUIState.value = _accountUIState.value.copy(isLoading = false)
             }
         }
     }
@@ -220,7 +219,15 @@ class AccountViewModel @Inject constructor(
      * Clean form data to new entries
      */
     fun cleanForm(){
-        _accountFormState.value = AccountFormState()
+        _accountUIState.value = _accountUIState.value.copy(
+            accountName = "",
+            description = "",
+            currency = null,
+            initBalance = "",
+            color = "",
+            icon = "",
+            errors = emptyMap()
+        )
     }
 
     /**
@@ -229,7 +236,7 @@ class AccountViewModel @Inject constructor(
     fun loadAccountLisData(){
         viewModelScope.launch {
             try{
-                _accountFormState.value = _accountFormState.value.copy(isLoading = true)
+                _accountUIState.value = _accountUIState.value.copy(isLoading = true)
 
                 //GET RELATED DATA
                 var accountDashboardData = getAccountDashboardDataUseCase();
@@ -239,14 +246,14 @@ class AccountViewModel @Inject constructor(
                     Log.e("AccountViewModel", "Error al obtener los datos de la cuenta")
                 //SET DATA IN STATE
                 else{
-                    _accountFormState.value = _accountFormState.value.copy(
+                    _accountUIState.value = _accountUIState.value.copy(
                         accountList = accountDashboardData.accountList,
                         mainCurrency = accountDashboardData.mainCurrency,
                         totalAccountBalance = accountDashboardData.totalAccountBalance,
                     )
                 }
             } finally {
-                _accountFormState.value = _accountFormState.value.copy(isLoading = false)
+                _accountUIState.value = _accountUIState.value.copy(isLoading = false)
             }
         }
     }
@@ -254,8 +261,29 @@ class AccountViewModel @Inject constructor(
     /**
      * Return a flow with transactions list per account
      */
-    fun getTransactionsPerAccount(accountID:Long): Flow<PagingData<TransactionWithCurrencyRelation>>?{
+    fun getTransactionsPerAccount(accountID:Long): Flow<PagingData<TransactionDomain>>{
         return getTransactionListPerAccount(accountID).cachedIn(viewModelScope)
+    }
+
+    /**
+     * Set the current account to view
+     */
+    fun setCurrentAccount(accountID:Long){
+        viewModelScope.launch {
+            try {
+                _accountUIState.value = _accountUIState.value.copy(
+                    isLoading = true,
+                    currentSelectedAccount = null,
+                )
+                val currentAccount = getAccountByIDUseCase(accountID)
+                if(currentAccount == null) Log.e("AccountViewModel", "Error al obtener la cuenta")
+                else _accountUIState.value = _accountUIState.value.copy(
+                    currentSelectedAccount = currentAccount,
+                )
+            } finally {
+                _accountUIState.value = _accountUIState.value.copy(isLoading = false)
+            }
+        }
     }
 
 }

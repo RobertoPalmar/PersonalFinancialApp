@@ -9,7 +9,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.account.AccountListScreen
 import com.rpalmar.financialapp.views.currency.CurrencyScreen
@@ -47,23 +49,36 @@ fun AppNavigation() {
         composable("main_menu"){
             MainMenuScreen(
                 onNavigateToCurrencies = { navController.navigate("currencies") },
-                onNavigateToAccounts = { navController.navigate("accounts") },
+                onNavigateToAccounts = { navController.navigate("account_flow") },
                 onNavigateToEnvelopes = { navController.navigate("envelopes") }
             )
         }
-        composable("accounts"){
-            AccountListScreen(
-                onNavigateToForm = { navController.navigate("accountForm") },
-                onBackPressed = {navController.popBackStack()}
-            )
-        }
-        composable("accountForm"){
-            AccountFormScreen(
-                onBackPressed = { navController.popBackStack() }
-            )
-        }
-        composable("accountDetails"){
 
+        navigation(
+            startDestination = "accounts",
+            route = "account_flow"
+        ){
+            composable("accounts"){
+                AccountListScreen(
+                    navController = navController,
+                    onNavigateToForm = { navController.navigate("accountForm") },
+                    onNavigateToAccountDetail = { navController.navigate("accountDetails/${it}") },
+                    onBackPressed = { navController.popBackStack() },
+                )
+            }
+            composable("accountForm"){
+                AccountFormScreen(
+                    onBackPressed = { navController.popBackStack() }
+                )
+            }
+            composable("accountDetails/{accountId}"){
+                val accountId = it.arguments?.getString("accountId")?.toLong()
+                AccountDetailScreen(
+                    navController = navController,
+                    accountId = accountId!!,
+                    onBackPressed = { navController.popBackStack() }
+                )
+            }
         }
 
         composable("envelopes"){

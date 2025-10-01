@@ -1,13 +1,12 @@
 package com.rpalmar.financialapp.models.domain
 
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
 import com.rpalmar.financialapp.models.EnvelopStatus
 import com.rpalmar.financialapp.models.GoalType
 import com.rpalmar.financialapp.models.database.EnvelopeEntity
 import com.rpalmar.financialapp.models.database.StyleEntity
 import com.rpalmar.financialapp.models.interfaces.IDomain
-import com.rpalmar.financialapp.models.interfaces.ITransaction
+import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
+import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
 import java.util.Date
 
 data class EnvelopeDomain(
@@ -25,7 +24,7 @@ data class EnvelopeDomain(
 
     val parentEnvelopID: Long? = null,
     val currency:CurrencyDomain,
-): IDomain, ITransaction {
+): IDomain, IDomainTransaction {
     override fun toEntity(): EnvelopeEntity{
         return EnvelopeEntity(
             id = id,

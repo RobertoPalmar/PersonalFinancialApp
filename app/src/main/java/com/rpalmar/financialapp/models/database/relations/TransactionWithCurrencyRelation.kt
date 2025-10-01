@@ -6,7 +6,6 @@ import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
-import com.rpalmar.financialapp.models.interfaces.ITransaction
 
 data class TransactionWithCurrencyRelation(
     @Embedded

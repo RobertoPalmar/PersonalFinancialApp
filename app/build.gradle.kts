@@ -72,6 +72,7 @@ dependencies {
     // ROOM
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.paging)
 
     // COMPOSE BOM
     implementation(platform(libs.androidx.compose.bom))
