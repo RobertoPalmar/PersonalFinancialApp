@@ -7,19 +7,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,18 +40,80 @@ import com.rpalmar.financialapp.views.ui.theme.Grey
 fun BaseTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
-    enabled: Boolean = true,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    label: String = "",
+    leadingText: String? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    enabled: Boolean = true
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(text = label) },
-        modifier = Modifier.fillMaxWidth(1f),
-        enabled = enabled,
-        keyboardOptions = keyboardOptions
-    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        shape = MaterialTheme.shapes.medium,
+
+    ) {
+        BasicTextField(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(1f),
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            enabled = enabled,
+            keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            decorationBox = { innerTextField ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxSize(1f)
+                        .border(
+                            width = 1.dp,
+                            color = DarkGrey,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(horizontal = 18.dp, vertical = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(1f),
+                    ){
+                        Row (
+                            modifier = Modifier.fillMaxSize(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (value.isEmpty()) {
+                                if(!leadingText.isNullOrEmpty()){
+                                    Spacer(modifier = Modifier.width(22.dp))
+                                }
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = DarkGrey
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxSize(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            if (!leadingText.isNullOrEmpty()) {
+                                Text(
+                                    text = leadingText,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Black,
+                                    modifier = Modifier.padding(end = 6.dp)
+                                )
+                            }
+
+                            innerTextField()
+                        }
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable

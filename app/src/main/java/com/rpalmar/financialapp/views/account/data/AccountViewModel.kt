@@ -1,7 +1,6 @@
 package com.rpalmar.financialapp.views.account.data
 
 import android.util.Log
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -39,7 +38,7 @@ class AccountViewModel @Inject constructor(
     private val deleteAccountUseCase: DeleteAccountUseCase,
 ) : ViewModel() {
 
-    //CREATION FORM STATE
+    //UI STATE
     private val _accountUIState = MutableStateFlow(AccountUIState())
     val accountUIState = _accountUIState.asStateFlow();
 
@@ -87,7 +86,7 @@ class AccountViewModel @Inject constructor(
                 )
             }
 
-            is AccountFormEvent.OnInitBalanceChange -> {
+            is AccountFormEvent.OnBalanceChange -> {
                 val regex = Regex("^\\d*\\.?\\d{0,2}$")
                 if (event.value.isEmpty() || event.value.matches(regex)) {
                     _accountUIState.value = _accountUIState.value.copy(

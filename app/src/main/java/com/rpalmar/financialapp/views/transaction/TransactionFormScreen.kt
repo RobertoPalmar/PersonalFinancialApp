@@ -109,6 +109,7 @@ fun TransactionFormSection(
                     value = transactionUiState.amount,
                     onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
                     label = "Amount",
+                    leadingText = transactionUiState.sourceAccount?.currency?.symbol,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -136,6 +137,7 @@ fun TransactionFormSection(
                     value = transactionUiState.amount,
                     onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
                     label = "Amount",
+                    leadingText = transactionUiState.sourceAccount?.currency?.symbol,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -160,6 +162,7 @@ fun TransactionFormSection(
                     value = transactionUiState.amount,
                     onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
                     label = "Real Amount",
+                    leadingText = transactionUiState.sourceAccount?.currency?.symbol,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next

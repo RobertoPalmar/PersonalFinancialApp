@@ -30,7 +30,7 @@ sealed class AccountFormEvent{
     data class OnAccountNameChange(val value:String): AccountFormEvent()
     data class OnDescriptionChange(val value:String): AccountFormEvent()
     data class OnCurrencyChange(val value: CurrencyDomain): AccountFormEvent()
-    data class OnInitBalanceChange(val value:String): AccountFormEvent()
+    data class OnBalanceChange(val value:String): AccountFormEvent()
     data class OnColorChange(val value:String): AccountFormEvent()
     data class OnIconChange(val value:String): AccountFormEvent()
     object Submit: AccountFormEvent()

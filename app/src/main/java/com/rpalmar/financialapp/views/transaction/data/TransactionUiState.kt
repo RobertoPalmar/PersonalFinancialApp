@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.views.transaction.data
 
+import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 
@@ -10,11 +11,14 @@ data class TransactionUiState(
     val destinationAccount: AccountDomain? = null,
     val amount: String = "",
     val description: String = "",
+    val transactionType: TransactionType? = null,
+    val transactionDate: String = "",
     var errors:Map<String,String?> = emptyMap(),
 
     //AUX DATA
     val accounts: List<AccountDomain> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isSaving: Boolean = false
 )
 
 sealed class TransactionFormEvent{
