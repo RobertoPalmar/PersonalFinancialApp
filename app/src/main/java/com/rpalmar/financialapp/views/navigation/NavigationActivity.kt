@@ -11,12 +11,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.account.AccountListScreen
 import com.rpalmar.financialapp.views.currency.CurrencyScreen
 import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
+import com.rpalmar.financialapp.views.transaction.TransactionFormScreen
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -68,6 +70,7 @@ fun AppNavigation() {
             }
             composable("accountForm"){
                 AccountFormScreen(
+                    navController = navController,
                     onBackPressed = { navController.popBackStack() }
                 )
             }
@@ -76,6 +79,7 @@ fun AppNavigation() {
                 AccountDetailScreen(
                     navController = navController,
                     accountId = accountId!!,
+                    onNavigateToTransactionForm = { navController.navigate("transactionForm/${it}") },
                     onBackPressed = { navController.popBackStack() }
                 )
             }
@@ -86,6 +90,17 @@ fun AppNavigation() {
         }
         composable("currencies"){
             CurrencyScreen()
+        }
+
+        composable("transactionForm/{accountId}/{transactionType}"){
+            val accountId = it.arguments?.getString("accountId")?.toLong()
+            val transactionTypeString = it.arguments?.getString("transactionType");
+            val transactionTypeEnum = TransactionType.valueOf(transactionTypeString!!)
+            TransactionFormScreen(
+                transactionType = transactionTypeEnum,
+                accountId = accountId!!,
+                onBackPressed = { navController.popBackStack() }
+            )
         }
 
     }

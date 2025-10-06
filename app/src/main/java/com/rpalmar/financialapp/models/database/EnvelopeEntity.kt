@@ -29,13 +29,14 @@ data class EnvelopeEntity(
     @ColumnInfo("parentEnvelopID") val parentEnvelopID: Long? = null,
     @ColumnInfo("currencyID") val currencyID: Long,
     @ColumnInfo("createAt") override val createAt: Date,
+    @ColumnInfo("isDelete") override val isDelete: Boolean
 ): IEntity, IHistorical, IEntityTransaction{
     override fun toAuxDomain(): SimpleTransactionSourceAux {
         return SimpleTransactionSourceAux(
             id = id,
             name = name,
             description = description,
-            transactionEntityType = TransactionSourceType.ENVELOP
+            transactionEntityType = TransactionSourceType.ENVELOPE
         )
     }
 }

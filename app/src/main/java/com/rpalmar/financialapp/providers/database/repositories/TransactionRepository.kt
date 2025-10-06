@@ -19,13 +19,13 @@ class TransactionRepository @Inject constructor(
         return transactionDAO.getAll()
     }
 
-    fun getByAccountID(accountID:Long, pageSize:Int = 20):Flow<PagingData<TransactionWithCurrencyRelation>>{
+    fun getByAccountIDPaginated(accountID:Long, pageSize:Int = 20):Flow<PagingData<TransactionWithCurrencyRelation>>{
         return Pager(
             config = PagingConfig(
                 pageSize = pageSize,
                 enablePlaceholders = false
             ),
-            pagingSourceFactory = { transactionDAO.getTransactionsByAccount(accountID)}
+            pagingSourceFactory = { transactionDAO.getTransactionsByAccountPaginated(accountID)}
         ).flow
     }
 

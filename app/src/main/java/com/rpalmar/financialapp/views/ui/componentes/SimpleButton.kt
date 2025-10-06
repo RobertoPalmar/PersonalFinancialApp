@@ -94,6 +94,7 @@ fun SimpleButton(
             contentPadding = PaddingValues(
                 horizontal = 5.dp,
             ),
+            border = if(type == ButtonType.SECONDARY) BorderStroke(2.dp, onPrimaryColor) else BorderStroke(2.dp, primaryColor),
             modifier = modifier.width(width)
         ) {
             if (content != null) {

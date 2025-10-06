@@ -11,14 +11,15 @@ import java.util.Date
 @Entity(tableName = "currency_table")
 data class CurrencyEntity(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
-    @ColumnInfo("name") val name:String,
-    @ColumnInfo("ISO") val ISO:String,
-    @ColumnInfo("symbol") val symbol:String,
+    @ColumnInfo("name") val name: String,
+    @ColumnInfo("ISO") val ISO: String,
+    @ColumnInfo("symbol") val symbol: String,
     @ColumnInfo("exchangeRate") val exchangeRate: Double,
-    @ColumnInfo("currencyPriority") val currencyPriority:Int,
-    @ColumnInfo("createAt") override val createAt: Date
-): IEntity, IHistorical {
-    fun toDomain(): CurrencyDomain{
+    @ColumnInfo("currencyPriority") val currencyPriority: Int,
+    @ColumnInfo("createAt") override val createAt: Date,
+    @ColumnInfo("isDelete") override val isDelete: Boolean
+) : IEntity, IHistorical {
+    fun toDomain(): CurrencyDomain {
         return CurrencyDomain(
             id = id,
             name = name,

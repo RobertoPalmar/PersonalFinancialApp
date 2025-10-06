@@ -5,8 +5,8 @@ import java.util.Date
 import java.util.Locale
 
 object Utils {
-    fun getFormatDate(date: Date): String {
-        val formatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    fun getFullFormatDate(date: Date): String {
+        val formatter = SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault())
         return formatter.format(date)
     }
     fun getFormatHours(date: Date): String {

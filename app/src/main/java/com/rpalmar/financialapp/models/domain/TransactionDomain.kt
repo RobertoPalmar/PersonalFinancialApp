@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.models.domain
 
+import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomain
@@ -9,26 +10,30 @@ import java.util.UUID
 data class TransactionDomain (
     val id:Long = 0,
     val transactionCode: UUID,
-    val originSource: SimpleTransactionSourceAux? = null,
-    val destinationSource:SimpleTransactionSourceAux? = null,
-    val transactionDate:Date,
+    val source: SimpleTransactionSourceAux,
     val amount: Double,
-    val currency: CurrencyDomain,
     val amountInBaseCurrency: Double,
-    val description:String
+    val transactionType: TransactionType,
+    val transactionDate:Date,
+    val currency: CurrencyDomain,
+    val exchangeRate: Double,
+    val description:String,
+    val linkedTransaction: TransactionDomain? = null
 ): IDomain {
     override fun toEntity(): TransactionEntity {
         return TransactionEntity(
             id = id,
             transactionCode = transactionCode,
-            originSourceID = originSource?.id,
-            originSourceType = originSource?.transactionEntityType,
-            destinationSourceID = destinationSource?.id,
-            destinationSourceType = destinationSource?.transactionEntityType,
-            transactionDate = transactionDate,
+            sourceID = source.id,
+            sourceType = source.transactionEntityType,
             amount = amount,
+            transactionType = transactionType,
+            transactionDate = transactionDate,
+            currencyID = currency.id,
+            exchangeRate = exchangeRate,
             description = description,
-            currencyID = currency.id
+            linkedTransactionID = linkedTransaction?.id,
+            isDelete = false
         )
     }
 }

@@ -12,4 +12,6 @@ interface IEntityTransaction {
 interface IDomainTransaction {
     val name: String;
     val description: String;
+
+    fun toAuxDomain(): SimpleTransactionSourceAux
 }

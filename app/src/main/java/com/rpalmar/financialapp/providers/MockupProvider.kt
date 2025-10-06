@@ -6,6 +6,12 @@ import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.EnvelopeDomain
 import com.rpalmar.financialapp.models.EnvelopStatus
 import com.rpalmar.financialapp.models.GoalType
+import com.rpalmar.financialapp.models.TransactionSourceType
+import com.rpalmar.financialapp.models.TransactionType
+import com.rpalmar.financialapp.models.domain.TransactionDomain
+import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
+import java.util.Date
+import java.util.UUID
 
 /**
  * Proveedor de datos mock para pruebas de UI y lógica
@@ -184,4 +190,87 @@ object MockupProvider {
             )
         )
     }
+
+    fun getMockTransactions(): List<TransactionDomain> {
+        val accounts = getMockAccounts()
+        val currencies = getMockCurrencies()
+
+        // Crear SimpleTransactionSourceAux a partir de las cuentas
+        val accountSources = accounts.map { acc ->
+            SimpleTransactionSourceAux(
+                id = acc.id,
+                name = acc.name,
+                description = acc.description,
+                transactionEntityType = TransactionSourceType.ACCOUNT
+            )
+        }
+
+        val transactions = mutableListOf<TransactionDomain>()
+
+        // Generar transacciones simples (INCOME / EXPENSE)
+        for (i in 1..10) {
+            val source = accountSources.random()
+            val type = if (i % 2 == 0) TransactionType.INCOME else TransactionType.EXPENSE
+            val currency = currencies[1]
+            val amount = (50..1000).random() + (0..99).random() / 100.0
+            val date = Date(System.currentTimeMillis() - (0..30).random() * 24 * 60 * 60 * 1000L)
+
+            transactions.add(
+                TransactionDomain(
+                    id = i.toLong(),
+                    transactionCode = UUID.randomUUID(),
+                    source = source,
+                    amount = amount,
+                    amountInBaseCurrency = amount * currency.exchangeRate,
+                    transactionType = type,
+                    transactionDate = date,
+                    currency = currency,
+                    exchangeRate = currency.exchangeRate,
+                    description = "Mock ${type.name.lowercase()} transaction $i"
+                )
+            )
+        }
+
+        // Generar una transferencia con linkedTransaction
+        val sourceAccount = accountSources[0]
+        val destAccount = accountSources[1]
+        val currencySource = currencies[0]
+        val currencyDest = currencies[1]
+
+        val transferAmount = 300.0
+        val transferDate = Date(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L)
+
+        val linkedTransaction = TransactionDomain(
+            id = 100L,
+            transactionCode = UUID.randomUUID(),
+            source = destAccount,
+            amount = transferAmount * currencyDest.exchangeRate / currencySource.exchangeRate,
+            amountInBaseCurrency = transferAmount * currencyDest.exchangeRate,
+            transactionType = TransactionType.INCOME,
+            transactionDate = transferDate,
+            currency = currencyDest,
+            exchangeRate = currencyDest.exchangeRate,
+            description = "Linked transfer to ${destAccount.name}"
+        )
+
+        val mainTransaction = TransactionDomain(
+            id = 101L,
+            transactionCode = UUID.randomUUID(),
+            source = sourceAccount,
+            amount = transferAmount,
+            amountInBaseCurrency = transferAmount * currencySource.exchangeRate,
+            transactionType = TransactionType.EXPENSE,
+            transactionDate = transferDate,
+            currency = currencySource,
+            exchangeRate = currencySource.exchangeRate,
+            description = "Transfer to ${destAccount.name}",
+            linkedTransaction = linkedTransaction
+        )
+
+        transactions.add(linkedTransaction)
+        transactions.add(mainTransaction)
+
+        return transactions
+    }
+
 }

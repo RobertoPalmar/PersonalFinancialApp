@@ -11,7 +11,8 @@ val currencySeeds = listOf(
         symbol = "$",
         exchangeRate = 1.0,
         currencyPriority = 1,
-        createAt = Date()
+        createAt = Date(),
+        isDelete = false
     ),
     CurrencyEntity(
         id = 2,
@@ -20,7 +21,8 @@ val currencySeeds = listOf(
         symbol = "Bs",
         exchangeRate = 0.0038,
         currencyPriority = 2,
-        createAt = Date()
+        createAt = Date(),
+        isDelete = false
     ),
     CurrencyEntity(
         id = 3,
@@ -29,7 +31,8 @@ val currencySeeds = listOf(
         symbol = "$",
         exchangeRate = 0.00021,
         currencyPriority = 3,
-        createAt = Date()
+        createAt = Date(),
+        isDelete = false
     ),
     CurrencyEntity(
         id = 4,
@@ -38,6 +41,7 @@ val currencySeeds = listOf(
         symbol = "€",
         exchangeRate = 1.08,
         currencyPriority = 4,
-        createAt = Date()
+        createAt = Date(),
+        isDelete = false
     )
 )

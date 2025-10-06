@@ -12,4 +12,7 @@ interface EnvelopeDAO: BaseDao<EnvelopeEntity> {
 
     @Query("DELETE FROM envelope_table")
     suspend fun deleteAll();
+
+    @Query("UPDATE envelope_table SET isDelete = 1 WHERE id = :id")
+    suspend fun softDelete(id:Long)
 }

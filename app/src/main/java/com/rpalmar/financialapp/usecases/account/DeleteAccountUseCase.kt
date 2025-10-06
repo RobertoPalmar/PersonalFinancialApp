@@ -22,7 +22,7 @@ class DeleteAccountUseCase @Inject constructor(
             }
 
             //DELETE ENTITY
-            accountRepository.delete(accountToDelete);
+            accountRepository.softDelete(accountToDelete.id);
 
             Log.i("DeleteAccountUseCase", "💳 Entity deleted")
             return true;

@@ -17,19 +17,21 @@ data class TransactionWithCurrencyRelation(
     val currency: CurrencyEntity,
 ) {
     fun toDomain(
-        originAuxSource: SimpleTransactionSourceAux? = null,
-        destinationAuxSource: SimpleTransactionSourceAux? = null
+        auxSource: SimpleTransactionSourceAux,
+        linkedTransaction: TransactionDomain? = null
     ): TransactionDomain{
         return TransactionDomain(
             id = transaction.id,
             transactionCode = transaction.transactionCode,
-            originSource =  originAuxSource,
-            destinationSource = destinationAuxSource,
-            transactionDate = transaction.transactionDate,
+            source =  auxSource,
             amount = transaction.amount,
             amountInBaseCurrency = transaction.amount * currency.exchangeRate,
-            description = transaction.description,
+            transactionType = transaction.transactionType,
+            transactionDate = transaction.transactionDate,
             currency = currency.toDomain(),
+            exchangeRate = transaction.exchangeRate,
+            description = transaction.description,
+            linkedTransaction = linkedTransaction
         )
     }
 }

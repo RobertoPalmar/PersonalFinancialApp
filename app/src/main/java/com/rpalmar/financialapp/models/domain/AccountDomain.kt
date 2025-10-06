@@ -1,7 +1,9 @@
 package com.rpalmar.financialapp.models.domain
 
+import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.database.AccountEntity
 import com.rpalmar.financialapp.models.database.StyleEntity
+import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomain
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
@@ -24,7 +26,17 @@ data class AccountDomain(
             balance = balance,
             currencyID = currency.id,
             style = style,
-            createAt = Date()
+            createAt = Date(),
+            isDelete = false
         );
+    }
+
+    override fun toAuxDomain(): SimpleTransactionSourceAux {
+        return SimpleTransactionSourceAux(
+            id = id,
+            name = name,
+            description = description,
+            transactionEntityType = TransactionSourceType.ACCOUNT
+        )
     }
 }

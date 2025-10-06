@@ -2,11 +2,12 @@ package com.rpalmar.financialapp.models.domain
 
 import com.rpalmar.financialapp.models.EnvelopStatus
 import com.rpalmar.financialapp.models.GoalType
+import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.database.EnvelopeEntity
 import com.rpalmar.financialapp.models.database.StyleEntity
+import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomain
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
-import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
 import java.util.Date
 
 data class EnvelopeDomain(
@@ -38,7 +39,17 @@ data class EnvelopeDomain(
             goalDeadline = goalDeadline,
             parentEnvelopID = parentEnvelopID,
             currencyID = currency.id,
-            createAt = Date()
+            createAt = Date(),
+            isDelete = false
+        )
+    }
+
+    override fun toAuxDomain(): SimpleTransactionSourceAux {
+        return SimpleTransactionSourceAux(
+            id = id,
+            name = name,
+            description = description,
+            transactionEntityType = TransactionSourceType.ENVELOPE
         )
     }
 }

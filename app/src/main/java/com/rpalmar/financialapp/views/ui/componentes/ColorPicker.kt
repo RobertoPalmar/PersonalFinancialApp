@@ -22,6 +22,7 @@ import com.rpalmar.financialapp.views.ui.theme.*
 
 @Composable
 fun ColorPicker(
+    initialColor: String,
     onColorSelected: (Color) -> Unit
 ) {
     val colors = listOf(
@@ -29,7 +30,23 @@ fun ColorPicker(
     )
 
     var showDialog by remember { mutableStateOf(false) }
-    var selectedColor by remember { mutableStateOf(colors.first()) }
+    var selectedColor by remember {
+        mutableStateOf(
+            try {
+                Color(android.graphics.Color.parseColor(initialColor))
+            } catch (e: Exception) {
+                colors.first()
+            }
+        )
+    }
+
+    LaunchedEffect(initialColor) {
+        try {
+            selectedColor = Color(android.graphics.Color.parseColor(initialColor))
+        } catch (e: Exception) {
+            // Fallback or log error if needed
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -48,7 +65,7 @@ fun ColorPicker(
                 text = "Color",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge,
-                color = DarkGrey
+                color = Black
             )
             Box(
                 modifier = Modifier
@@ -97,6 +114,7 @@ fun ColorPicker(
 fun PickerColorPreview(){
     FinancialTheme {
         ColorPicker(
+            initialColor = "",
             onColorSelected = {}
         )
     }

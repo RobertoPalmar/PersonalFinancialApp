@@ -23,6 +23,7 @@ import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 
 @Composable
 fun IconPicker(
+    initialIcon: String,
     onIconSelected: (String) -> Unit
 ) {
     val icons = listOf(
@@ -36,7 +37,13 @@ fun IconPicker(
     )
 
     var showDialog by remember { mutableStateOf(false) }
-    var selectedIcon by remember { mutableStateOf(icons.first()) }
+    var selectedIcon by remember {
+        mutableStateOf(icons.find { it.first == initialIcon } ?: icons.first())
+    }
+
+    LaunchedEffect(initialIcon) {
+        selectedIcon = icons.find { it.first == initialIcon } ?: icons.first()
+    }
 
     Card(
         modifier = Modifier
@@ -105,6 +112,7 @@ fun IconPicker(
 fun PickerItemPreview() {
     FinancialTheme {
         IconPicker(
+            initialIcon = "",
             onIconSelected = {}
         )
     }

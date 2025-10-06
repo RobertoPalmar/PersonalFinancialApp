@@ -1,7 +1,12 @@
 package com.rpalmar.financialapp.providers.database.repositories
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.rpalmar.financialapp.models.database.AccountEntity
 import com.rpalmar.financialapp.models.database.relations.AccountWithCurrencyRelation
+import com.rpalmar.financialapp.models.database.relations.TransactionWithCurrencyRelation
+import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.providers.database.DAOs.AccountDAO
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -16,15 +21,25 @@ class AccountRepository @Inject constructor(
         return accountDAO.getByID(id)
     }
 
-    suspend fun getAccountWithCurrencyByID(id:Long): AccountWithCurrencyRelation?{
+    fun getAccountWithCurrencyByID(id:Long): AccountWithCurrencyRelation?{
         return accountDAO.getAccountWithCurrencyByID(id);
     }
 
-    suspend fun getAll():List<AccountEntity>{
+    fun getAll():List<AccountEntity>{
         return accountDAO.getAll()
     }
 
-    suspend fun getAccountListWithCurrency():Flow<List<AccountWithCurrencyRelation>>{
+    fun getPaginated(pageSize:Int = 20):Flow<PagingData<AccountWithCurrencyRelation>>{
+        return Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { accountDAO.getAccountListPaginated()}
+        ).flow
+    }
+
+    fun getAccountListWithCurrency():Flow<List<AccountWithCurrencyRelation>>{
         return accountDAO.getAccountListWithCurrency()
     }
 
@@ -34,5 +49,9 @@ class AccountRepository @Inject constructor(
 
     suspend fun delete(accountToDelete: AccountEntity){
         accountDAO.delete(accountToDelete)
+    }
+
+    suspend fun softDelete(ID:Long){
+        accountDAO.softDelete(ID);
     }
 }

@@ -55,14 +55,18 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.componentes.SummarySection
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.Green
+import com.rpalmar.financialapp.views.ui.theme.Grey
 import com.rpalmar.financialapp.views.ui.theme.Red
 
 @Composable
@@ -73,7 +77,7 @@ fun AccountListScreen(
     onBackPressed: () -> Unit
 ) {
     //SET UP VIEW MODEL
-    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("account_flow")}
+    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("account_flow") }
     val viewModel: AccountViewModel = hiltViewModel(backStackEntry)
 
     //ACCOUNT STATE DATA
@@ -127,7 +131,7 @@ fun AccountListScreen(
             }
         } else {
             AccountListSection(
-                accountList = accountFormState.value.accountList,
+                viewModel = viewModel,
                 mainCurrency = accountFormState.value.mainCurrency!!,
                 onNavigateToAccountDetails = { onNavigateToAccountDetail(it) }
             )
@@ -177,12 +181,11 @@ fun ButtonsSection(
 
 @Composable
 fun AccountListSection(
-    accountList: List<AccountDomain>,
+    viewModel: AccountViewModel,
     mainCurrency: CurrencyDomain,
-    onNavigateToAccountDetails:(Long) -> Unit
+    onNavigateToAccountDetails: (Long) -> Unit
 ) {
-
-
+    val accounts = viewModel.getAccounts().collectAsLazyPagingItems()
     val overscrollEffect = rememberOverscrollEffect()
 
     Text(
@@ -201,14 +204,44 @@ fun AccountListSection(
         state = rememberLazyListState(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(accountList) { account ->
-            AccountItemCard(
-                account = account,
-                baseCurrency = mainCurrency,
-                onClick = {
-                    onNavigateToAccountDetails(account.id)
+        when {
+            //HANDLE LOADING STATE
+            accounts.loadState.refresh is LoadState.Loading -> {
+                item {
+                    Column {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    }
                 }
-            )
+            }
+            //HANDLE NO ITEMS
+            accounts.itemCount == 0 -> {
+                item {
+                    Text(
+                        text = "Aún no hay cuentas",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        textAlign = TextAlign.Center,
+                        color = Grey
+                    )
+                }
+            }
+            //HANDLE TRANSACTIONS
+            else -> {
+                items(accounts.itemCount) { index ->
+                    val account = accounts[index]
+                    account?.let {
+                        AccountItemCard(
+                            account = account,
+                            baseCurrency = mainCurrency,
+                            onClick = {
+                                onNavigateToAccountDetails(account.id)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

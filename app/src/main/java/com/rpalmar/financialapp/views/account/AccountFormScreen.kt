@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.views.account
 
+import android.annotation.SuppressLint
 import com.rpalmar.financialapp.views.ui.componentes.BaseTextField
 import com.rpalmar.financialapp.views.ui.componentes.ColorPicker
 import com.rpalmar.financialapp.views.ui.componentes.IconPicker
@@ -13,19 +14,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,35 +31,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.rpalmar.financialapp.models.ButtonType
+import androidx.navigation.NavHostController
 import com.rpalmar.financialapp.views.account.data.AccountFormEvent
 import com.rpalmar.financialapp.views.account.data.AccountUIState
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
+import com.rpalmar.financialapp.views.ui.componentes.FormNavigatorButtonSection
 import com.rpalmar.financialapp.views.ui.componentes.MainLayout
-import com.rpalmar.financialapp.views.ui.componentes.SimpleButton
 import com.rpalmar.financialapp.views.ui.componentes.SimpleSelector
-import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
+import com.rpalmar.financialapp.views.ui.componentes.TitleSectionCard
 import com.rpalmar.financialapp.views.ui.theme.Blue
-import com.rpalmar.financialapp.views.ui.theme.DarkGrey
-import com.rpalmar.financialapp.views.ui.theme.White
 
 @Composable
 fun AccountFormScreen(
-    viewModel: AccountViewModel = hiltViewModel(),
+    navController: NavHostController,
     onBackPressed: () -> Unit
 ) {
+    //SET UP VIEW MODEL
+    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("account_flow") }
+    val viewModel: AccountViewModel = hiltViewModel(backStackEntry)
+
     val context = LocalContext.current
 
     //ACCOUNT STATE DATA
-    val accountFormState = viewModel.accountUIState.collectAsState()
+    val accountUIState = viewModel.accountUIState.collectAsState()
 
     //HANDLE CLEAN ACCOUNT FORM
     LaunchedEffect(Unit) {
-        viewModel.onAccountFormEvent(AccountFormEvent.Reset)
+        if (!accountUIState.value.isEditing)
+            viewModel.onAccountFormEvent(AccountFormEvent.Reset)
     }
 
     //HANDLE ACCOUNT CREATION EVENTS
@@ -85,59 +85,28 @@ fun AccountFormScreen(
         Column(
             modifier = Modifier.fillMaxSize(1f)
         ) {
-            TitleSection(
-                title = "Create Account",
-                color = Blue
+            TitleSectionCard(
+                title = if (accountUIState.value.isEditing) "Edit Account" else "Create Account",
+                backgroundColor = Blue
             )
             AccountFormSection(
                 accountViewModel = viewModel,
-                accountUIState = accountFormState.value
+                accountUIState = accountUIState.value
             )
             Spacer(modifier = Modifier.weight(1f))
-            NavigatorButtonSection(
-                accountViewModel = viewModel,
+            FormNavigatorButtonSection(
                 onBackPressed = onBackPressed,
-                accountUIState = accountFormState.value
+                isEditing = accountUIState.value.isEditing,
+                isSaving = accountUIState.value.isSaving,
+                onConfirm = { viewModel.onAccountFormEvent(AccountFormEvent.Submit) }
             )
         }
     }
 }
 
-@Composable
-fun TitleSection(
-    title: String,
-    color: Color,
-    icon: ImageVector? = null
-) {
-    ElevatedCard(
-        colors = CardDefaults.cardColors(color),
-        modifier = Modifier
-            .height(55.dp)
-            .fillMaxWidth(1f),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp,
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(15.dp)
-        ) {
-            if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@SuppressLint("DefaultLocale")
 @Composable
 fun AccountFormSection(
     accountViewModel: AccountViewModel,
@@ -163,19 +132,22 @@ fun AccountFormSection(
         SimpleSelector(
             placeholder = "Select a Currency",
             itemList = accountUIState.currencyList,
-            itemLabel = { "${it.name} (${it.symbol})" },
+            selectedItem = accountUIState.currency,
+            itemLabel = { "${it.symbol} - ${it.name}" },
+            itemDetail = { "ER: ${String.format("%.5f",it.exchangeRate)}"},
             onItemSelected = { currency -> accountViewModel.onAccountFormEvent(AccountFormEvent.OnCurrencyChange(currency)) }
         )
-        BaseTextField(
-            value = accountUIState.initBalance,
-            onValueChange = { accountViewModel.onAccountFormEvent(AccountFormEvent.OnInitBalanceChange(it)) },
-            label = "Initial Balance",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
+            BaseTextField(
+                value = uiState.initialBalance,
+                onValueChange = { viewModel.onInitialBalanceChanged(it) },
+                label = "Initial Balance",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                )
             )
-        )
         ColorPicker(
+            initialColor = accountUIState.color,
             onColorSelected = { color ->
                 accountViewModel.onAccountFormEvent(
                     AccountFormEvent.OnColorChange("#${Integer.toHexString(color.toArgb())}")
@@ -183,61 +155,11 @@ fun AccountFormSection(
             }
         )
         IconPicker(
+            initialIcon = accountUIState.icon,
             onIconSelected = { icon ->
                 accountViewModel.onAccountFormEvent(AccountFormEvent.OnIconChange(icon))
             }
         )
     }
 
-}
-
-@Composable
-fun NavigatorButtonSection(
-    accountViewModel: AccountViewModel,
-    accountUIState: AccountUIState,
-    onBackPressed: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-    ) {
-        SimpleButton(
-            text = "Go Back",
-            color = DarkGrey,
-            onClick = { onBackPressed() },
-            type = ButtonType.PRIMARY,
-            modifier = Modifier.weight(1f),
-            enable = !accountUIState.isSaving
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        SimpleButton(
-            modifier = Modifier.weight(1f),
-            text = "Create",
-            color = Blue,
-            onClick = { accountViewModel.onAccountFormEvent(AccountFormEvent.Submit) },
-            type = ButtonType.PRIMARY,
-            enable = !accountUIState.isSaving,
-            content = if (accountUIState.isSaving) {
-                {
-                    CircularProgressIndicator(
-                        color = White,
-                        strokeWidth = 4.dp,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            } else null
-        )
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun ExampleAccountFormPreview() {
-    FinancialTheme(
-        darkTheme = false
-    ) {
-        AccountFormScreen(
-            onBackPressed = {}
-        )
-    }
 }

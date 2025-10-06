@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,65 +39,18 @@ import com.rpalmar.financialapp.views.ui.theme.Grey
 fun BaseTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String = "",
-    modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    label: String,
+    enabled: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(Color.White),
-        shape = MaterialTheme.shapes.medium,
-
-    ) {
-        BasicTextField(
-            modifier = Modifier
-                .height(50.dp)
-                .fillMaxWidth(1f),
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            keyboardOptions = keyboardOptions,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            decorationBox = { innerTextField ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxSize(1f)
-                        .border(
-                            width = 1.dp,
-                            color = DarkGrey,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .padding(horizontal = 18.dp, vertical = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(1f),
-                    ){
-                        Row (
-                            modifier = Modifier.fillMaxSize(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (value.isEmpty()) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = DarkGrey
-                                )
-                            }
-                        }
-                        Row (
-                            modifier = Modifier.fillMaxSize(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            innerTextField()
-                        }
-                    }
-                }
-            }
-        )
-    }
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        modifier = Modifier.fillMaxWidth(1f),
+        enabled = enabled,
+        keyboardOptions = keyboardOptions
+    )
 }
 
 @Composable
@@ -108,7 +62,8 @@ fun ExampleBaseTextFieldPreview() {
         BaseTextField(
             value = "",
             onValueChange = {},
-            label = "Inserta un Valor"
+            label = "Inserta un Valor",
+            enabled = false
         )
     }
 }

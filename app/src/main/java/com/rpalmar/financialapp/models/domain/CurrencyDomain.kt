@@ -22,7 +22,8 @@ data class CurrencyDomain(
             symbol = symbol,
             exchangeRate = exchangeRate,
             currencyPriority = currencyPriority,
-            createAt = Date()
+            createAt = Date(),
+            isDelete = false
         )
     }
 }

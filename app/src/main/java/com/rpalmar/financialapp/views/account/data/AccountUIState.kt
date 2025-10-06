@@ -5,13 +5,15 @@ import com.rpalmar.financialapp.models.domain.CurrencyDomain
 
 data class AccountUIState(
     //FORM INPUT FIELDS
+    var id: Long? = null,
     var accountName: String = "",
     var description: String = "",
     var currency: CurrencyDomain? = null,
-    var initBalance: String = "",
+    var balance: String = "",
     var color: String = "",
     var icon: String = "",
     var errors:Map<String,String?> = emptyMap(),
+    var isEditing: Boolean = false,
 
     //AUX DATA
     var currencyList: List<CurrencyDomain> = emptyList(),

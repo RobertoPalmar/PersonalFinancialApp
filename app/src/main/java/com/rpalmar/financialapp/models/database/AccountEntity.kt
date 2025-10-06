@@ -18,7 +18,8 @@ data class AccountEntity(
     @ColumnInfo("balance") val balance: Double,
     @ColumnInfo("currencyID") val currencyID: Long,
     @ColumnInfo("style") val style:StyleEntity?,
-    @ColumnInfo("createAt") override val createAt: Date
+    @ColumnInfo("isDelete") override val isDelete: Boolean = false,
+    @ColumnInfo("createAt") override val createAt: Date,
 ): IEntity, IHistorical, IEntityTransaction{
     override fun toAuxDomain(): SimpleTransactionSourceAux {
         return SimpleTransactionSourceAux(

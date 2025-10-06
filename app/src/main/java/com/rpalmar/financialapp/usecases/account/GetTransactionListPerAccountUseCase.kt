@@ -17,12 +17,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetTransactionListPerAccount @Inject constructor(
+class GetTransactionListPerAccountUseCase @Inject constructor(
     private val accountRepository: AccountRepository,
     private val transactionRepository: TransactionRepository,
     private val envelopeRepository: EnvelopeRepository
 ) {
-    operator fun invoke(accountID: Long, pageSize:Int = 20):  Flow<PagingData<TransactionDomain>>{
+    fun getPagingData(accountID: Long, pageSize:Int = 20):  Flow<PagingData<TransactionDomain>>{
         return flow {
             //GET ACCOUNT
             val account = accountRepository.getByID(accountID)
@@ -40,27 +40,21 @@ class GetTransactionListPerAccount @Inject constructor(
                 //RETURN A EMPTY FLOW
                 emitAll(emptyFlow())
             } else {
-                val transactionFlow = transactionRepository.getByAccountID(accountID, pageSize)
+                //FORMAT TRANSACTION AND RETURN DOMAIN
+                val transactionFlow = transactionRepository.getByAccountIDPaginated(accountID, pageSize)
                     .map { pagingData ->
                         pagingData.map { transactionWithCurrency ->
                             //GET AUX DATA
                             val transaction = transactionWithCurrency.transaction;
                             val auxSource =
-                                when(transaction.originSourceType){
-                                    TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.originSourceID]
-                                    TransactionSourceType.ENVELOP -> envelopeAuxMap[transaction.originSourceID]
-                                    else -> null
-                                }
-
-                            val auxDestination =
-                                when(transaction.destinationSourceType){
-                                    TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.destinationSourceID]
-                                    TransactionSourceType.ENVELOP -> envelopeAuxMap[transaction.destinationSourceID]
+                                when(transaction.sourceType){
+                                    TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.sourceID]
+                                    TransactionSourceType.ENVELOPE -> envelopeAuxMap[transaction.sourceID]
                                     else -> null
                                 }
 
                             //MAP TO DOMAIN
-                            transactionWithCurrency.toDomain(auxSource, auxDestination)
+                            transactionWithCurrency.toDomain(auxSource!!)
                         }
                     }
 
