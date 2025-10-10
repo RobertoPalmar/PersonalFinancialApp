@@ -17,6 +17,7 @@ data class TransactionUiState(
     val transactionDate: String = "",
     val currency: CurrencyDomain? = null,
     val transactionExchangeRate: Double = 0.0,
+    val adjustmentAmount: Double? = null,
     var errors:Map<String,String?> = emptyMap(),
     var isEditing: Boolean = false,
 

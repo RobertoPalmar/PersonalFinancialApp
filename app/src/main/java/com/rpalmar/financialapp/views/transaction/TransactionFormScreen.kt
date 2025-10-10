@@ -182,10 +182,7 @@ fun TransactionFormSection(
 //                )
             }
             TransactionType.ADJUSTMENT -> {
-                val realAmountValue = transactionUiState.amount.toDoubleOrNull() ?: 0.0
-                val currentBalance = transactionUiState.originSource?.balance ?: 0.0
-                val adjustment = realAmountValue - currentBalance
-                val adjustmentFormatted = numberFormat.format(adjustment)
+                val adjustmentFormatted = numberFormat.format(transactionUiState.adjustmentAmount ?: 0.0)
 
                 SimpleSelector(
                     placeholder = "Account to Adjust",

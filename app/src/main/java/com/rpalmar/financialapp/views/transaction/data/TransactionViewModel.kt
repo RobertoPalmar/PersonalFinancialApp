@@ -97,6 +97,15 @@ class TransactionViewModel @Inject constructor(
                     if(_transactionUIState.value.isCrossCurrencyTransaction){
                         recalculateDestinationAmount()
                     }
+
+                    val realAmountValue = _transactionUIState.value.amount.toDoubleOrNull() ?: 0.0
+                    val currentBalance = _transactionUIState.value.originSource?.balance ?: 0.0
+                    val adjustment = realAmountValue - currentBalance
+                    _transactionUIState.update {
+                        it.copy(
+                            adjustmentAmount = adjustment
+                        )
+                    }
                 }
             }
             is TransactionFormEvent.OnDescriptionChange -> {
@@ -269,11 +278,17 @@ class TransactionViewModel @Inject constructor(
                 var originTransaction:TransactionDomain? = null;
                 var destinationTransaction:TransactionDomain? = null;
 
+                var amount:Double = 0.0;
+                if(transactionType == TransactionType.ADJUSTMENT)
+                    amount = _transactionUIState.value.adjustmentAmount!!.toDouble()
+                else
+                    amount = _transactionUIState.value.amount.toDouble()
+
                 //MAP TRANSACTION SOURCE TO DOMAIN ENTITY
                 originTransaction = TransactionDomain(
                     transactionCode = UUID.randomUUID(),
                     source = _transactionUIState.value.originSource!!,
-                    amount = _transactionUIState.value.amount.toDouble(),
+                    amount = amount,
                     amountInBaseCurrency = 0.0,
                     transactionType = transactionType,
                     transactionDate = Date(),
