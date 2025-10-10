@@ -7,10 +7,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
@@ -79,7 +82,6 @@ fun AppNavigation() {
                 AccountDetailScreen(
                     navController = navController,
                     accountId = accountId!!,
-                    onNavigateToTransactionForm = { navController.navigate("transactionForm/${it}") },
                     onBackPressed = { navController.popBackStack() }
                 )
             }
@@ -92,13 +94,24 @@ fun AppNavigation() {
             CurrencyScreen()
         }
 
-        composable("transactionForm/{accountId}/{transactionType}"){
-            val accountId = it.arguments?.getString("accountId")?.toLong()
-            val transactionTypeString = it.arguments?.getString("transactionType");
-            val transactionTypeEnum = TransactionType.valueOf(transactionTypeString!!)
+        composable(
+            route = "transactionForm/{transactionType}?sourceType={sourceType}&sourceId={sourceId}",
+            arguments = listOf(
+                navArgument("sourceType") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("sourceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ){
+            val transactionTypeEnum = TransactionType.valueOf(it.arguments?.getString("transactionType")!!)
             TransactionFormScreen(
                 transactionType = transactionTypeEnum,
-                accountId = accountId!!,
                 onBackPressed = { navController.popBackStack() }
             )
         }

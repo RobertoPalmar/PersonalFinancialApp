@@ -9,8 +9,14 @@ object Utils {
         val formatter = SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault())
         return formatter.format(date)
     }
+
+    fun getFormatDate(date: Date): String {
+        val formatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return formatter.format(date)
+    }
+
     fun getFormatHours(date: Date): String {
-        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return formatter.format(date)
     }
 }

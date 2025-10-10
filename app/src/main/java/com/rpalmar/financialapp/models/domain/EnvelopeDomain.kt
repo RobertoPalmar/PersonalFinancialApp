@@ -11,10 +11,10 @@ import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import java.util.Date
 
 data class EnvelopeDomain(
-    val id: Long = 0,
+    override val id: Long = 0,
     override val name: String,
     override val description: String,
-    val balance: Double,
+    override val balance: Double,
     val status: EnvelopStatus,
     val style:StyleEntity?,
 
@@ -24,7 +24,7 @@ data class EnvelopeDomain(
     val goalDeadline: Double? = null,
 
     val parentEnvelopID: Long? = null,
-    val currency:CurrencyDomain,
+    override val currency:CurrencyDomain,
 ): IDomain, IDomainTransaction {
     override fun toEntity(): EnvelopeEntity{
         return EnvelopeEntity(
@@ -49,7 +49,9 @@ data class EnvelopeDomain(
             id = id,
             name = name,
             description = description,
-            transactionEntityType = TransactionSourceType.ENVELOPE
+            currency = currency,
+            transactionEntityType = TransactionSourceType.ENVELOPE,
+            balance = balance
         )
     }
 }

@@ -18,7 +18,7 @@ class GetAccountByIDUseCase @Inject constructor(
 
             //VALIDATE ACCOUNT
             if(accountEntity == null){
-                Log.e("GetAccountsUseCase", "Error al obtener la cuenta")
+                Log.e("GetAccountByIDUseCase", "Error al obtener la cuenta")
                 return null;
             }
 
@@ -26,10 +26,10 @@ class GetAccountByIDUseCase @Inject constructor(
             val accountDomain = accountEntity.toDomain();
 
             //RETURN DATA
-            Log.i("GetAccountsUseCase", "💳 Account Obtain: $accountDomain")
+            Log.i("GetAccountByIDUseCase", "💳 Account Obtain: $accountDomain")
             return accountDomain;
         } catch (ex: Exception) {
-            Log.e("GetAccountsUseCase", ex.message.toString());
+            Log.e("GetAccountByIDUseCase", ex.message.toString());
             return null;
         }
     }

@@ -13,9 +13,9 @@ import java.util.UUID
 data class TransactionEntity (
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
     @ColumnInfo("transactionCode") val transactionCode: UUID,
-    @ColumnInfo("sourceID") val sourceID: Long? = null,
-    @ColumnInfo("sourceType") val sourceType:TransactionSourceType? = null,
-    @ColumnInfo("amount") val amount: Double,
+    @ColumnInfo("sourceID") val sourceID: Long,
+    @ColumnInfo("sourceType") val sourceType:TransactionSourceType,
+    @ColumnInfo("amount") var amount: Double,
     @ColumnInfo("transactionType") val transactionType:TransactionType,
     @ColumnInfo("transactionDate") val transactionDate:Date,
     @ColumnInfo("currencyID") val currencyID: Long,

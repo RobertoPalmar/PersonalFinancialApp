@@ -15,18 +15,19 @@ data class AccountEntity(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
     @ColumnInfo("name") override val name: String,
     @ColumnInfo("description") override val description: String,
-    @ColumnInfo("balance") val balance: Double,
+    @ColumnInfo("balance") override var balance: Double,
     @ColumnInfo("currencyID") val currencyID: Long,
     @ColumnInfo("style") val style:StyleEntity?,
     @ColumnInfo("isDelete") override val isDelete: Boolean = false,
     @ColumnInfo("createAt") override val createAt: Date,
 ): IEntity, IHistorical, IEntityTransaction{
-    override fun toAuxDomain(): SimpleTransactionSourceAux {
-        return SimpleTransactionSourceAux(
-            id = id,
-            name = name,
-            description = description,
-            transactionEntityType = TransactionSourceType.ACCOUNT
-        )
-    }
+//    override fun toAuxDomain(): SimpleTransactionSourceAux {
+//        return SimpleTransactionSourceAux(
+//            id = id,
+//            name = name,
+//            description = description,
+//            currency = currency,
+//            transactionEntityType = TransactionSourceType.ACCOUNT,
+//        )
+//    }
 }

@@ -10,11 +10,11 @@ import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
 import java.util.Date
 
 data class AccountDomain(
-    val id: Long = 0,
+    override val id: Long = 0,
     override val name: String,
     override val description: String,
-    val balance: Double,
-    val currency: CurrencyDomain,
+    override val balance: Double,
+    override val currency: CurrencyDomain,
     val balanceInBaseCurrency: Double,
     val style:StyleEntity?,
 ): IDomain, IDomainTransaction {
@@ -36,7 +36,9 @@ data class AccountDomain(
             id = id,
             name = name,
             description = description,
-            transactionEntityType = TransactionSourceType.ACCOUNT
+            currency = currency,
+            transactionEntityType = TransactionSourceType.ACCOUNT,
+            balance = balance
         )
     }
 }

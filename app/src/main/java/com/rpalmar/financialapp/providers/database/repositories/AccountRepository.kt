@@ -54,4 +54,8 @@ class AccountRepository @Inject constructor(
     suspend fun softDelete(ID:Long){
         accountDAO.softDelete(ID);
     }
+
+    suspend fun updateBalance(accountID:Long, amount:Double){
+        accountDAO.updateBalance(accountID, amount)
+    }
 }

@@ -49,7 +49,8 @@ fun <T> SimpleSelector(
     selectedItem: T? = null,
     onItemSelected: (T) -> Unit,
     itemLabel: (T) -> String,
-    itemDetail:((T) -> String)? = null
+    itemDetail:((T) -> String)? = null,
+    errorMessage: String? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
     var currentSelection by remember { mutableStateOf(selectedItem) }
@@ -104,6 +105,7 @@ fun <T> SimpleSelector(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             }
         }
+        ErrorFieldSection(errorMessage = errorMessage)
 
         DropdownMenu(
             containerColor = White,
@@ -149,6 +151,7 @@ fun SimpleSelectorPreview() {
         placeholder = "Select an option",
         itemList = items,
         onItemSelected = {},
-        itemLabel = { it }
+        itemLabel = { it },
+        errorMessage = "Campo requerido"
     )
 }

@@ -11,6 +11,7 @@ import com.rpalmar.financialapp.providers.database.repositories.TransactionRepos
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -28,10 +29,10 @@ class GetTransactionListPerAccountUseCase @Inject constructor(
             val account = accountRepository.getByID(accountID)
 
             //GET ENVELOPS AUX MAP
-            val envelopeAuxMap = envelopeRepository.getAll().map { env -> env.toAuxDomain() }.associateBy { it.id }
+            val envelopeAuxMap = envelopeRepository.getEnvelopeListWithCurrency().first().map { it.toDomain().toAuxDomain() }.associateBy { it.id }
 
             //GET ACCOUNT AUX MAP
-            val accountAuxMap = accountRepository.getAll().map { acc -> acc.toAuxDomain() }.associateBy { it.id }
+            val accountAuxMap = accountRepository.getAccountListWithCurrency().first().map { it.toDomain().toAuxDomain() }.associateBy { it.id }
 
             //VALIDATE ACCOUNT
             if (account == null) {

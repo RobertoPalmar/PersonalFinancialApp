@@ -18,8 +18,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.Grey
+import com.rpalmar.financialapp.views.ui.theme.Red
 
 @Composable
 fun BaseTextField(
@@ -43,7 +47,8 @@ fun BaseTextField(
     label: String = "",
     leadingText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    errorMessage: String? = null
 ) {
     Card(
         modifier = Modifier
@@ -77,13 +82,13 @@ fun BaseTextField(
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(1f),
-                    ){
-                        Row (
+                    ) {
+                        Row(
                             modifier = Modifier.fillMaxSize(1f),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (value.isEmpty()) {
-                                if(!leadingText.isNullOrEmpty()){
+                                if (!leadingText.isNullOrEmpty()) {
                                     Spacer(modifier = Modifier.width(22.dp))
                                 }
                                 Text(
@@ -113,6 +118,7 @@ fun BaseTextField(
                 }
             }
         )
+        ErrorFieldSection(errorMessage = errorMessage)
     }
 }
 
@@ -126,7 +132,8 @@ fun ExampleBaseTextFieldPreview() {
             value = "",
             onValueChange = {},
             label = "Inserta un Valor",
-            enabled = false
+            enabled = false,
+            errorMessage = "Campo requerido"
         )
     }
 }

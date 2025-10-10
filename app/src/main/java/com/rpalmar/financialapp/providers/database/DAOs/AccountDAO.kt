@@ -33,4 +33,7 @@ interface AccountDAO: BaseDao<AccountEntity> {
 
     @Query("UPDATE accounts_table SET isDelete = 1 WHERE id = :id")
     suspend fun softDelete(id:Long)
+
+    @Query("UPDATE accounts_table SET balance = balance + :amount WHERE id = :accountId")
+    suspend fun updateBalance(accountId: Long, amount: Double)
 }

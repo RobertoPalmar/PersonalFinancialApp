@@ -54,6 +54,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.rpalmar.financialapp.mock.MockupProvider
+import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
@@ -79,7 +80,6 @@ import java.util.UUID
 @Composable
 fun AccountDetailScreen(
     navController: NavHostController,
-    onNavigateToTransactionForm: (String) -> Unit,
     onBackPressed: () -> Unit,
     accountId: Long
 ) {
@@ -151,7 +151,8 @@ fun AccountDetailScreen(
             show = showTransactionTypeDialog,
             onDismiss = { showTransactionTypeDialog = false },
             onTypeSelected = { transactionType ->
-                navController.navigate("transactionForm/${accountId}/${transactionType.name}")
+                val route = "transactionForm/${transactionType.name}?sourceType=${TransactionSourceType.ACCOUNT}&sourceId=${accountId}"
+                navController.navigate(route)
                 showTransactionTypeDialog = false
             }
         )
@@ -319,7 +320,7 @@ fun TransactionCard(
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier
-            .height(130.dp)
+            .height(120.dp)
             .fillMaxWidth(),
 //            .clickable(
 //                interactionSource = interactionSource,
@@ -409,12 +410,22 @@ fun TransactionCard(
                 Spacer(modifier = Modifier.weight(1f))
 
                 //DATE DATA
-                Text(
-                    text = Utils.getFullFormatDate(transaction.transactionDate),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Black
-                )
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = Utils.getFormatDate(transaction.transactionDate),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Black
+                    )
+                    Text(
+                        text = Utils.getFormatHours(transaction.transactionDate),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Black
+                    )
+                }
             }
         }
     }

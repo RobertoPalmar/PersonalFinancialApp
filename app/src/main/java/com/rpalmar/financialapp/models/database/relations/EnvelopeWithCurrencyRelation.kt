@@ -32,4 +32,5 @@ data class EnvelopeWithCurrencyRelation(
             currency = currency.toDomain()
         )
     }
+
 }

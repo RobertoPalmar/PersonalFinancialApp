@@ -22,7 +22,6 @@ enum class GoalType {
 enum class TransactionSourceType{
     ACCOUNT,
     ENVELOPE,
-    EXTERNAL_INCOME
 }
 
 enum class ButtonType{

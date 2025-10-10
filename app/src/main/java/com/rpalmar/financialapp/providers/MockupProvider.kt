@@ -201,7 +201,9 @@ object MockupProvider {
                 id = acc.id,
                 name = acc.name,
                 description = acc.description,
-                transactionEntityType = TransactionSourceType.ACCOUNT
+                transactionEntityType = TransactionSourceType.ACCOUNT,
+                currency = acc.currency,
+                balance = acc.balance
             )
         }
 

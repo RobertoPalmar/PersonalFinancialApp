@@ -17,7 +17,7 @@ data class EnvelopeEntity(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
     @ColumnInfo("name") override val name: String,
     @ColumnInfo("description") override val description: String,
-    @ColumnInfo("balance") val balance: Double,
+    @ColumnInfo("balance") override var balance: Double,
     @ColumnInfo("status") val status: EnvelopStatus,
     @ColumnInfo("style") val style:StyleEntity?,
 
@@ -31,12 +31,12 @@ data class EnvelopeEntity(
     @ColumnInfo("createAt") override val createAt: Date,
     @ColumnInfo("isDelete") override val isDelete: Boolean
 ): IEntity, IHistorical, IEntityTransaction{
-    override fun toAuxDomain(): SimpleTransactionSourceAux {
-        return SimpleTransactionSourceAux(
-            id = id,
-            name = name,
-            description = description,
-            transactionEntityType = TransactionSourceType.ENVELOPE
-        )
-    }
+//    override fun toAuxDomain(): SimpleTransactionSourceAux {
+//        return SimpleTransactionSourceAux(
+//            id = id,
+//            name = name,
+//            description = description,
+//            transactionEntityType = TransactionSourceType.ENVELOPE
+//        )
+//    }
 }
