@@ -22,6 +22,10 @@ interface EnvelopeDAO: BaseDao<EnvelopeEntity> {
     @Query("SELECT * FROM envelope_table WHERE isDelete = 0")
     fun getEnvelopeListWithCurrency(): Flow<List<EnvelopeWithCurrencyRelation>>
 
+    @Transaction
+    @Query("SELECT * FROM envelope_table")
+    fun getEnvelopeListWithCurrencyWithDelete(): Flow<List<EnvelopeWithCurrencyRelation>>
+
     @Query("SELECT * FROM envelope_table")
     fun getAll():List<EnvelopeEntity>
 

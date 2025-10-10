@@ -43,6 +43,10 @@ class AccountRepository @Inject constructor(
         return accountDAO.getAccountListWithCurrency()
     }
 
+    fun getAccountListWithCurrencyWithDelete():Flow<List<AccountWithCurrencyRelation>>{
+        return accountDAO.getAccountListWithCurrencyWithDelete()
+    }
+
     suspend fun deleteAll(){
         accountDAO.deleteAll()
     }

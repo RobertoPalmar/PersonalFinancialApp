@@ -25,7 +25,7 @@ data class TransactionWithCurrencyRelation(
             transactionCode = transaction.transactionCode,
             source =  auxSource,
             amount = transaction.amount,
-            amountInBaseCurrency = transaction.amount * currency.exchangeRate,
+            amountInBaseCurrency = transaction.amount / currency.exchangeRate,
             transactionType = transaction.transactionType,
             transactionDate = transaction.transactionDate,
             currency = currency.toDomain(),

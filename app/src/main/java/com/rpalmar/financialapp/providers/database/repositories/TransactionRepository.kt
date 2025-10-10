@@ -15,7 +15,15 @@ class TransactionRepository @Inject constructor(
     private val transactionDAO: TransactionDAO
 ): BaseEntityRepository<TransactionEntity, TransactionDAO>(transactionDAO) {
 
-    suspend fun getAll():List<TransactionEntity>{
+    fun getByID(id:Long): TransactionEntity?{
+        return transactionDAO.getByID(id)
+    }
+
+    fun getTransactionWithCurrencyByID(id: Long): TransactionWithCurrencyRelation? {
+        return transactionDAO.getTransactionWithCurrencyByID(id)
+    }
+
+    fun getAll():List<TransactionEntity>{
         return transactionDAO.getAll()
     }
 

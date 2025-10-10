@@ -25,6 +25,10 @@ interface AccountDAO: BaseDao<AccountEntity> {
     fun getAccountListWithCurrency():Flow<List<AccountWithCurrencyRelation>>
 
     @Transaction
+    @Query("SELECT * FROM accounts_table")
+    fun getAccountListWithCurrencyWithDelete():Flow<List<AccountWithCurrencyRelation>>
+
+    @Transaction
     @Query(" SELECT * FROM accounts_table WHERE isDelete = 0")
     fun getAccountListPaginated(): PagingSource<Int, AccountWithCurrencyRelation>
 

@@ -276,8 +276,17 @@ fun TransactionsListSection(
             //HANDLE LOADING STATE
             transactions.loadState.refresh is LoadState.Loading -> {
                 item {
-                    Column {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Column(
+                        modifier = Modifier.fillMaxSize(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Spacer(modifier = Modifier.weight(.7f))
+                        CircularProgressIndicator(
+                            strokeWidth = 4.dp,
+                            modifier = Modifier.size(50.dp)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
@@ -320,7 +329,7 @@ fun TransactionCard(
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier
-            .height(120.dp)
+            .height(110.dp)
             .fillMaxWidth(),
 //            .clickable(
 //                interactionSource = interactionSource,
@@ -341,13 +350,13 @@ fun TransactionCard(
                     .weight(0.6f),
                 horizontalAlignment = Alignment.Start
             ) {
-                Text(
-                    text = transaction.description,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                TransactionTypeLabel(
+                    description = transaction.description,
+                    type = transaction.transactionType
                 )
-                TransactionTypeLabel(type = transaction.transactionType)
                 Spacer(modifier = Modifier.weight(1f))
+
+                //SOURCE AND DESTINATION SECTION
                 Row(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -397,13 +406,13 @@ fun TransactionCard(
                 // AMOUNT DATA
                 Text(
                     text = "${transaction.amount} ${transaction.currency.symbol}",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (transaction.amount > 0) Green else Red
                 )
                 Text(
                     text = "${transaction.amountInBaseCurrency} ${mainCurrency.symbol}",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = DarkGrey
                 )
@@ -415,13 +424,13 @@ fun TransactionCard(
                 ) {
                     Text(
                         text = Utils.getFormatDate(transaction.transactionDate),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = Black
                     )
                     Text(
                         text = Utils.getFormatHours(transaction.transactionDate),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = Black
                     )
@@ -433,6 +442,7 @@ fun TransactionCard(
 
 @Composable
 fun TransactionTypeLabel(
+    description: String,
     type: TransactionType
 ){
     val color = when(type){
@@ -466,14 +476,21 @@ fun TransactionTypeLabel(
             tint = color,
             modifier = Modifier
                 .padding(0.dp, 0.dp, 5.dp, 0.dp)
-                .size(20.dp)
+                .size(25.dp)
         )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
+        Column {
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+        }
     }
 }
 

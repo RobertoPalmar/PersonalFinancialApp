@@ -23,7 +23,7 @@ class GetAccountDashboardDataUseCase @Inject constructor(
             var accountList = accountListFlow.first();
 
             //GET ACCOUNT BALANCE
-            var totalAccountBalance = accountList.sumOf{ it.balance * it.currency.exchangeRate }
+            var totalAccountBalance = accountList.sumOf{ it.balanceInBaseCurrency }
 
             //GET MAIN CURRENCY
             var mainCurrency = getMainCurrencyUseCase();

@@ -4,12 +4,21 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import com.rpalmar.financialapp.models.database.EnvelopeEntity
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.database.relations.TransactionWithCurrencyRelation
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDAO: BaseDao<TransactionEntity> {
+    @Query("SELECT * FROM transaction_table WHERE id = :id")
+    fun getByID(id: Long): TransactionEntity?
+
+
+    @Transaction
+    @Query("SELECT * FROM transaction_table WHERE id = :id")
+    fun getTransactionWithCurrencyByID(id: Long): TransactionWithCurrencyRelation?
+
     @Query("SELECT * FROM transaction_table")
     fun getAll():List<TransactionEntity>
 

@@ -25,6 +25,10 @@ class EnvelopeRepository @Inject constructor(
         return envelopeDAO.getEnvelopeListWithCurrency()
     }
 
+    fun getEnvelopeListWithCurrencyWithDelete(): Flow<List<EnvelopeWithCurrencyRelation>> {
+        return envelopeDAO.getEnvelopeListWithCurrencyWithDelete()
+    }
+
     suspend fun getAll():List<EnvelopeEntity>{
         return envelopeDAO.getAll()
     }

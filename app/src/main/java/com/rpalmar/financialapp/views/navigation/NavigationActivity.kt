@@ -18,7 +18,6 @@ import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.account.AccountListScreen
-import com.rpalmar.financialapp.views.currency.CurrencyScreen
 import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.transaction.TransactionFormScreen
@@ -90,9 +89,9 @@ fun AppNavigation() {
         composable("envelopes"){
             EnvelopeScreen()
         }
-        composable("currencies"){
-            CurrencyScreen()
-        }
+//        composable("currencies"){
+//            CurrencyScreen()
+//        }
 
         composable(
             route = "transactionForm/{transactionType}?sourceType={sourceType}&sourceId={sourceId}",
