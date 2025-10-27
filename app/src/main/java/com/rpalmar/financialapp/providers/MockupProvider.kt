@@ -6,6 +6,7 @@ import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.EnvelopeDomain
 import com.rpalmar.financialapp.models.EnvelopStatus
 import com.rpalmar.financialapp.models.GoalType
+import com.rpalmar.financialapp.models.RateMode
 import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
@@ -26,7 +27,8 @@ object MockupProvider {
                 ISO = "USD",
                 symbol = "$",
                 exchangeRate = 1.0,
-                currencyPriority = 1
+                mainCurrency = true,
+                rateMode = RateMode.MANUAL
             ),
             CurrencyDomain(
                 id = 2L,
@@ -34,7 +36,8 @@ object MockupProvider {
                 ISO = "EUR",
                 symbol = "€",
                 exchangeRate = 0.92,
-                currencyPriority = 2
+                mainCurrency = false,
+                rateMode = RateMode.MANUAL
             ),
             CurrencyDomain(
                 id = 3L,
@@ -42,7 +45,8 @@ object MockupProvider {
                 ISO = "JPY",
                 symbol = "¥",
                 exchangeRate = 145.3,
-                currencyPriority = 3
+                mainCurrency = false,
+                rateMode = RateMode.MANUAL
             ),
             CurrencyDomain(
                 id = 4L,
@@ -50,7 +54,8 @@ object MockupProvider {
                 ISO = "MXN",
                 symbol = "$",
                 exchangeRate = 17.1,
-                currencyPriority = 4
+                mainCurrency = false,
+                rateMode = RateMode.MANUAL
             )
         )
     }
@@ -63,7 +68,7 @@ object MockupProvider {
                 name = "Personal Checking",
                 description = "Main account for daily expenses",
                 balance = 2450.75,
-                balanceInBaseCurrency = 5161.65,
+                balanceInMainCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     color = "#E3F2FD",
@@ -75,7 +80,7 @@ object MockupProvider {
                 name = "Savings Account",
                 description = "Emergency fund and savings",
                 balance = 12000.00,
-                balanceInBaseCurrency = 5161.65,
+                balanceInMainCurrency = 5161.65,
                 currency = currencies[0], // USD
                 style = StyleEntity(
                     color = "#1B5E20",
@@ -87,7 +92,7 @@ object MockupProvider {
                 name = "Travel Fund",
                 description = "Money saved for trips",
                 balance = 3500.00,
-                balanceInBaseCurrency = 5161.65,
+                balanceInMainCurrency = 5161.65,
                 currency = currencies[1], // EUR
                 style = StyleEntity(
                     color = "#FFF3E0",
@@ -99,7 +104,7 @@ object MockupProvider {
                 name = "Investments",
                 description = "Stock and ETF portfolio",
                 balance = 580000.0,
-                balanceInBaseCurrency = 5161.65,
+                balanceInMainCurrency = 5161.65,
                 currency = currencies[2], // JPY
                 style = StyleEntity(
                     color = "#F3E5F5",
@@ -111,7 +116,7 @@ object MockupProvider {
                 name = "Business Checking",
                 description = "Company operations account",
                 balance = 185000.25,
-                balanceInBaseCurrency = 5161.65,
+                balanceInMainCurrency = 5161.65,
                 currency = currencies[3], // MXN
                 style = StyleEntity(
                     color = "#FFEBEE",
@@ -138,7 +143,8 @@ object MockupProvider {
                 goalType = GoalType.MONTHLY,
                 goalDeadline = null,
                 parentEnvelopID = null,
-                currency = currencies[0] // USD
+                currency = currencies[0],
+                balanceInMainCurrency = TODO() // USD
             ),
             EnvelopeDomain(
                 id = 202L,
@@ -154,7 +160,8 @@ object MockupProvider {
                 goalType = GoalType.MONTHLY,
                 goalDeadline = 20251231.0,
                 parentEnvelopID = null,
-                currency = currencies[1] // EUR
+                currency = currencies[1],
+                balanceInMainCurrency = TODO() // EUR
             ),
             EnvelopeDomain(
                 id = 203L,
@@ -170,7 +177,8 @@ object MockupProvider {
                 goalType = GoalType.MONTHLY,
                 goalDeadline = null,
                 parentEnvelopID = null,
-                currency = currencies[0] // USD
+                currency = currencies[0],
+                balanceInMainCurrency = TODO() // USD
             ),
             EnvelopeDomain(
                 id = 204L,
@@ -186,7 +194,8 @@ object MockupProvider {
                 goalType = GoalType.MONTHLY,
                 goalDeadline = null,
                 parentEnvelopID = null,
-                currency = currencies[3] // MXN
+                currency = currencies[3],
+                balanceInMainCurrency = TODO() // MXN
             )
         )
     }

@@ -10,6 +10,7 @@ import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAu
 import com.rpalmar.financialapp.models.interfaces.IEntity
 import com.rpalmar.financialapp.models.interfaces.IHistorical
 import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
+import com.rpalmar.financialapp.models.interfaces.ISoftDelete
 import java.util.Date
 
 @Entity(tableName = "envelope_table")
@@ -30,13 +31,4 @@ data class EnvelopeEntity(
     @ColumnInfo("currencyID") val currencyID: Long,
     @ColumnInfo("createAt") override val createAt: Date,
     @ColumnInfo("isDelete") override val isDelete: Boolean
-): IEntity, IHistorical, IEntityTransaction{
-//    override fun toAuxDomain(): SimpleTransactionSourceAux {
-//        return SimpleTransactionSourceAux(
-//            id = id,
-//            name = name,
-//            description = description,
-//            transactionEntityType = TransactionSourceType.ENVELOPE
-//        )
-//    }
-}
+): IEntity, IHistorical, ISoftDelete, IEntityTransaction

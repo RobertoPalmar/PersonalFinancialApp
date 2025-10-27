@@ -50,7 +50,8 @@ fun <T> SimpleSelector(
     onItemSelected: (T) -> Unit,
     itemLabel: (T) -> String,
     itemDetail:((T) -> String)? = null,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
     var currentSelection by remember { mutableStateOf(selectedItem) }
@@ -59,11 +60,14 @@ fun <T> SimpleSelector(
         currentSelection = selectedItem
     }
 
+    val borderColor = if (enabled) DarkGrey else Color.LightGray
+    val textColor = if (enabled) Color.Black else Color.DarkGray
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { expanded = !expanded },
+            .clickable(enabled = enabled) { expanded = !expanded },
         colors = CardDefaults.cardColors(Color.White),
         shape = MaterialTheme.shapes.medium,
     ) {
@@ -73,7 +77,7 @@ fun <T> SimpleSelector(
                 .fillMaxWidth(1f)
                 .border(
                     width = 1.dp,
-                    color = DarkGrey,
+                    color = borderColor,
                     shape = MaterialTheme.shapes.medium
                 )
                 .padding(horizontal = 18.dp, vertical = 8.dp)
@@ -87,7 +91,7 @@ fun <T> SimpleSelector(
                         text = currentSelection?.let { itemLabel(it) } ?: placeholder,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if(currentSelection != null && itemDetail != null) Bold else Normal,
-                        color = if (currentSelection == null) DarkGrey else Color.Black
+                        color = if (currentSelection == null) DarkGrey else textColor
                     )
                     if(currentSelection != null && itemDetail != null){
                         Text(
@@ -102,7 +106,9 @@ fun <T> SimpleSelector(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.weight(1f))
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                if (enabled) {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                }
             }
         }
         ErrorFieldSection(errorMessage = errorMessage)

@@ -1,3 +1,7 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,8 +24,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    //LOCAL BUILD VARIABLES
+    val localProps = Properties().apply {load(FileInputStream(rootProject.file("local.properties")))}
+    val bcvApiToken = localProps.getProperty("BCV_API_TOKEN") ?: ""
+
+    //BUILDS MODES
     buildTypes {
-        release {
+        getByName("debug") {
+            buildConfigField("String", "BCV_API_TOKEN", "\"$bcvApiToken\"")
+        }
+        getByName("release") {
+            buildConfigField("String", "BCV_API_TOKEN", "\"$bcvApiToken\"")
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -41,6 +55,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {

@@ -31,9 +31,7 @@ fun IconPicker(
         "ic_currency" to R.drawable.ic_currency,
         "ic_envelope" to R.drawable.ic_envelope,
         "ic_financial" to R.drawable.ic_financial,
-        "ic_plus" to R.drawable.ic_plus,
-        "ic_transactions" to R.drawable.ic_transactions,
-        "ic_wallet" to R.drawable.ic_wallet
+        "ic_wallet" to R.drawable.ic_account
     )
 
     var showDialog by remember { mutableStateOf(false) }

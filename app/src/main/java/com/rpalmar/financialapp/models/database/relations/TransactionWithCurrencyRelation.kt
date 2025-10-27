@@ -1,20 +1,16 @@
 package com.rpalmar.financialapp.models.database.relations
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
-import androidx.room.Relation
 import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 
 data class TransactionWithCurrencyRelation(
-    @Embedded
-    val transaction: TransactionEntity,
-    @Relation(
-        parentColumn = "currencyID",
-        entityColumn = "id"
-    )
-    val currency: CurrencyEntity,
+    @Embedded val transaction: TransactionEntity,
+    @Embedded(prefix = "currency_") val currency:CurrencyEntity,
+    @ColumnInfo(name = "exchangeRate") val exchangeRate: Double
 ) {
     fun toDomain(
         auxSource: SimpleTransactionSourceAux,
@@ -25,11 +21,11 @@ data class TransactionWithCurrencyRelation(
             transactionCode = transaction.transactionCode,
             source =  auxSource,
             amount = transaction.amount,
-            amountInBaseCurrency = transaction.amount / currency.exchangeRate,
+            amountInBaseCurrency = transaction.amount / exchangeRate,
             transactionType = transaction.transactionType,
             transactionDate = transaction.transactionDate,
             currency = currency.toDomain(),
-            exchangeRate = transaction.exchangeRate,
+            exchangeRate = transaction.transactionExchangeRate,
             description = transaction.description,
             linkedTransaction = linkedTransaction
         )

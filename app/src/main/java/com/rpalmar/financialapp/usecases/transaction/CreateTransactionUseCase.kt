@@ -39,7 +39,7 @@ class CreateTransactionUseCase @Inject constructor(
             val sourceTransactionAmount = when (originTransaction.transactionType) {
                 TransactionType.INCOME -> abs(originTransaction.amount)
                 TransactionType.EXPENSE -> -abs(originTransaction.amount)
-                TransactionType.ADJUSTMENT -> abs(originTransaction.amount)
+                TransactionType.ADJUSTMENT -> originTransaction.amount
                 TransactionType.TRANSFER -> -abs(originTransaction.amount)
             }
 

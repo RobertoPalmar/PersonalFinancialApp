@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.R
-import com.rpalmar.financialapp.models.ButtonType
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.White
 
@@ -99,6 +98,6 @@ fun SectionPreview(){
         totalEntities = 15,
         mainSummaryData = "Balance: 1850.15 $",
         mainColor = Blue,
-        icon = ImageVector.vectorResource(id = R.drawable.ic_wallet)
+        icon = ImageVector.vectorResource(id = R.drawable.ic_account)
     )
 }

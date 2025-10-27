@@ -6,7 +6,6 @@ import com.rpalmar.financialapp.models.database.StyleEntity
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomain
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
-import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
 import java.util.Date
 
 data class AccountDomain(
@@ -15,7 +14,7 @@ data class AccountDomain(
     override val description: String,
     override val balance: Double,
     override val currency: CurrencyDomain,
-    val balanceInBaseCurrency: Double,
+    val balanceInMainCurrency: Double,
     val style:StyleEntity?,
 ): IDomain, IDomainTransaction {
     override fun toEntity(): AccountEntity{

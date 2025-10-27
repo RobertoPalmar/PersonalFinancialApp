@@ -1,32 +1,35 @@
 package com.rpalmar.financialapp.models.database
 
+import androidx.compose.ui.unit.Dp
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.rpalmar.financialapp.models.RateMode
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.interfaces.IEntity
-import com.rpalmar.financialapp.models.interfaces.IHistorical
-import java.util.Date
+import java.math.BigDecimal
 
 @Entity(tableName = "currency_table")
 data class CurrencyEntity(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
+    //CURRENCY DATA
     @ColumnInfo("name") val name: String,
     @ColumnInfo("ISO") val ISO: String,
     @ColumnInfo("symbol") val symbol: String,
-    @ColumnInfo("exchangeRate") val exchangeRate: Double,
-    @ColumnInfo("currencyPriority") val currencyPriority: Int,
-    @ColumnInfo("createAt") override val createAt: Date,
-    @ColumnInfo("isDelete") override val isDelete: Boolean
-) : IEntity, IHistorical {
-    fun toDomain(): CurrencyDomain {
+    @ColumnInfo("mainCurrency") val mainCurrency: Boolean,
+
+    //EXCHANGE RATE DATA
+    @ColumnInfo("rateMode") val rateMode: RateMode
+): IEntity{
+    fun toDomain(exchangeRate:Double = 0.0): CurrencyDomain{
         return CurrencyDomain(
             id = id,
             name = name,
             ISO = ISO,
             symbol = symbol,
-            exchangeRate = exchangeRate,
-            currencyPriority = currencyPriority,
+            mainCurrency = mainCurrency,
+            rateMode = rateMode,
+            exchangeRate = exchangeRate
         )
     }
 }

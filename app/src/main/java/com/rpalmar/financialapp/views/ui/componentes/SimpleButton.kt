@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -148,7 +150,7 @@ fun ButtonContent(
 fun ButtonPreview() {
     SimpleButton(
         onClick = {},
-        icon = ImageVector.vectorResource(R.drawable.ic_plus),
+        icon = Icons.Default.AddBox,
         text = "New",
         color = Blue,
         type = ButtonType.PRIMARY
@@ -160,7 +162,7 @@ fun ButtonPreview() {
 fun ButtonOutlinePreview() {
     SimpleButton(
         onClick = {},
-        icon = ImageVector.vectorResource(R.drawable.ic_plus),
+        icon = Icons.Default.AddBox,
         text = "New",
         color = Blue,
         type = ButtonType.OUTLINE
@@ -172,7 +174,7 @@ fun ButtonOutlinePreview() {
 fun ButtonSecondaryPreview() {
     SimpleButton(
         onClick = {},
-        icon = ImageVector.vectorResource(R.drawable.ic_plus),
+        icon = Icons.Default.AddBox,
         text = "New",
         color = Blue,
         type = ButtonType.SECONDARY

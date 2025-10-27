@@ -2,7 +2,7 @@ package com.rpalmar.financialapp.views.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Orange = Color(0xFFF59300)
+val Orange = Color(0xFFF58700)
 val Yellow = Color(0xFFF5CC00)
 val DarkBlue = Color(0xFF203ED6)
 val Blue = Color(0xFF0063F5)

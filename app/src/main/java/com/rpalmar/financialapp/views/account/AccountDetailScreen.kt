@@ -1,8 +1,5 @@
 package com.rpalmar.financialapp.views.account
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -171,7 +168,7 @@ fun MainAccountCard(
 
     // FORMAT BALANCE AMOUNT
     val balanceFormatted = remember(account.balance) {String.format("%.2f", account.balance)}
-    val balanceInBaseCurrency = remember(account.balanceInBaseCurrency) {String.format("%.2f", account.balanceInBaseCurrency)}
+    val balanceInBaseCurrency = remember(account.balanceInMainCurrency) {String.format("%.2f", account.balanceInMainCurrency)}
 
     ElevatedCard(
         colors = CardDefaults.cardColors(Blue),
@@ -322,21 +319,16 @@ fun TransactionCard(
     transaction: TransactionDomain,
     mainCurrency: CurrencyDomain
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val animatedElevation by animateDpAsState(if (isPressed) 8.dp else 4.dp, label = "cardElevation")
+    // FORMAT BALANCE AMOUNT
+    val amountFormatted = remember(transaction.amount) {String.format("%.2f", transaction.amount)}
+    val amountInBaseCurrency = remember(transaction.amountInBaseCurrency) {String.format("%.2f", transaction.amountInBaseCurrency)}
 
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier
             .height(110.dp)
             .fillMaxWidth(),
-//            .clickable(
-//                interactionSource = interactionSource,
-//                indication = null,
-//                onClick = { /* TODO: acción al hacer clic */ }
-//            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
             modifier = Modifier
@@ -405,13 +397,13 @@ fun TransactionCard(
             ) {
                 // AMOUNT DATA
                 Text(
-                    text = "${transaction.amount} ${transaction.currency.symbol}",
+                    text = "${amountFormatted} ${transaction.currency.symbol}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (transaction.amount > 0) Green else Red
                 )
                 Text(
-                    text = "${transaction.amountInBaseCurrency} ${mainCurrency.symbol}",
+                    text = "${amountInBaseCurrency} ${mainCurrency.symbol}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = DarkGrey

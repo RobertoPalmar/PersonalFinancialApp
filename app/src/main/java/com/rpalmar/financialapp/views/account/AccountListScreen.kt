@@ -1,7 +1,6 @@
 package com.rpalmar.financialapp.views.account
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,9 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -43,9 +40,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.views.ui.theme.White
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -96,7 +93,7 @@ fun AccountListScreen(
             totalEntities = accountFormState.value.accountList.size,
             mainSummaryData = "Total Balance: ${totalAccountBalanceFormated} ${accountFormState.value.mainCurrency?.symbol ?: ""}",
             mainColor = Blue,
-            icon = ImageVector.vectorResource(id = R.drawable.ic_wallet)
+            icon = ImageVector.vectorResource(id = R.drawable.ic_account)
         )
         Spacer(modifier = Modifier.height(8.dp))
         SearchBarSection()
@@ -172,7 +169,7 @@ fun ButtonsSection(
         Spacer(modifier = Modifier.weight(1f))
         SimpleButton(
             onClick = { onNavigateToForm() },
-            icon = ImageVector.vectorResource(R.drawable.ic_plus),
+            icon = Icons.Default.AddBox,
             text = "New",
             color = Blue
         )
@@ -259,8 +256,8 @@ fun AccountItemCard(
     val balanceFormatted = remember(account.balance) {
         String.format("%.2f", account.balance)
     }
-    val balanceInBaseCurrency = remember(account.balanceInBaseCurrency) {
-        String.format("%.2f", account.balanceInBaseCurrency)
+    val balanceInBaseCurrency = remember(account.balanceInMainCurrency) {
+        String.format("%.2f", account.balanceInMainCurrency)
     }
 
     // ICON RESOURCE
@@ -276,8 +273,6 @@ fun AccountItemCard(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val animatedElevation by animateDpAsState(if (isPressed) 8.dp else 4.dp, label = "cardElevation")
 
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = White),
@@ -287,9 +282,9 @@ fun AccountItemCard(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = { /* TODO: acción al hacer clic */ }
+                onClick = {}
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         onClick = { onClick() }
     ) {
         Row(

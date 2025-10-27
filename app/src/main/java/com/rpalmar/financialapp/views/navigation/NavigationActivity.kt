@@ -18,6 +18,8 @@ import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.account.AccountListScreen
+import com.rpalmar.financialapp.views.currency.CurrencyFormScreen
+import com.rpalmar.financialapp.views.currency.CurrencyListScreen
 import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.transaction.TransactionFormScreen
@@ -52,7 +54,7 @@ fun AppNavigation() {
     ){
         composable("main_menu"){
             MainMenuScreen(
-                onNavigateToCurrencies = { navController.navigate("currencies") },
+                onNavigateToCurrencies = { navController.navigate("currency_flow") },
                 onNavigateToAccounts = { navController.navigate("account_flow") },
                 onNavigateToEnvelopes = { navController.navigate("envelopes") }
             )
@@ -89,9 +91,29 @@ fun AppNavigation() {
         composable("envelopes"){
             EnvelopeScreen()
         }
-//        composable("currencies"){
-//            CurrencyScreen()
-//        }
+        navigation(
+            startDestination = "currencies",
+            route = "currency_flow"
+        ){
+            composable("currencies"){
+                CurrencyListScreen(
+                    navController = navController,
+                    onNavigateToForm = { currencyId ->
+                        navController.navigate("currencyForm/$currencyId")
+                    }
+                )
+            }
+            composable(
+                "currencyForm/{currencyId}",
+                arguments = listOf(navArgument("currencyId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val currencyId = backStackEntry.arguments?.getLong("currencyId")!!
+                CurrencyFormScreen(
+                    navController = navController,
+                    currencyId = currencyId
+                )
+            }
+        }
 
         composable(
             route = "transactionForm/{transactionType}?sourceType={sourceType}&sourceId={sourceId}",

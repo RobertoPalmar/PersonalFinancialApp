@@ -8,6 +8,7 @@ import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAu
 import com.rpalmar.financialapp.models.interfaces.IEntity
 import com.rpalmar.financialapp.models.interfaces.IHistorical
 import com.rpalmar.financialapp.models.interfaces.IEntityTransaction
+import com.rpalmar.financialapp.models.interfaces.ISoftDelete
 import java.util.Date
 
 @Entity(tableName = "accounts_table")
@@ -20,14 +21,4 @@ data class AccountEntity(
     @ColumnInfo("style") val style:StyleEntity?,
     @ColumnInfo("isDelete") override val isDelete: Boolean = false,
     @ColumnInfo("createAt") override val createAt: Date,
-): IEntity, IHistorical, IEntityTransaction{
-//    override fun toAuxDomain(): SimpleTransactionSourceAux {
-//        return SimpleTransactionSourceAux(
-//            id = id,
-//            name = name,
-//            description = description,
-//            currency = currency,
-//            transactionEntityType = TransactionSourceType.ACCOUNT,
-//        )
-//    }
-}
+): IEntity, IHistorical, ISoftDelete, IEntityTransaction

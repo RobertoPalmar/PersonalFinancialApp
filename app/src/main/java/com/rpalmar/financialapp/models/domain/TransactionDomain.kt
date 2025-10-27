@@ -30,7 +30,7 @@ data class TransactionDomain (
             transactionType = transactionType,
             transactionDate = transactionDate,
             currencyID = currency.id,
-            exchangeRate = exchangeRate,
+            transactionExchangeRate = exchangeRate,
             description = description,
             linkedTransactionID = linkedTransaction?.id,
             isDelete = false

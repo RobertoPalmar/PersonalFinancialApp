@@ -1,19 +1,15 @@
 package com.rpalmar.financialapp.models.database.relations
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
-import androidx.room.Relation
 import com.rpalmar.financialapp.models.database.AccountEntity
 import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.domain.AccountDomain
 
-data class AccountWithCurrencyRelation(
-    @Embedded
-    val account: AccountEntity,
-    @Relation(
-        parentColumn = "currencyID",
-        entityColumn = "id"
-    )
-    val currency:CurrencyEntity
+data class AccountWithCurrencyAndRateRelation(
+    @Embedded val account: AccountEntity,
+    @Embedded(prefix = "currency_") val currency:CurrencyEntity,
+    @ColumnInfo(name = "exchangeRate") val exchangeRate: Double
 ){
     fun toDomain(): AccountDomain{
         return AccountDomain(
@@ -21,9 +17,9 @@ data class AccountWithCurrencyRelation(
             name = account.name,
             description = account.description,
             balance = account.balance,
-            balanceInBaseCurrency = account.balance / currency.exchangeRate,
+            balanceInMainCurrency = account.balance / exchangeRate,
             style = account.style,
-            currency = currency.toDomain()
+            currency = currency.toDomain(exchangeRate)
         )
     }
 }

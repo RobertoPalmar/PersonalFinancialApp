@@ -132,7 +132,7 @@ class AccountViewModel @Inject constructor(
                     description = _accountUIState.value.description,
                     currency = _accountUIState.value.currency!!,
                     balance = _accountUIState.value.balance.toDouble(),
-                    balanceInBaseCurrency = 0.0,
+                    balanceInMainCurrency = 0.0,
                     style = com.rpalmar.financialapp.models.database.StyleEntity(
                         color = _accountUIState.value.color,
                         icon = _accountUIState.value.icon
@@ -179,7 +179,7 @@ class AccountViewModel @Inject constructor(
                     description = _accountUIState.value.description,
                     currency = _accountUIState.value.currency!!,
                     balance = _accountUIState.value.balance.toDouble(),
-                    balanceInBaseCurrency = 0.0,
+                    balanceInMainCurrency = 0.0,
                     style = com.rpalmar.financialapp.models.database.StyleEntity(
                         color = _accountUIState.value.color,
                         icon = _accountUIState.value.icon
@@ -234,18 +234,6 @@ class AccountViewModel @Inject constructor(
             )
             errorCount++;
         }
-        if (_accountUIState.value.color.isEmpty()) {
-            _accountUIState.value = _accountUIState.value.copy(
-                errors = _accountUIState.value.errors + ("color" to "Campo Obligatorio")
-            )
-            errorCount++;
-        }
-        if (_accountUIState.value.icon.isEmpty()) {
-            _accountUIState.value = _accountUIState.value.copy(
-                errors = _accountUIState.value.errors + ("icon" to "Campo Obligatorio")
-            )
-            errorCount++;
-        }
 
         return errorCount == 0;
     }
@@ -281,8 +269,8 @@ class AccountViewModel @Inject constructor(
             description = "",
             currency = null,
             balance = "",
-            color = "",
-            icon = "",
+            color = "#FF6200EE",
+            icon = "ic_wallet",
             errors = emptyMap()
         )
     }

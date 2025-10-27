@@ -15,15 +15,89 @@ interface EnvelopeDAO: BaseDao<EnvelopeEntity> {
     fun getByID(id: Long): EnvelopeEntity?
 
     @Transaction
-    @Query("SELECT * FROM envelope_table WHERE id = :id AND isDelete = 0")
-    fun getEnvelopeWithCurrencyByID(id:Long): EnvelopeWithCurrencyRelation?
+    @Query(
+        """
+            SELECT 
+                envelope.*,
+                currency.id AS currency_id,
+                currency.name AS currency_name,
+                currency.ISO AS currency_ISO,
+                currency.symbol AS currency_symbol,
+                currency.mainCurrency AS currency_mainCurrency,
+                currency.rateMode AS currency_rateMode,
+                exchange.rate AS exchangeRate
+            FROM envelope_table AS envelope
+            INNER JOIN currency_table AS currency ON envelope.currencyId = currency.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS exchange ON exchange.currencyId = currency.id
+            WHERE envelope.id = :id AND envelope.isDelete = 0
+        """
+    )
+    fun getEnvelopeWithCurrencyByID(id: Long): EnvelopeWithCurrencyRelation?
 
     @Transaction
-    @Query("SELECT * FROM envelope_table WHERE isDelete = 0")
+    @Query(
+        """
+            SELECT 
+                envelope.*,
+                currency.id AS currency_id,
+                currency.name AS currency_name,
+                currency.ISO AS currency_ISO,
+                currency.symbol AS currency_symbol,
+                currency.mainCurrency AS currency_mainCurrency,
+                currency.rateMode AS currency_rateMode,
+                exchange.rate AS exchangeRate
+            FROM envelope_table AS envelope
+            INNER JOIN currency_table AS currency ON envelope.currencyId = currency.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS exchange ON exchange.currencyId = currency.id
+            WHERE envelope.isDelete = 0
+        """
+    )
     fun getEnvelopeListWithCurrency(): Flow<List<EnvelopeWithCurrencyRelation>>
 
     @Transaction
-    @Query("SELECT * FROM envelope_table")
+    @Query(
+        """
+            SELECT 
+                envelope.*,
+                currency.id AS currency_id,
+                currency.name AS currency_name,
+                currency.ISO AS currency_ISO,
+                currency.symbol AS currency_symbol,
+                currency.mainCurrency AS currency_mainCurrency,
+                currency.rateMode AS currency_rateMode,
+                exchange.rate AS exchangeRate
+            FROM envelope_table AS envelope
+            INNER JOIN currency_table AS currency ON envelope.currencyId = currency.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS exchange ON exchange.currencyId = currency.id
+        """
+    )
     fun getEnvelopeListWithCurrencyWithDelete(): Flow<List<EnvelopeWithCurrencyRelation>>
 
     @Query("SELECT * FROM envelope_table")

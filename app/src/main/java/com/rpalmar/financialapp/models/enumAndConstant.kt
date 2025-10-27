@@ -37,3 +37,18 @@ enum class TransactionType{
     ADJUSTMENT
 }
 
+enum class ExchangeRateApi{
+    BCV_API,
+    FRANKFURTER_API
+}
+
+enum class RateMode {
+    MANUAL,
+    AUTO
+}
+
+enum class ExchangeRateType{
+    MANUAL,
+    API
+}
+

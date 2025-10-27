@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.interfaces.IEntity
+import com.rpalmar.financialapp.models.interfaces.ISoftDelete
 import java.util.Date
 import java.util.UUID
 
@@ -19,8 +20,8 @@ data class TransactionEntity (
     @ColumnInfo("transactionType") val transactionType:TransactionType,
     @ColumnInfo("transactionDate") val transactionDate:Date,
     @ColumnInfo("currencyID") val currencyID: Long,
-    @ColumnInfo("exchangeRate") val exchangeRate:Double,
+    @ColumnInfo("transactionExchangeRate") val transactionExchangeRate:Double,
     @ColumnInfo("description") val description:String,
     @ColumnInfo("linkedTransactionID") val linkedTransactionID: Long? = null,
     @ColumnInfo("isDelete") override val isDelete: Boolean = false,
-): IEntity
+): IEntity, ISoftDelete

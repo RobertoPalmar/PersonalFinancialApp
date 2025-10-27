@@ -14,28 +14,103 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
     @Query("SELECT * FROM transaction_table WHERE id = :id")
     fun getByID(id: Long): TransactionEntity?
 
-
-    @Transaction
-    @Query("SELECT * FROM transaction_table WHERE id = :id")
-    fun getTransactionWithCurrencyByID(id: Long): TransactionWithCurrencyRelation?
-
     @Query("SELECT * FROM transaction_table")
     fun getAll():List<TransactionEntity>
 
     @Transaction
-    @Query("SELECT * FROM transaction_table " +
-            "WHERE sourceID = :accountID AND sourceType = 'ACCOUNT'" +
-            "LIMIT :rows OFFSET (:page * :rows)")
-    fun getTransactionsByAccountPaginatedFlow(accountID:Long, page:Int, rows:Int):Flow<List<TransactionWithCurrencyRelation>>
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.rateMode AS currency_rateMode,
+                er.rate AS exchangeRate
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS er ON er.currencyId = c.id
+            WHERE t.id = :id
+        """
+    )
+    fun getTransactionWithCurrencyByID(id: Long): TransactionWithCurrencyRelation?
 
     @Transaction
-    @Query("""
-        SELECT * 
-        FROM transaction_table
-        WHERE sourceID = :accountID AND sourceType = 'ACCOUNT' 
-        ORDER BY transactionDate DESC
-    """)
-    fun getTransactionsByAccountPaginated(accountID: Long): PagingSource<Int, TransactionWithCurrencyRelation>
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.rateMode AS currency_rateMode,
+                er.rate AS exchangeRate
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS er ON er.currencyId = c.id
+            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
+            LIMIT :rows OFFSET (:page * :rows)
+        """
+    )
+    fun getTransactionsByAccountPaginatedFlow(
+        accountID: Long,
+        page: Int,
+        rows: Int
+    ): Flow<List<TransactionWithCurrencyRelation>>
+
+    @Transaction
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.rateMode AS currency_rateMode,
+                er.rate AS exchangeRate
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN (
+                SELECT er1.*
+                FROM exchange_rate_table AS er1
+                INNER JOIN (
+                    SELECT currencyId, MAX(createAt) AS maxDate
+                    FROM exchange_rate_table
+                    GROUP BY currencyId
+                ) AS latest
+                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
+            ) AS er ON er.currencyId = c.id
+            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
+            ORDER BY t.transactionDate DESC
+        """
+    )
+    fun getTransactionsByAccountPaginated(
+        accountID: Long
+    ): PagingSource<Int, TransactionWithCurrencyRelation>
 
     @Query("DELETE FROM transaction_table")
     suspend fun deleteAll();

@@ -37,8 +37,8 @@ import com.rpalmar.financialapp.views.ui.componentes.MainLayout
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.Orange
-import com.rpalmar.financialapp.views.ui.theme.Yellow
 import androidx.compose.foundation.lazy.items
+import com.rpalmar.financialapp.views.ui.theme.Green
 
 @Composable
 fun MainMenuScreen(
@@ -79,14 +79,14 @@ fun NavigationSection(
             subtitle = "Consulta tus saldos y movimientos por cuenta",
             buttonName = "Manage",
             mainColor = Blue,
-            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_wallet),
+            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_account),
             onNavigate = onNavigateToAccounts
         ),
         NavigationItem(
             title = "Currencies",
             subtitle = "Administra y consulta las diferentes monedas que utilizas",
             buttonName = "Manage",
-            mainColor = Yellow,
+            mainColor = Green,
             backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_currency),
             onNavigate = onNavigateToCurrencies
         )

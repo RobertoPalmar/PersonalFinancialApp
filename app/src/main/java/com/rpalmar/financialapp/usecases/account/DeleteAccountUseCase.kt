@@ -16,6 +16,7 @@ class DeleteAccountUseCase @Inject constructor(
             //VALIDATE ENTITY
             var accountToDelete = accountRepository.getByID(accountID);
 
+            //VALIDATE ACCOUNT
             if(accountToDelete == null){
                 Log.i("DeleteAccountUseCase", "Entity not found");
                 return false;

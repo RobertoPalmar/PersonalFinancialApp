@@ -117,7 +117,8 @@ fun TransactionFormSection(
                     itemLabel = { it.name },
                     itemDetail = {"${it.balance} ${it.currency.symbol}"},
                     onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null
+                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
+                    enabled = transactionUiState.originSource == null
                 )
                 BaseTextField(
                     value = transactionUiState.amount,
@@ -139,7 +140,8 @@ fun TransactionFormSection(
                     itemLabel = { it.name },
                     itemDetail = {"${it.balance} ${it.currency.symbol}"},
                     onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null
+                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
+                    enabled = transactionUiState.originSource == null
                 )
                 SimpleSelector(
                     placeholder = "Destination Account",
@@ -191,7 +193,8 @@ fun TransactionFormSection(
                     itemLabel = { it.name },
                     itemDetail = {"${it.balance} ${it.currency.symbol}"},
                     onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage = if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null
+                    errorMessage = if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
+                    enabled = transactionUiState.originSource == null
                 )
                 BaseTextField(
                     value = transactionUiState.amount,

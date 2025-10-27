@@ -15,16 +15,17 @@ data class EnvelopeDomain(
     override val name: String,
     override val description: String,
     override val balance: Double,
-    val status: EnvelopStatus,
-    val style:StyleEntity?,
+    override val currency:CurrencyDomain,
+    val balanceInMainCurrency:Double,
 
     //GOAL DATA
     val goalAmount: Double,
     val goalType:GoalType,
     val goalDeadline: Double? = null,
+    val status: EnvelopStatus,
 
     val parentEnvelopID: Long? = null,
-    override val currency:CurrencyDomain,
+    val style:StyleEntity?,
 ): IDomain, IDomainTransaction {
     override fun toEntity(): EnvelopeEntity{
         return EnvelopeEntity(

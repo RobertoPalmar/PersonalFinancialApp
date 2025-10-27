@@ -1,5 +1,5 @@
 package com.rpalmar.financialapp.models.interfaces
 
-interface IEntity {
-    val id: Long;
+interface ISoftDelete {
+    val isDelete: Boolean
 }
