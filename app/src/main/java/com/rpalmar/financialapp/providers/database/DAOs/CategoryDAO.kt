@@ -5,8 +5,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.rpalmar.financialapp.models.database.CategoryEntity
-import com.rpalmar.financialapp.models.database.TransactionEntity
-import com.rpalmar.financialapp.models.database.relations.AccountWithCurrencyAndRateRelation
 
 @Dao
 interface CategoryDAO: BaseDao<CategoryEntity> {

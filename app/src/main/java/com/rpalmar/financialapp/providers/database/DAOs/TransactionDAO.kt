@@ -26,8 +26,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 c.ISO AS currency_ISO,
                 c.symbol AS currency_symbol,
                 c.mainCurrency AS currency_mainCurrency,
-                c.rateMode AS currency_rateMode,
-                er.rate AS exchangeRate,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
                 cat.id AS category_id,
                 cat.type AS category_type,
                 cat.name AS category_name,
@@ -36,16 +36,6 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            LEFT JOIN (
-                SELECT er1.*
-                FROM exchange_rate_table AS er1
-                INNER JOIN (
-                    SELECT currencyId, MAX(createAt) AS maxDate
-                    FROM exchange_rate_table
-                    GROUP BY currencyId
-                ) AS latest
-                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
-            ) AS er ON er.currencyId = c.id
             WHERE t.id = :id
         """
     )
@@ -61,8 +51,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 c.ISO AS currency_ISO,
                 c.symbol AS currency_symbol,
                 c.mainCurrency AS currency_mainCurrency,
-                c.rateMode AS currency_rateMode,
-                er.rate AS exchangeRate,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
                 cat.id AS category_id,
                 cat.type AS category_type,
                 cat.name AS category_name,
@@ -71,16 +61,6 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            LEFT JOIN (
-                SELECT er1.*
-                FROM exchange_rate_table AS er1
-                INNER JOIN (
-                    SELECT currencyId, MAX(createAt) AS maxDate
-                    FROM exchange_rate_table
-                    GROUP BY currencyId
-                ) AS latest
-                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
-            ) AS er ON er.currencyId = c.id
             WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
             LIMIT :rows OFFSET (:page * :rows)
         """
@@ -101,8 +81,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 c.ISO AS currency_ISO,
                 c.symbol AS currency_symbol,
                 c.mainCurrency AS currency_mainCurrency,
-                c.rateMode AS currency_rateMode,
-                er.rate AS exchangeRate,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
                 cat.id AS category_id,
                 cat.type AS category_type,
                 cat.name AS category_name,
@@ -111,16 +91,6 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            LEFT JOIN (
-                SELECT er1.*
-                FROM exchange_rate_table AS er1
-                INNER JOIN (
-                    SELECT currencyId, MAX(createAt) AS maxDate
-                    FROM exchange_rate_table
-                    GROUP BY currencyId
-                ) AS latest
-                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
-            ) AS er ON er.currencyId = c.id
             WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
             ORDER BY t.transactionDate DESC
         """
@@ -139,8 +109,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 c.ISO AS currency_ISO,
                 c.symbol AS currency_symbol,
                 c.mainCurrency AS currency_mainCurrency,
-                c.rateMode AS currency_rateMode,
-                er.rate AS exchangeRate,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
                 cat.id AS category_id,
                 cat.type AS category_type,
                 cat.name AS category_name,
@@ -149,16 +119,6 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            LEFT JOIN (
-                SELECT er1.*
-                FROM exchange_rate_table AS er1
-                INNER JOIN (
-                    SELECT currencyId, MAX(createAt) AS maxDate
-                    FROM exchange_rate_table
-                    GROUP BY currencyId
-                ) AS latest
-                ON er1.currencyId = latest.currencyId AND er1.createAt = latest.maxDate
-            ) AS er ON er.currencyId = c.id
             WHERE t.sourceID = :envelopeID AND t.sourceType = 'ENVELOPE'
             ORDER BY t.transactionDate DESC
         """

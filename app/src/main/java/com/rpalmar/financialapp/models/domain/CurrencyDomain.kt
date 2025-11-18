@@ -11,9 +11,15 @@ data class CurrencyDomain(
     val symbol:String,
     val mainCurrency: Boolean,
     val exchangeRate: Double,
-    val rateMode: RateMode
 ): IDomain {
     override fun toEntity(): CurrencyEntity{
-        return TODO("Provide the return value")
+        return CurrencyEntity(
+            id = id,
+            name = name,
+            ISO = ISO,
+            symbol = symbol,
+            mainCurrency = mainCurrency,
+            currentExchangeRate = exchangeRate
+        )
     }
 }

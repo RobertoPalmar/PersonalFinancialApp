@@ -2,10 +2,10 @@ package com.rpalmar.financialapp.providers.database.DAOs
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.rpalmar.financialapp.models.database.ExchangeRateEntity
+import com.rpalmar.financialapp.models.database.ExchangeRateHistoryEntity
 
 @Dao
-interface ExchangeRateDAO: BaseDao<ExchangeRateEntity> {
+interface ExchangeRateDAO: BaseDao<ExchangeRateHistoryEntity> {
 
     @Query("""
         SELECT e.*
@@ -17,8 +17,8 @@ interface ExchangeRateDAO: BaseDao<ExchangeRateEntity> {
         ) latest
         ON e.currencyId = latest.currencyId AND e.createAt = latest.maxDate
     """)
-    suspend fun getLastExchangeRateList():List<ExchangeRateEntity>
+    suspend fun getLastExchangeRateList():List<ExchangeRateHistoryEntity>
 
     @Query("SELECT * FROM exchange_rate_table WHERE currencyId = :currencyID ORDER BY createAt DESC LIMIT 1")
-    suspend fun getCurrentExchangeRatePerCurrencyID(currencyID:Long):ExchangeRateEntity?
+    suspend fun getCurrentExchangeRatePerCurrencyID(currencyID:Long):ExchangeRateHistoryEntity?
 }

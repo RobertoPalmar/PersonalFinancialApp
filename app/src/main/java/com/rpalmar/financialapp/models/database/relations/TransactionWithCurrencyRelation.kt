@@ -1,6 +1,5 @@
 package com.rpalmar.financialapp.models.database.relations
 
-import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import com.rpalmar.financialapp.models.database.CategoryEntity
 import com.rpalmar.financialapp.models.database.CurrencyEntity
@@ -12,7 +11,6 @@ data class TransactionWithCurrencyRelation(
     @Embedded val transaction: TransactionEntity,
     @Embedded(prefix = "currency_") val currency:CurrencyEntity,
     @Embedded(prefix = "category_") val category: CategoryEntity?,
-    @ColumnInfo(name = "exchangeRate") val exchangeRate: Double
 ) {
     fun toDomain(
         auxSource: SimpleTransactionSourceAux,
@@ -23,7 +21,7 @@ data class TransactionWithCurrencyRelation(
             transactionCode = transaction.transactionCode,
             source =  auxSource,
             amount = transaction.amount,
-            amountInBaseCurrency = transaction.amount / exchangeRate,
+            amountInBaseCurrency = transaction.amount / currency.currentExchangeRate,
             transactionType = transaction.transactionType,
             transactionDate = transaction.transactionDate,
             currency = currency.toDomain(),

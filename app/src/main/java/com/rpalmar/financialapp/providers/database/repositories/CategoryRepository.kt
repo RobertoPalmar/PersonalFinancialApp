@@ -3,10 +3,7 @@ package com.rpalmar.financialapp.providers.database.repositories
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.rpalmar.financialapp.models.database.AccountEntity
 import com.rpalmar.financialapp.models.database.CategoryEntity
-import com.rpalmar.financialapp.models.database.relations.AccountWithCurrencyAndRateRelation
-import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.providers.database.DAOs.CategoryDAO
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

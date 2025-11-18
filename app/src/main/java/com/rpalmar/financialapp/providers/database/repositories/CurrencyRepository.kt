@@ -1,7 +1,6 @@
 package com.rpalmar.financialapp.providers.database.repositories
 
 import com.rpalmar.financialapp.models.database.CurrencyEntity
-import com.rpalmar.financialapp.models.database.relations.CurrencyWithExchangeRelation
 import com.rpalmar.financialapp.providers.database.DAOs.CurrencyDAO
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -12,7 +11,7 @@ class CurrencyRepository @Inject constructor(
     private val currencyDAO: CurrencyDAO
 ): BaseEntityRepository<CurrencyEntity, CurrencyDAO>(currencyDAO) {
 
-    fun getAll():Flow<List<CurrencyWithExchangeRelation>>{
+    fun getAll():Flow<List<CurrencyEntity>>{
         return currencyDAO.getAll()
     }
 
@@ -20,7 +19,7 @@ class CurrencyRepository @Inject constructor(
         currencyDAO.deleteAll()
     }
 
-    fun getMainCurrency(): CurrencyWithExchangeRelation?{
+    fun getMainCurrency(): CurrencyEntity?{
         return currencyDAO.getMainCurrency()
     }
 }

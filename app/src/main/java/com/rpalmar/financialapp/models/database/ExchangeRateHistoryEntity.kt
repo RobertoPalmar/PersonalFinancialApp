@@ -19,11 +19,9 @@ import java.util.Date
         )
     ]
 )
-data class ExchangeRateEntity(
+data class ExchangeRateHistoryEntity(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
     val rate: Double,
     val currencyID: Long,
-    val source:String,
-    val type: ExchangeRateType,
     override val createAt: Date
 ) : IEntity, IHistorical

@@ -8,7 +8,6 @@ import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import com.rpalmar.financialapp.providers.database.repositories.AccountRepository
-import com.rpalmar.financialapp.providers.database.repositories.EnvelopeRepository
 import com.rpalmar.financialapp.providers.database.repositories.TransactionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +17,6 @@ import kotlin.math.abs
 class CreateTransactionUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
-    private val envelopeRepository: EnvelopeRepository
 ) {
 
     suspend operator fun invoke(
@@ -100,14 +98,17 @@ class CreateTransactionUseCase @Inject constructor(
         return originAmount * exchangeRate
     }
 
+    /**
+     * Update the source balance base in the new amount
+     */
     private suspend fun updateSourceBalance(sourceID:Long, sourceType:TransactionSourceType, amount:Double) {
         when (sourceType) {
             TransactionSourceType.ACCOUNT -> {
                 accountRepository.updateBalance(sourceID, amount)
             }
-            TransactionSourceType.ENVELOPE -> {
-                envelopeRepository.updateBalance(sourceID, amount)
-            }
+//            TransactionSourceType.ENVELOPE -> {
+//                envelopeRepository.updateBalance(sourceID, amount)
+//            }
         }
     }
 }

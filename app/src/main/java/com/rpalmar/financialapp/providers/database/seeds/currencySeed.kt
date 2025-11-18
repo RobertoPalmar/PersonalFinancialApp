@@ -3,7 +3,7 @@ package com.rpalmar.financialapp.providers.database.seeds
 import com.rpalmar.financialapp.models.ExchangeRateType
 import com.rpalmar.financialapp.models.RateMode
 import com.rpalmar.financialapp.models.database.CurrencyEntity
-import com.rpalmar.financialapp.models.database.ExchangeRateEntity
+import com.rpalmar.financialapp.models.database.ExchangeRateHistoryEntity
 import java.util.Date
 val currencySeeds = listOf(
     CurrencyEntity(
@@ -12,7 +12,7 @@ val currencySeeds = listOf(
         ISO = "USD",
         symbol = "$",
         mainCurrency = true,
-        rateMode = RateMode.MANUAL
+        currentExchangeRate = 1.0,
     ),
     CurrencyEntity(
         id = 2,
@@ -20,7 +20,7 @@ val currencySeeds = listOf(
         ISO = "VES",
         symbol = "Bs",
         mainCurrency = false,
-        rateMode = RateMode.AUTO
+        currentExchangeRate = 175.438596,
     ),
     CurrencyEntity(
         id = 3,
@@ -28,34 +28,28 @@ val currencySeeds = listOf(
         ISO = "EUR",
         symbol = "€",
         mainCurrency = false,
-        rateMode = RateMode.AUTO
+        currentExchangeRate = 0.854700855,
     )
 )
 
 val exchangeRateSeeds = listOf(
     // USD es la base
-    ExchangeRateEntity(
+    ExchangeRateHistoryEntity(
         id = 1,
         currencyID = 1, // USD
         rate = 1.0,
-        source = "manual",
-        type = ExchangeRateType.MANUAL,
         createAt = Date()
     ),
-    ExchangeRateEntity(
+    ExchangeRateHistoryEntity(
         id = 2,
         currencyID = 2, // VES
         rate = 175.438596,
-        source = "api",
-        type = ExchangeRateType.API,
         createAt = Date()
     ),
-    ExchangeRateEntity(
+    ExchangeRateHistoryEntity(
         id = 3,
         currencyID = 3, // EUR
         rate = 0.854700855,
-        source = "api",
-        type = ExchangeRateType.API,
         createAt = Date()
     )
 )

@@ -1,13 +1,11 @@
 package com.rpalmar.financialapp.models.database
 
-import androidx.compose.ui.unit.Dp
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.rpalmar.financialapp.models.RateMode
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.interfaces.IEntity
-import java.math.BigDecimal
+import com.rpalmar.financialapp.models.interfaces.ISoftDelete
 
 @Entity(tableName = "currency_table")
 data class CurrencyEntity(
@@ -17,17 +15,17 @@ data class CurrencyEntity(
     @ColumnInfo("ISO") val ISO: String,
     @ColumnInfo("symbol") val symbol: String,
     @ColumnInfo("mainCurrency") val mainCurrency: Boolean,
-    @ColumnInfo("exchangeRate") val exchangeRate: Double
-): IEntity{
-    fun toDomain(exchangeRate:Double = 0.0): CurrencyDomain{
+    @ColumnInfo("currentExchangeRate") val currentExchangeRate: Double,
+    @ColumnInfo("isDelete") override val isDelete: Boolean = false
+): IEntity, ISoftDelete {
+    fun toDomain(): CurrencyDomain{
         return CurrencyDomain(
             id = id,
             name = name,
             ISO = ISO,
             symbol = symbol,
             mainCurrency = mainCurrency,
-            rateMode = rateMode,
-            exchangeRate = exchangeRate
+            exchangeRate = currentExchangeRate
         )
     }
 }

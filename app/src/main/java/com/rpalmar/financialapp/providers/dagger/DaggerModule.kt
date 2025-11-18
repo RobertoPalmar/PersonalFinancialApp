@@ -15,7 +15,6 @@ import com.rpalmar.financialapp.providers.api.apis.FrankfurterApi
 import com.rpalmar.financialapp.providers.database.DAOs.AccountDAO
 import com.rpalmar.financialapp.providers.database.DAOs.CategoryDAO
 import com.rpalmar.financialapp.providers.database.DAOs.CurrencyDAO
-import com.rpalmar.financialapp.providers.database.DAOs.EnvelopeDAO
 import com.rpalmar.financialapp.providers.database.DAOs.ExchangeRateDAO
 import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
 import com.rpalmar.financialapp.providers.database.FinancialDatabase
@@ -102,12 +101,6 @@ object DaggerModule {
     @Provides
     fun currencyDAO(db: FinancialDatabase): CurrencyDAO {
         return db.currencyDAO()
-    }
-
-    @Singleton
-    @Provides
-    fun envelopeDAO(db: FinancialDatabase): EnvelopeDAO {
-        return db.envelopeDAO()
     }
 
     @Singleton

@@ -4,7 +4,6 @@ import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.providers.database.repositories.AccountRepository
-import com.rpalmar.financialapp.providers.database.repositories.EnvelopeRepository
 import com.rpalmar.financialapp.providers.database.repositories.TransactionRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -14,7 +13,6 @@ import javax.inject.Singleton
 class GetTransactionByIDUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val accountRepository: AccountRepository,
-    private val envelopeRepository: EnvelopeRepository
 ) {
     suspend operator fun invoke(id: Long): TransactionDomain? {
         val transactionWithCurrency = transactionRepository.getTransactionWithCurrencyByID(id)
@@ -26,11 +24,10 @@ class GetTransactionByIDUseCase @Inject constructor(
                     val account = accountRepository.getAccountWithCurrencyByID(transaction.sourceID)
                     account?.toDomain()?.toAuxDomain()
                 }
-                TransactionSourceType.ENVELOPE -> {
-                    val envelope = envelopeRepository.getEnvelopeWithCurrencyByID(transaction.sourceID)
-                    envelope?.toDomain()?.toAuxDomain()
-                }
-                else -> null
+//                TransactionSourceType.ENVELOPE -> {
+//                    val envelope = envelopeRepository.getEnvelopeWithCurrencyByID(transaction.sourceID)
+//                    envelope?.toDomain()?.toAuxDomain()
+//                }
             }
 
             var linkedTransactionDomain: TransactionDomain? = null
