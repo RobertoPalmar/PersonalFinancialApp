@@ -4,7 +4,9 @@ import android.util.Log
 import com.rpalmar.financialapp.models.domain.EnvelopeDomain
 import com.rpalmar.financialapp.providers.database.repositories.EnvelopeRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class GetEnvelopeByIDUseCase @Inject constructor(
     private val envelopeRepository: EnvelopeRepository
 ) {

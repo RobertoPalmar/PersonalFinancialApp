@@ -52,3 +52,6 @@ enum class ExchangeRateType{
     API
 }
 
+enum class CategoryType{
+    TRANSACTION
+}

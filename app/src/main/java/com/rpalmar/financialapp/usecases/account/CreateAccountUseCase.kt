@@ -10,6 +10,7 @@ import javax.inject.Singleton
 class CreateAccountUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
+    val TAG = "CreateAccountUseCase"
 
     suspend operator fun invoke(newAccount: AccountDomain): Boolean {
         try {
@@ -19,10 +20,10 @@ class CreateAccountUseCase @Inject constructor(
             //SAVE NEW ENTITY
             accountRepository.insert(newAccountEntity);
 
-            Log.i("CreateAccountUseCase", "💳 Entity created: $newAccount");
+            Log.i(TAG, "💳 Entity created: $newAccount");
             return true;
         } catch (ex: Exception) {
-            Log.e("CreateAccountUseCase", ex.message.toString());
+            Log.e(TAG, ex.message.toString());
             return false;
         }
     }

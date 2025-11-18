@@ -153,18 +153,18 @@ fun ButtonsSection(
     onNavigateToForm: () -> Unit,
     enabled: Boolean = true
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(1f)
-    ) {
-        Spacer(modifier = Modifier.weight(1f))
-        SimpleButton(
-            onClick = { onNavigateToForm() },
-            icon = Icons.Default.AddBox,
-            text = "New",
-            color = Green,
-            type = ButtonType.PRIMARY,
-        )
-    }
+//    Row(
+//        modifier = Modifier.fillMaxWidth(1f)
+//    ) {
+//        Spacer(modifier = Modifier.weight(1f))
+//        SimpleButton(
+//            onClick = { onNavigateToForm() },
+//            icon = Icons.Default.AddBox,
+//            text = "New",
+//            color = Green,
+//            type = ButtonType.PRIMARY,
+//        )
+//    }
 }
 
 @Composable

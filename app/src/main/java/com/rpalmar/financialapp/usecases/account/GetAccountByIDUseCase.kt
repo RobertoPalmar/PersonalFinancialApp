@@ -11,14 +11,16 @@ import javax.inject.Singleton
 class GetAccountByIDUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
+    val TAG = "GetAccountByIDUseCase"
+
     suspend operator fun invoke(accountID:Long): AccountDomain?{
         try {
-            //GET ACCOUNTS
+            //GET ACCOUNT
             val accountEntity = accountRepository.getAccountWithCurrencyByID(accountID);
 
             //VALIDATE ACCOUNT
             if(accountEntity == null){
-                Log.e("GetAccountByIDUseCase", "Error al obtener la cuenta")
+                Log.e(TAG, "Error al obtener la cuenta")
                 return null;
             }
 
@@ -26,10 +28,10 @@ class GetAccountByIDUseCase @Inject constructor(
             val accountDomain = accountEntity.toDomain();
 
             //RETURN DATA
-            Log.i("GetAccountByIDUseCase", "💳 Account Obtain: $accountDomain")
+            Log.i(TAG, "💳 Account Obtain: $accountDomain")
             return accountDomain;
         } catch (ex: Exception) {
-            Log.e("GetAccountByIDUseCase", ex.message.toString());
+            Log.e(TAG, ex.message.toString());
             return null;
         }
     }

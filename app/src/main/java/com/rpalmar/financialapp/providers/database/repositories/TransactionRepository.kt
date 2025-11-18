@@ -37,6 +37,16 @@ class TransactionRepository @Inject constructor(
         ).flow
     }
 
+    fun getByEnvelopeIDPaginated(envelopeID:Long, pageSize:Int = 20):Flow<PagingData<TransactionWithCurrencyRelation>>{
+        return Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { transactionDAO.getTransactionsByEnvelopePaginated(envelopeID)}
+        ).flow
+    }
+
     suspend fun deleteAll(){
         transactionDAO.deleteAll()
     }

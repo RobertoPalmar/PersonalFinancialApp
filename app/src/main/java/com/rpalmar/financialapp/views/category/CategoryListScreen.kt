@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.account
+package com.rpalmar.financialapp.views.category
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -38,12 +38,12 @@ import com.rpalmar.financialapp.views.ui.theme.Blue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.views.ui.theme.White
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.AddBox
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,48 +59,38 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.rpalmar.financialapp.models.domain.CurrencyDomain
-import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.ui.componentes.SummarySection
-import com.rpalmar.financialapp.views.ui.theme.DarkGrey
-import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Grey
-import com.rpalmar.financialapp.views.ui.theme.Red
- 
- @Composable
- fun AccountListScreen(    navController: NavHostController,
+
+@Composable
+fun CategoryListScreen(
+    navController: NavHostController,
     onNavigateToForm: () -> Unit,
-    onNavigateToAccountDetail: (Long) -> Unit,
-    onBackPressed: () -> Unit
+    onNavigateToCategoryDetail: (Long) -> Unit,
 ) {
-    //SET UP VIEW MODEL
-    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("account_flow") }
-    val viewModel: AccountViewModel = hiltViewModel(backStackEntry)
+    val backStackEntry = remember(navController.currentBackStackEntry) { navController.getBackStackEntry("category_flow") }
+    val viewModel: CategoryViewModel = hiltViewModel(backStackEntry)
+    val categoryState = viewModel.categoryUIState.collectAsState()
 
-    //ACCOUNT STATE DATA
-    val accountFormState = viewModel.accountUIState.collectAsState()
-
-    //LOAD ACCOUNT LIST
     LaunchedEffect(true) {
-        viewModel.loadAccountLisData()
+        viewModel.loadCategoryListData()
     }
-
-    var totalAccountBalanceFormated = String.format("%.2f", accountFormState.value.totalAccountBalance)
 
     MainLayout {
         SummarySection(
-            sectionName = "Accounts",
-            totalEntities = accountFormState.value.accountList.size,
-            mainSummaryData = "Total Balance: ${totalAccountBalanceFormated} ${accountFormState.value.mainCurrency?.symbol ?: ""}",
+            sectionName = "Categories",
+            totalEntities = categoryState.value.categoryList.size,
+            mainSummaryData = "",
             mainColor = Blue,
-            icon = ImageVector.vectorResource(id = R.drawable.ic_account)
+            icon = ImageVector.vectorResource(id = R.drawable.ic_category)
         )
         Spacer(modifier = Modifier.height(8.dp))
         SearchBarSection()
         Spacer(modifier = Modifier.height(3.dp))
         ButtonsSection(onNavigateToForm = onNavigateToForm)
 
-        if (accountFormState.value.isLoading) {
+        if (categoryState.value.isLoading) {
             Column(
                 modifier = Modifier.fillMaxSize(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -113,29 +103,14 @@ import com.rpalmar.financialapp.views.ui.theme.Red
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
-        } else if (accountFormState.value.accountList.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Spacer(modifier = Modifier.weight(.7f))
-                Text(
-                    text = "No Data",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
         } else {
-            AccountListSection(
+            CategoryListSection(
                 viewModel = viewModel,
-                mainCurrency = accountFormState.value.mainCurrency!!,
-                onNavigateToAccountDetails = { onNavigateToAccountDetail(it) }
+                onNavigateToCategoryDetails = { onNavigateToCategoryDetail(it) }
             )
         }
     }
 }
-
 
 @Composable
 fun SearchBarSection() {
@@ -147,7 +122,7 @@ fun SearchBarSection() {
         OutlinedTextField(
             value = "",
             onValueChange = {},
-            placeholder = { Text("Search Account") },
+            placeholder = { Text("Search Category") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium,
@@ -177,16 +152,15 @@ fun ButtonsSection(
 }
 
 @Composable
-fun AccountListSection(
-    viewModel: AccountViewModel,
-    mainCurrency: CurrencyDomain,
-    onNavigateToAccountDetails: (Long) -> Unit
+fun CategoryListSection(
+    viewModel: CategoryViewModel,
+    onNavigateToCategoryDetails: (Long) -> Unit
 ) {
-    val accounts = viewModel.getAccounts().collectAsLazyPagingItems()
+    val categories = viewModel.getCategories().collectAsLazyPagingItems()
     val overscrollEffect = rememberOverscrollEffect()
 
     Text(
-        text = "Account List",
+        text = "Category List",
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(0.dp, 10.dp)
     )
@@ -202,19 +176,17 @@ fun AccountListSection(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when {
-            //HANDLE LOADING STATE
-            accounts.loadState.refresh is LoadState.Loading -> {
+            categories.loadState.refresh is LoadState.Loading -> {
                 item {
                     Column {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
             }
-            //HANDLE NO ITEMS
-            accounts.itemCount == 0 -> {
+            categories.itemCount == 0 -> {
                 item {
                     Text(
-                        text = "Aún no hay cuentas",
+                        text = "Aún no hay categorias",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,16 +196,14 @@ fun AccountListSection(
                     )
                 }
             }
-            //HANDLE TRANSACTIONS
             else -> {
-                items(accounts.itemCount) { index ->
-                    val account = accounts[index]
-                    account?.let {
-                        AccountItemCard(
-                            account = account,
-                            baseCurrency = mainCurrency,
+                items(categories.itemCount) { index ->
+                    val category = categories[index]
+                    category?.let {
+                        CategoryItemCard(
+                            category = category,
                             onClick = {
-                                onNavigateToAccountDetails(account.id)
+                                onNavigateToCategoryDetails(category.id)
                             }
                         )
                     }
@@ -245,31 +215,20 @@ fun AccountListSection(
 
 @SuppressLint("DefaultLocale", "UseKtx", "LocalContextResourcesRead")
 @Composable
-fun AccountItemCard(
-    account: AccountDomain,
-    baseCurrency: CurrencyDomain,
+fun CategoryItemCard(
+    category: CategoryDomain,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
 
-    // FORMAT BALANCE AMOUNT
-    val balanceFormatted = remember(account.balance) {
-        String.format("%.2f", account.balance)
-    }
-    val balanceInBaseCurrency = remember(account.balanceInMainCurrency) {
-        String.format("%.2f", account.balanceInMainCurrency)
-    }
-
-    // ICON RESOURCE
-    val iconResourceID = remember(account.style?.icon) {
-        account.style?.icon?.let {
+    val iconResourceID = remember(category.style.icon) {
+        category.style.icon.let {
             context.resources.getIdentifier(it, "drawable", context.packageName)
-        } ?: 0
+        }
     }
 
-    // COLOR RESOURCE
-    val styleColor = remember(account.style?.color) {
-        account.style?.color?.let { Color(android.graphics.Color.parseColor(it)) } ?: Blue
+    val styleColor = remember(category.style.color) {
+        category.style.color.let { Color(android.graphics.Color.parseColor(it)) }
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -292,7 +251,6 @@ fun AccountItemCard(
                 .fillMaxSize()
                 .padding(15.dp)
         ) {
-            // ICON SECTION
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -303,21 +261,19 @@ fun AccountItemCard(
                     CircleIcon(
                         painter = painterResource(id = iconResourceID),
                         iconColor = styleColor,
-                        contentDescription = account.name,
+                        contentDescription = category.name,
                         size = 48.dp
                     )
                 } else {
-                    // fallback si no existe el drawable
                     CircleIcon(
-                        painter = painterResource(id = R.drawable.ic_financial),
+                        painter = painterResource(id = R.drawable.ic_category),
                         iconColor = styleColor,
-                        contentDescription = account.name,
+                        contentDescription = category.name,
                         size = 48.dp
                     )
                 }
             }
 
-            // ACCOUNT DESCRIPTION
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -325,41 +281,14 @@ fun AccountItemCard(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = account.name,
+                    text = category.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = account.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = DarkGrey
-                )
-            }
-
-            // ACCOUNT BALANCE
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(0.5f),
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    text = "$balanceFormatted ${account.currency.symbol}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (account.balance > 0) Green else Red
-                )
-                Text(
-                    text = "$balanceInBaseCurrency ${baseCurrency.symbol}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkGrey
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun CircleIcon(
@@ -376,7 +305,7 @@ fun CircleIcon(
     ) {
         Icon(
             modifier = Modifier.size(size - 8.dp),
-            imageVector = Icons.Default.AccountBalanceWallet,
+            imageVector = Icons.Default.Category,
             contentDescription = contentDescription,
             tint = iconColor
         )

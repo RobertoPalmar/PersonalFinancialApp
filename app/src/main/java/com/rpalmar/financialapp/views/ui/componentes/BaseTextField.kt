@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
@@ -48,6 +49,8 @@ fun BaseTextField(
     leadingText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
     errorMessage: String? = null
 ) {
     Card(
@@ -66,8 +69,10 @@ fun BaseTextField(
             onValueChange = onValueChange,
             singleLine = true,
             enabled = enabled,
+            readOnly = readOnly,
             keyboardOptions = keyboardOptions,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
             decorationBox = { innerTextField ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -81,7 +86,7 @@ fun BaseTextField(
                         .padding(horizontal = 18.dp, vertical = 8.dp)
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize(1f),
+                        modifier = Modifier.weight(1f),
                     ) {
                         Row(
                             modifier = Modifier.fillMaxSize(1f),
@@ -115,6 +120,7 @@ fun BaseTextField(
                             innerTextField()
                         }
                     }
+                    trailingIcon?.invoke()
                 }
             }
         )
@@ -133,6 +139,8 @@ fun ExampleBaseTextFieldPreview() {
             onValueChange = {},
             label = "Inserta un Valor",
             enabled = false,
+            readOnly = false,
+            trailingIcon = null,
             errorMessage = "Campo requerido"
         )
     }

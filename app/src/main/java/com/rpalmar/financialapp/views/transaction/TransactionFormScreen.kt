@@ -8,11 +8,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
@@ -25,6 +31,7 @@ import com.rpalmar.financialapp.views.transaction.data.TransactionUiState
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
 import com.rpalmar.financialapp.views.ui.componentes.BaseTextField
+import com.rpalmar.financialapp.views.ui.componentes.DatePickerDialogComponent
 import com.rpalmar.financialapp.views.ui.componentes.FormNavigatorButtonSection
 import com.rpalmar.financialapp.views.ui.componentes.MainLayout
 import com.rpalmar.financialapp.views.ui.componentes.SimpleSelector
@@ -131,6 +138,14 @@ fun TransactionFormSection(
                     ),
                     errorMessage =  if (transactionUiState.errors.containsKey("amount")) transactionUiState.errors["amount"] else null
                 )
+                SimpleSelector(
+                    placeholder = "Category",
+                    itemList = transactionUiState.categories,
+                    selectedItem = transactionUiState.category,
+                    itemLabel = { it.name },
+                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnCategoryChange(it)) },
+                    errorMessage =  if (transactionUiState.errors.containsKey("category")) transactionUiState.errors["category"] else null
+                )
             }
             TransactionType.TRANSFER -> {
                 SimpleSelector(
@@ -215,6 +230,35 @@ fun TransactionFormSection(
                 )
             }
         }
+        val showDatePicker = remember { mutableStateOf(false) }
+
+        BaseTextField(
+            value = transactionUiState.transactionDate,
+            onValueChange = { },
+            label = "Transaction Date",
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = { showDatePicker.value = true }) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.DateRange,
+                        contentDescription = "Date Picker"
+                    )
+                }
+            }
+        )
+
+        if (showDatePicker.value) {
+            DatePickerDialogComponent(
+                onDateSelected = {
+                    transactionViewModel.onTransactionFormEvent(
+                        TransactionFormEvent.OnDateChange(it)
+                    )
+                    showDatePicker.value = false
+                },
+                onDismiss = { showDatePicker.value = false }
+            )
+        }
+
         BaseTextField(
             value = transactionUiState.description,
             onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnDescriptionChange(it)) },

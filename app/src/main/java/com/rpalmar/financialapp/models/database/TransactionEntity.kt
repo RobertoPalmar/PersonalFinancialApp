@@ -23,5 +23,6 @@ data class TransactionEntity (
     @ColumnInfo("transactionExchangeRate") val transactionExchangeRate:Double,
     @ColumnInfo("description") val description:String,
     @ColumnInfo("linkedTransactionID") val linkedTransactionID: Long? = null,
+    @ColumnInfo("categoryID") val categoryID: Long? = null,
     @ColumnInfo("isDelete") override val isDelete: Boolean = false,
 ): IEntity, ISoftDelete

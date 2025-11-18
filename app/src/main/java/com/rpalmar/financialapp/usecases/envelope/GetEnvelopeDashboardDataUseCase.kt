@@ -1,31 +1,33 @@
-package com.rpalmar.financialapp.usecases.account
+package com.rpalmar.financialapp.usecases.envelope
 
 import android.util.Log
 import com.rpalmar.financialapp.models.domain.auxiliar.AccountDashboardData
+import com.rpalmar.financialapp.models.domain.auxiliar.EnvelopeDashboardData
 import com.rpalmar.financialapp.usecases.currency.GetMainCurrencyUseCase
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetAccountDashboardDataUseCase @Inject constructor(
-    private val getAccountsListUseCase: GetAccountsListUseCase,
+class GetEnvelopeDashboardDataUseCase @Inject constructor(
+    private val getEnvelopeListUseCase: GetEnvelopeListUseCase,
     private val getMainCurrencyUseCase: GetMainCurrencyUseCase
 ) {
-    val TAG = "GetAccountDashboardDataUseCase"
 
-    suspend operator fun invoke(): AccountDashboardData?{
+    val TAG = "GetEnvelopeDashboardDataUseCase"
+
+    suspend operator fun invoke():EnvelopeDashboardData?{
         try{
             //GET ACCOUNT DATA
-            var accountListFlow = getAccountsListUseCase();
-            if(accountListFlow == null){
-                Log.e(TAG, "Error al obtener la lista de cuentas")
+            var envelopeListFlow = getEnvelopeListUseCase();
+            if(envelopeListFlow == null){
+                Log.e(TAG, "Error al obtener la lista de sobres")
                 return null;
             }
-            var accountList = accountListFlow.first();
+            var envelopeList = envelopeListFlow.first();
 
             //GET ACCOUNT BALANCE
-            var totalAccountBalance = accountList.sumOf{ it.balanceInMainCurrency }
+            var totalEnvelopeBalance = envelopeList.sumOf{ it.balanceInMainCurrency }
 
             //GET MAIN CURRENCY
             var mainCurrency = getMainCurrencyUseCase();
@@ -35,10 +37,10 @@ class GetAccountDashboardDataUseCase @Inject constructor(
             }
 
             //RETURN DATA
-            return AccountDashboardData(
-                accountList = accountList,
+            return EnvelopeDashboardData(
+                envelopeList = envelopeList,
                 mainCurrency = mainCurrency,
-                totalAccountBalance = totalAccountBalance
+                totalEnvelopeBalance = totalEnvelopeBalance
             )
         } catch (ex: Exception) {
             Log.e(TAG, ex.message.toString());

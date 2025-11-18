@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.rpalmar.financialapp.models.database.AccountEntity
+import com.rpalmar.financialapp.models.database.relations.AccountWithCurrencyAndRateRelation
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -42,7 +43,7 @@ interface AccountDAO: BaseDao<AccountEntity> {
             WHERE account.id = :accountID
         """
     )
-    fun getAccountWithCurrencyByID(accountID: Long): AccountWithCurrencyRelation?
+    fun getAccountWithCurrencyByID(accountID: Long): AccountWithCurrencyAndRateRelation?
 
 
     @Transaction
@@ -72,7 +73,7 @@ interface AccountDAO: BaseDao<AccountEntity> {
             WHERE account.isDelete = 0
         """
     )
-    fun getAccountListWithCurrency(): Flow<List<AccountWithCurrencyRelation>>
+    fun getAccountListWithCurrency(): Flow<List<AccountWithCurrencyAndRateRelation>>
 
 
     @Transaction
@@ -101,7 +102,7 @@ interface AccountDAO: BaseDao<AccountEntity> {
             ) AS rate ON rate.currencyId = currency.id
         """
     )
-    fun getAccountListWithCurrencyWithDelete(): Flow<List<AccountWithCurrencyRelation>>
+    fun getAccountListWithCurrencyWithDelete(): Flow<List<AccountWithCurrencyAndRateRelation>>
 
 
     @Transaction
@@ -131,7 +132,7 @@ interface AccountDAO: BaseDao<AccountEntity> {
             WHERE account.isDelete = 0
         """
     )
-    fun getAccountListPaginated(): PagingSource<Int, AccountWithCurrencyRelation>
+    fun getAccountListPaginated(): PagingSource<Int, AccountWithCurrencyAndRateRelation>
 
     @Query("DELETE FROM accounts_table")
     suspend fun deleteAll();

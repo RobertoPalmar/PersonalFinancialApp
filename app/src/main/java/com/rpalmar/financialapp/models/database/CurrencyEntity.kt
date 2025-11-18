@@ -17,9 +17,7 @@ data class CurrencyEntity(
     @ColumnInfo("ISO") val ISO: String,
     @ColumnInfo("symbol") val symbol: String,
     @ColumnInfo("mainCurrency") val mainCurrency: Boolean,
-
-    //EXCHANGE RATE DATA
-    @ColumnInfo("rateMode") val rateMode: RateMode
+    @ColumnInfo("exchangeRate") val exchangeRate: Double
 ): IEntity{
     fun toDomain(exchangeRate:Double = 0.0): CurrencyDomain{
         return CurrencyDomain(

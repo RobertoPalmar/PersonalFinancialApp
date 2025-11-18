@@ -13,11 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.views.account.AccountDetailScreen
 import com.rpalmar.financialapp.views.account.AccountFormScreen
 import com.rpalmar.financialapp.views.account.AccountListScreen
+import com.rpalmar.financialapp.views.category.CategoryDetailScreen
+import com.rpalmar.financialapp.views.category.CategoryFormScreen
+import com.rpalmar.financialapp.views.category.CategoryListScreen
 import com.rpalmar.financialapp.views.currency.CurrencyFormScreen
 import com.rpalmar.financialapp.views.currency.CurrencyListScreen
 import com.rpalmar.financialapp.views.envelopes.EnvelopeScreen
@@ -56,8 +58,35 @@ fun AppNavigation() {
             MainMenuScreen(
                 onNavigateToCurrencies = { navController.navigate("currency_flow") },
                 onNavigateToAccounts = { navController.navigate("account_flow") },
-                onNavigateToEnvelopes = { navController.navigate("envelopes") }
+                onNavigateToEnvelopes = { navController.navigate("envelopes") },
+                onNavigateToCategories = { navController.navigate("category_flow") }
             )
+        }
+
+        navigation(
+            startDestination = "categories",
+            route = "category_flow"
+        ){
+            composable("categories"){
+                CategoryListScreen(
+                    navController = navController,
+                    onNavigateToForm = { navController.navigate("categoryForm") },
+                    onNavigateToCategoryDetail = { navController.navigate("categoryDetails/${it}") },
+                )
+            }
+            composable("categoryForm"){
+                CategoryFormScreen(
+                    navController = navController,
+                    onBackPressed = { navController.popBackStack() }
+                )
+            }
+            composable("categoryDetails/{categoryId}"){
+                val categoryId = it.arguments?.getString("categoryId")?.toLong()
+                CategoryDetailScreen(
+                    navController = navController,
+                    categoryId = categoryId!!
+                )
+            }
         }
 
         navigation(

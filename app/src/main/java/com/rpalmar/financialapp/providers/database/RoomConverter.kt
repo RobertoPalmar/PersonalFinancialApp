@@ -3,6 +3,7 @@ package com.rpalmar.financialapp.providers.database
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.rpalmar.financialapp.models.CategoryType
 import com.rpalmar.financialapp.models.RateMode
 import com.rpalmar.financialapp.models.database.StyleEntity
 import java.math.BigDecimal
@@ -52,5 +53,16 @@ class RoomConverter {
     @TypeConverter
     fun toRateMode(value: String): RateMode {
         return RateMode.valueOf(value)
+    }
+
+    //CATEGORY TYPE
+    @TypeConverter
+    fun fromCategoryType(value: CategoryType): String {
+        return value.name
+    }
+
+    @TypeConverter
+    fun toCategoryType(value: String): CategoryType {
+        return CategoryType.valueOf(value)
     }
 }

@@ -17,6 +17,8 @@ import kotlin.collections.map
 class GetAccountsListUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
+    val TAG = "GetAccountsUseCase"
+
     operator fun invoke(): Flow<List<AccountDomain>>? {
         try {
             //GET ACCOUNTS
@@ -26,10 +28,10 @@ class GetAccountsListUseCase @Inject constructor(
             val accountsDomainList = accounts.map { list -> list.map { it.toDomain() } };
 
             //RETURN DATA
-            Log.i("GetAccountsUseCase", "💳 Account Obtain: ${accountsDomainList.map { it.toString() }}")
+            Log.i(TAG, "💳 Account Obtain: ${accountsDomainList.map { it.toString() }}")
             return accountsDomainList;
         } catch (ex: Exception) {
-            Log.e("GetAccountsUseCase", ex.message.toString());
+            Log.e(TAG, ex.message.toString());
             return null;
         }
     }

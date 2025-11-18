@@ -38,6 +38,9 @@ import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.Orange
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Emergency
 import com.rpalmar.financialapp.views.ui.theme.Green
 
 @Composable
@@ -45,13 +48,15 @@ fun MainMenuScreen(
     onNavigateToCurrencies: () -> Unit,
     onNavigateToAccounts: () -> Unit,
     onNavigateToEnvelopes: () -> Unit,
+    onNavigateToCategories: () -> Unit
 ) {
 
     MainLayout {
         NavigationSection(
             onNavigateToCurrencies = onNavigateToCurrencies,
             onNavigateToAccounts = onNavigateToAccounts,
-            onNavigateToEnvelopes = onNavigateToEnvelopes
+            onNavigateToEnvelopes = onNavigateToEnvelopes,
+            onNavigateToCategories = onNavigateToCategories
         )
     }
 
@@ -62,17 +67,26 @@ fun NavigationSection(
     onNavigateToCurrencies: () -> Unit,
     onNavigateToAccounts: () -> Unit,
     onNavigateToEnvelopes: () -> Unit,
+    onNavigateToCategories:() -> Unit
 ){
     val overscrollEffect = rememberOverscrollEffect()
 
     val navigationItems = listOf(
+//        NavigationItem(
+//            title = "Envelopes",
+//            subtitle = "Organiza tu dinero en sobres de presupuesto",
+//            buttonName = "Manage",
+//            mainColor = Orange,
+//            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_envelope),
+//            onNavigate = onNavigateToEnvelopes
+//        ),
         NavigationItem(
-            title = "Envelopes",
-            subtitle = "Organiza tu dinero en sobres de presupuesto",
+            title = "Categories",
+            subtitle = "Crea y Administra tus categorias de gastos",
             buttonName = "Manage",
             mainColor = Orange,
-            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_envelope),
-            onNavigate = onNavigateToEnvelopes
+            backgroundImage = Icons.Default.Category,
+            onNavigate = onNavigateToCategories
         ),
         NavigationItem(
             title = "Accounts",
@@ -194,7 +208,8 @@ fun ExamplePreview() {
         MainMenuScreen(
             onNavigateToAccounts = {},
             onNavigateToEnvelopes = {},
-            onNavigateToCurrencies = {}
+            onNavigateToCurrencies = {},
+            onNavigateToCategories = {}
         )
     }
 }

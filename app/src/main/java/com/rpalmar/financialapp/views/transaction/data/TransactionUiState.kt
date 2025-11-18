@@ -1,6 +1,7 @@
 package com.rpalmar.financialapp.views.transaction.data
 
 import com.rpalmar.financialapp.models.TransactionType
+import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 
@@ -18,11 +19,13 @@ data class TransactionUiState(
     val currency: CurrencyDomain? = null,
     val transactionExchangeRate: Double = 0.0,
     val adjustmentAmount: Double? = null,
+    val category: CategoryDomain? = null,
     var errors:Map<String,String?> = emptyMap(),
     var isEditing: Boolean = false,
 
     //AUX DATA
     val transactionSources: List<SimpleTransactionSourceAux> = emptyList(),
+    val categories: List<CategoryDomain> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val isCrossCurrencyTransaction: Boolean = false
@@ -35,6 +38,8 @@ sealed class TransactionFormEvent{
     data class OnExchangeRateChange(val value: String): TransactionFormEvent()
     data class OnDestinationAmountChange(val value: String): TransactionFormEvent()
     data class OnDescriptionChange(val value:String): TransactionFormEvent()
+    data class OnDateChange(val value:String): TransactionFormEvent()
+    data class OnCategoryChange(val value: CategoryDomain): TransactionFormEvent()
     data class Submit(val transactionType:TransactionType): TransactionFormEvent()
     object Reset: TransactionFormEvent()
 }

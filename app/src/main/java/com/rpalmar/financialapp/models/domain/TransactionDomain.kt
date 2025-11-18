@@ -18,7 +18,8 @@ data class TransactionDomain (
     val currency: CurrencyDomain,
     val exchangeRate: Double,
     val description:String,
-    val linkedTransaction: TransactionDomain? = null
+    val linkedTransaction: TransactionDomain? = null,
+    val category:CategoryDomain? = null
 ): IDomain {
     override fun toEntity(): TransactionEntity {
         return TransactionEntity(
@@ -33,6 +34,7 @@ data class TransactionDomain (
             transactionExchangeRate = exchangeRate,
             description = description,
             linkedTransactionID = linkedTransaction?.id,
+            categoryID = category?.id,
             isDelete = false
         )
     }

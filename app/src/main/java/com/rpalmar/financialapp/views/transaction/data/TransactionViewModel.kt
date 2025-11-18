@@ -24,6 +24,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
+import com.rpalmar.financialapp.usecases.category.GetCategoriesUseCase
 import com.rpalmar.financialapp.usecases.envelope.GetEnvelopeByIDUseCase
 import com.rpalmar.financialapp.usecases.transaction.GetTransactionSourceListUseCase
 import javax.inject.Inject
@@ -34,6 +35,7 @@ class TransactionViewModel @Inject constructor(
     private val getEnvelopeByIDUseCase: GetEnvelopeByIDUseCase,
     private val getTransactionSourceListUseCase: GetTransactionSourceListUseCase,
     private val createTransactionUseCase: CreateTransactionUseCase,
+    private val getCategoriesUseCase: GetCategoriesUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -64,16 +66,26 @@ class TransactionViewModel @Inject constructor(
 
             val auxSource = transactionSource!!.toAuxDomain()
             loadInitialData(auxSource)
+
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd")
+            val currentDate = sdf.format(java.util.Date())
+            _transactionUIState.update {
+                it.copy(
+                    transactionDate = currentDate
+                )
+            }
         }
     }
 
     private fun loadInitialData(defaultSource: SimpleTransactionSourceAux?) {
         viewModelScope.launch {
             val allSources = getTransactionSourceListUseCase() ?: emptyList()
+            val categories = getCategoriesUseCase()
             _transactionUIState.update {
                 it.copy(
                     originSource = defaultSource,
                     transactionSources = allSources,
+                    categories = categories!!,
                     isLoading = false
                 )
             }
@@ -219,6 +231,22 @@ class TransactionViewModel @Inject constructor(
                     }
                 }
             }
+            is TransactionFormEvent.OnDateChange -> {
+                _transactionUIState.update {
+                    it.copy(
+                        transactionDate = event.value,
+                        errors = it.errors - "transactionDate"
+                    )
+                }
+            }
+            is TransactionFormEvent.OnCategoryChange -> {
+                _transactionUIState.update {
+                    it.copy(
+                        category = event.value,
+                        errors = it.errors - "category"
+                    )
+                }
+            }
             TransactionFormEvent.Reset -> {
                 cleanForm()
             }
@@ -308,10 +336,11 @@ class TransactionViewModel @Inject constructor(
                     amount = amount,
                     amountInBaseCurrency = 0.0,
                     transactionType = transactionType,
-                    transactionDate = Date(),
+                    transactionDate = java.text.SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
                     currency = _transactionUIState.value.originSource!!.currency,
                     exchangeRate = _transactionUIState.value.originSource!!.currency.exchangeRate,
-                    description = _transactionUIState.value.description
+                    description = _transactionUIState.value.description,
+                    category = _transactionUIState.value.category
                 )
 
                 //MAP TRANSACTION DESTINATION TO DOMAIN ENTITY
@@ -320,10 +349,11 @@ class TransactionViewModel @Inject constructor(
                         transactionCode = UUID.randomUUID(),
                         source = _transactionUIState.value.destinationSource!!,
                         transactionType = transactionType,
-                        transactionDate = Date(),
+                        transactionDate = java.text.SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
                         currency = _transactionUIState.value.destinationSource!!.currency,
                         exchangeRate = _transactionUIState.value.destinationSource!!.currency.exchangeRate,
-                        description = _transactionUIState.value.description
+                        description = _transactionUIState.value.description,
+                        category = _transactionUIState.value.category
                     )
                 }
 

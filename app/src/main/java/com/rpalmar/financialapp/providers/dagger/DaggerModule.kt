@@ -1,6 +1,7 @@
 package com.rpalmar.financialapp.providers.dagger
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -12,11 +13,14 @@ import com.rpalmar.financialapp.providers.api.RetrofitFactory
 import com.rpalmar.financialapp.providers.api.apis.BCVApi
 import com.rpalmar.financialapp.providers.api.apis.FrankfurterApi
 import com.rpalmar.financialapp.providers.database.DAOs.AccountDAO
+import com.rpalmar.financialapp.providers.database.DAOs.CategoryDAO
 import com.rpalmar.financialapp.providers.database.DAOs.CurrencyDAO
 import com.rpalmar.financialapp.providers.database.DAOs.EnvelopeDAO
 import com.rpalmar.financialapp.providers.database.DAOs.ExchangeRateDAO
 import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
 import com.rpalmar.financialapp.providers.database.FinancialDatabase
+import com.rpalmar.financialapp.providers.database.MIGRATION_9_10
+import com.rpalmar.financialapp.providers.database.repositories.SharedPreferencesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -84,6 +88,7 @@ object DaggerModule {
             .databaseBuilder(context, FinancialDatabase::class.java, ROOM_DB_NAME)
             .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
+//            .addMigrations(MIGRATION_9_10)
             .build();
     }
 
@@ -115,5 +120,23 @@ object DaggerModule {
     @Provides
     fun exchangeRateDAO(db: FinancialDatabase): ExchangeRateDAO {
         return db.exchangeRateDAO()
+    }
+
+    @Singleton
+    @Provides
+    fun categoryDAO(db: FinancialDatabase): CategoryDAO {
+        return db.categoryDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("financial_app_prefs", Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferencesRepository(sharedPreferences: SharedPreferences): SharedPreferencesRepository {
+        return SharedPreferencesRepository(sharedPreferences)
     }
 }
