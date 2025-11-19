@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -20,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,10 +33,9 @@ import com.rpalmar.financialapp.views.ui.UIEvent
 import com.rpalmar.financialapp.views.ui.componentes.BaseTextField
 import com.rpalmar.financialapp.views.ui.componentes.DatePickerDialogComponent
 import com.rpalmar.financialapp.views.ui.componentes.FormNavigatorButtonSection
-import com.rpalmar.financialapp.views.ui.componentes.MainLayout
+import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
 import com.rpalmar.financialapp.views.ui.componentes.SimpleSelector
 import com.rpalmar.financialapp.views.ui.componentes.TitleSectionCard
-import com.rpalmar.financialapp.views.ui.theme.Blue
 import java.text.NumberFormat
 import java.util.Locale
 

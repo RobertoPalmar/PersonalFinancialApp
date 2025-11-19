@@ -1,7 +1,7 @@
 package com.rpalmar.financialapp.views.mainMenu
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,189 +9,128 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.overscroll
-import androidx.compose.foundation.rememberOverscrollEffect
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rpalmar.financialapp.R
-import com.rpalmar.financialapp.models.ButtonType
-import com.rpalmar.financialapp.models.ui.NavigationItem
-import com.rpalmar.financialapp.views.ui.componentes.SimpleButton
-import com.rpalmar.financialapp.views.ui.componentes.MainLayout
-import com.rpalmar.financialapp.views.ui.theme.Blue
+import com.rpalmar.financialapp.mock.MockupProvider
+import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.ui.MainMenuItem
+import com.rpalmar.financialapp.views.account.SummaryAmountCard
+import com.rpalmar.financialapp.views.ui.componentes.refactor.DefaultIcon
+import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
+import com.rpalmar.financialapp.views.ui.componentes.refactor.formatAmount
+import com.rpalmar.financialapp.views.ui.theme.Cyan
+import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
-import com.rpalmar.financialapp.views.ui.theme.Orange
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Emergency
 import com.rpalmar.financialapp.views.ui.theme.Green
+import com.rpalmar.financialapp.views.ui.theme.Indigo
+import com.rpalmar.financialapp.views.ui.theme.LightGreen
+import com.rpalmar.financialapp.views.ui.theme.Magenta
+import com.rpalmar.financialapp.views.ui.theme.Orange
+import com.rpalmar.financialapp.views.ui.theme.Red
+import com.rpalmar.financialapp.views.ui.theme.SoftTeal
+import com.rpalmar.financialapp.views.ui.theme.White
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.ArrowDownSolid
+import compose.icons.lineawesomeicons.ArrowUpSolid
+import compose.icons.lineawesomeicons.ChartBarSolid
+import compose.icons.lineawesomeicons.CogSolid
+import compose.icons.lineawesomeicons.CoinsSolid
+import compose.icons.lineawesomeicons.ExchangeAltSolid
+import compose.icons.lineawesomeicons.FolderSolid
+import compose.icons.lineawesomeicons.HomeSolid
 
 @Composable
 fun MainMenuScreen(
-    onNavigateToCurrencies: () -> Unit,
-    onNavigateToAccounts: () -> Unit,
-    onNavigateToEnvelopes: () -> Unit,
-    onNavigateToCategories: () -> Unit
+    onAccountClick: (AccountDomain) -> Unit = {},
+    onAddAccountClick: () -> Unit = {}
 ) {
+    val totalBalance = 153215.12;
+    val currencySymbol = "$"
+
 
     MainLayout {
-        NavigationSection(
-            onNavigateToCurrencies = onNavigateToCurrencies,
-            onNavigateToAccounts = onNavigateToAccounts,
-            onNavigateToEnvelopes = onNavigateToEnvelopes,
-            onNavigateToCategories = onNavigateToCategories
-        )
-    }
-
-}
-
-@Composable
-fun NavigationSection(
-    onNavigateToCurrencies: () -> Unit,
-    onNavigateToAccounts: () -> Unit,
-    onNavigateToEnvelopes: () -> Unit,
-    onNavigateToCategories:() -> Unit
-){
-    val overscrollEffect = rememberOverscrollEffect()
-
-    val navigationItems = listOf(
-//        NavigationItem(
-//            title = "Envelopes",
-//            subtitle = "Organiza tu dinero en sobres de presupuesto",
-//            buttonName = "Manage",
-//            mainColor = Orange,
-//            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_envelope),
-//            onNavigate = onNavigateToEnvelopes
-//        ),
-        NavigationItem(
-            title = "Categories",
-            subtitle = "Crea y Administra tus categorias de gastos",
-            buttonName = "Manage",
-            mainColor = Orange,
-            backgroundImage = Icons.Default.Category,
-            onNavigate = onNavigateToCategories
-        ),
-        NavigationItem(
-            title = "Accounts",
-            subtitle = "Consulta tus saldos y movimientos por cuenta",
-            buttonName = "Manage",
-            mainColor = Blue,
-            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_account),
-            onNavigate = onNavigateToAccounts
-        ),
-        NavigationItem(
-            title = "Currencies",
-            subtitle = "Administra y consulta las diferentes monedas que utilizas",
-            buttonName = "Manage",
-            mainColor = Green,
-            backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_currency),
-            onNavigate = onNavigateToCurrencies
-        )
-        // NavigationItem(
-        //     title = "Transactions",
-        //     subtitle = "Revisa el historial de ingresos y gastos",
-        //     buttonName = "View",
-        //     mainColor = Green,
-        //     backgroundImage = ImageVector.vectorResource(id = R.drawable.ic_transactions),
-        //     onNavigate = onNavigateToTransactions
-        // )
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxHeight(1f)
-            .overscroll(overscrollEffect),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        items(items = navigationItems) { item ->
-            NavigationCard(
-                title = item.title,
-                subtitle = item.subtitle,
-                buttonName = item.buttonName,
-                mainColor = item.mainColor,
-                backgroundImage = item.backgroundImage,
-                onNavigate = item.onNavigate
+        Column {
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
+                GreetingSection()
+                TotalBalanceCard(
+                    totalBalance = totalBalance,
+                    totalBalanceInPrimaryCurrency = 1565.21,
+                    currencySymbol = currencySymbol,
+                    onAddAccountClick = onAddAccountClick
+                )
+                GlobalSummarySection()
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            MainMenuGridSection(
+                items = listOf(
+                    MainMenuItem("Accounts", LineAwesomeIcons.HomeSolid, Green),
+                    MainMenuItem("Categories", LineAwesomeIcons.FolderSolid, Orange),
+                    MainMenuItem("Currencies", LineAwesomeIcons.CoinsSolid, Cyan),
+                    MainMenuItem("Transactions", LineAwesomeIcons.ExchangeAltSolid, Magenta),
+                    MainMenuItem("Reports", LineAwesomeIcons.ChartBarSolid, Indigo),
+                    MainMenuItem("Settings", LineAwesomeIcons.CogSolid, SoftTeal)
+                ),
+                onItemClick = {}
             )
         }
     }
 }
 
 @Composable
-fun NavigationCard(
-    title: String,
-    subtitle: String,
-    buttonName: String,
-    mainColor: Color,
-    backgroundImage: ImageVector,
-    onNavigate:() -> Unit
+fun MainMenuGridSection(
+    title: String = "Menu",
+    items: List<MainMenuItem>,
+    onItemClick: (MainMenuItem) -> Unit
 ) {
-    ElevatedCard(
-        colors = CardDefaults.cardColors(containerColor = mainColor),
+    Card(
         modifier = Modifier
-            .height(170.dp)
-            .fillMaxWidth(1f),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 10.dp
-        )
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(14.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize(1f)
-                .clipToBounds()
+                .fillMaxWidth()
+                .padding(25.dp, 20.dp)
         ) {
-            Icon(
-                imageVector = backgroundImage,
-                contentDescription = title,
-                tint = Color.Black.copy(alpha = 0.1f),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(180.dp)
-                    .offset(x = 40.dp, y = 10.dp)
+            // Title
+            Text(
+                text = title,
+                color = DarkGrey,
+                style = MaterialTheme.typography.titleMedium
             )
 
-            Row() {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(.6f)
-                        .fillMaxHeight(1f)
-                        .padding(15.dp)
-                ) {
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.height(3.dp))
-                    Text(
-                        text = subtitle,
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+            Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.weight(1f))
-                    SimpleButton(
-                        onClick = { onNavigate() },
-                        text = buttonName,
-                        color = mainColor,
-                        type = ButtonType.OUTLINE
+            // Grid with cards inside your Column
+            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(2),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                userScrollEnabled = false
+            ) {
+                items(items.size) { index ->
+                    MainMenuCard(
+                        item = items[index],
+                        onClick = { onItemClick(items[index]) }
                     )
                 }
             }
@@ -199,18 +138,250 @@ fun NavigationCard(
     }
 }
 
+
 @Composable
-@Preview(showBackground = true)
-fun ExamplePreview() {
-    FinancialTheme(
-        darkTheme = false
+fun MainMenuCard(
+    item: MainMenuItem,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        MainMenuScreen(
-            onNavigateToAccounts = {},
-            onNavigateToEnvelopes = {},
-            onNavigateToCurrencies = {},
-            onNavigateToCategories = {}
+        Column(
+            modifier = Modifier
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // ICON
+            DefaultIcon(
+                title = item.title,
+                icon = item.icon,
+                color = item.color,
+                circleSize = 38.dp,
+                iconSize = 22.dp
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // TITLE
+            Text(
+                text = item.title,
+                color = DarkGrey,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+
+@Composable
+fun GreetingSection(){
+    Text(
+        text = "Hi, Roberto",
+        style = MaterialTheme.typography.titleLarge,
+        color = White,
+        fontWeight = FontWeight.Bold
+    )
+    Text(
+        text = "Here’s your financial overview for today.",
+        style = MaterialTheme.typography.bodyLarge,
+        color = White
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+}
+
+@Composable
+fun TotalBalanceCard(
+    totalBalance: Double,
+    totalBalanceInPrimaryCurrency:Double? = null,
+    currencySymbol: String,
+    onAddAccountClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .padding(bottom = 10.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkGrey),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "General Balance",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = White
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = formatAmount(totalBalance, currencySymbol),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = White
+                    )
+                    if (totalBalanceInPrimaryCurrency != null) {
+                        Text(
+                            text = formatAmount(totalBalanceInPrimaryCurrency, currencySymbol),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+//                IconButton(
+//                    onClick = onAddAccountClick,
+//                    modifier = Modifier.size(40.dp)
+//                ) {
+//                    Icon(
+//                        painter = rememberVectorPainter(Octicons.PlusCircle24),
+//                        tint = White,
+//                        contentDescription = "Add Account",
+//                        modifier = Modifier.size(26.dp)
+//                    )
+//                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GlobalSummarySection() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+
+        SummaryAmountCard(
+            modifier = Modifier.weight(1f),
+            icon = LineAwesomeIcons.ArrowUpSolid,
+            color = Green,
+            title = "Income",
+            amount = "$ 18,250.00",
+            amountInPrimaryCurrency = "Bs 10,584.00"
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        SummaryAmountCard(
+            modifier = Modifier.weight(1f),
+            icon = LineAwesomeIcons.ArrowDownSolid,
+            color = Red,
+            title = "Expenses",
+            amount = "$ 7,420.25",
+            amountInPrimaryCurrency = "Bs 87,515.26"
         )
     }
 }
 
+@Composable
+fun AccountsListSection(
+    accounts: List<AccountDomain>,
+    onAccountClick: (AccountDomain) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp, 20.dp)
+        ) {
+
+            Text(
+                text = "Transactions",
+                color = DarkGrey,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            accounts.forEach { account ->
+                AccountRow(account, onClick = {onAccountClick(account)})
+            }
+        }
+    }
+}
+
+@Composable
+fun AccountRow(account: AccountDomain, onClick: () -> Unit) {
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp),
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                DefaultIcon(
+                    title = account.name,
+                    icon = LineAwesomeIcons.HomeSolid,
+                    color = LightGreen,
+                    circleSize = 40.dp,
+                    iconSize = 22.dp
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = account.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = DarkGrey
+                    )
+                    Text(
+                        text = account.currency.symbol,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Text(
+                text = formatAmount(account.balance, account.currency.symbol),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = DarkGrey
+            )
+        }
+    }
+}
+
+// ===========================================================
+// PREVIEW
+// ===========================================================
+@Preview(showBackground = true)
+@Composable
+fun MainMenuPreview() {
+    FinancialTheme(darkTheme = false) {
+        MainMenuScreen()
+    }
+}

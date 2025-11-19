@@ -10,7 +10,7 @@ import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAu
 data class TransactionWithCurrencyRelation(
     @Embedded val transaction: TransactionEntity,
     @Embedded(prefix = "currency_") val currency:CurrencyEntity,
-    @Embedded(prefix = "category_") val category: CategoryEntity?,
+    @Embedded(prefix = "category_") val category: CategoryEntity,
 ) {
     fun toDomain(
         auxSource: SimpleTransactionSourceAux,
@@ -28,7 +28,7 @@ data class TransactionWithCurrencyRelation(
             exchangeRate = transaction.transactionExchangeRate,
             description = transaction.description,
             linkedTransaction = linkedTransaction,
-            category = category?.toDomain()
+            category = category.toDomain()
         )
     }
 }

@@ -26,7 +26,15 @@ fun ColorPicker(
     onColorSelected: (Color) -> Unit
 ) {
     val colors = listOf(
-       Orange, Yellow, DarkBlue, Blue, Green, PurpleBlue, Purple, Pink, Red
+        Orange,
+        Amber,
+        Blue,
+        Indigo,
+        Green,
+        Teal,
+        Purple,
+        Magenta,
+        Red
     )
 
     var showDialog by remember { mutableStateOf(false) }

@@ -55,3 +55,9 @@ enum class ExchangeRateType{
 enum class CategoryType{
     TRANSACTION
 }
+
+enum class NavScreen{
+    HOME,
+    STATS,
+    SETTINGS
+}

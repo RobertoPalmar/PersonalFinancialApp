@@ -1,12 +1,15 @@
-package com.rpalmar.financialapp.views.ui.componentes
+package com.rpalmar.financialapp.views.ui.componentes.refactor
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
+import com.rpalmar.financialapp.views.ui.theme.Black
 
 @Composable
 fun MainLayout(
@@ -14,8 +17,8 @@ fun MainLayout(
 ) {
     Column(
         modifier = Modifier
+            .background(Black)
             .fillMaxSize(1f)
-            .padding(25.dp, 15.dp)
     ) {
         content()
     }

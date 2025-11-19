@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,20 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.rpalmar.financialapp.R
 import com.rpalmar.financialapp.views.navigation.MainActivity
+import com.rpalmar.financialapp.views.ui.componentes.refactor.CreditCardIcon
+import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
-import com.rpalmar.financialapp.views.ui.theme.Grey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -46,8 +41,7 @@ class SplashActivity : ComponentActivity() {
 
         setContent {
             SplashScreen(
-                goToNextActivity = { goToNextActivity() },
-                syncAction = { splashViewModel.syncExchangeRates() }
+                goToNextActivity = { goToNextActivity() }
             )
         }
 
@@ -63,18 +57,16 @@ class SplashActivity : ComponentActivity() {
 @Composable
 fun SplashScreen(
     goToNextActivity: () -> Unit = {},
-    syncAction: () -> Unit = {}
 ) {
 
     LaunchedEffect(Unit) {
-        syncAction()
         delay(3000L);
         goToNextActivity()
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = Black
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -84,11 +76,7 @@ fun SplashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Image(
-                    contentDescription = "Splash Logo Icon",
-                    painter = painterResource(id = R.drawable.ic_financial),
-                    modifier = Modifier.fillMaxSize(0.3f)
-                )
+                CreditCardIcon(size = 150.dp)
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
@@ -109,13 +97,6 @@ fun SplashScreen(
                         modifier = Modifier
                             .size(20.dp)
                     )
-                    Text(
-                        text = "Updating Data",
-                        color = Color.Gray,
-                        fontSize = 10.sp,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
-
                 }
             }
 

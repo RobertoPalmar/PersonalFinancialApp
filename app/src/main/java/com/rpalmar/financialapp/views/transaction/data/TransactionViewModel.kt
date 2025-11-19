@@ -25,14 +25,12 @@ import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import com.rpalmar.financialapp.usecases.category.GetCategoriesUseCase
-import com.rpalmar.financialapp.usecases.envelope.GetEnvelopeByIDUseCase
 import com.rpalmar.financialapp.usecases.transaction.GetTransactionSourceListUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class TransactionViewModel @Inject constructor(
     private val getAccountByIDUseCase: GetAccountByIDUseCase,
-    private val getEnvelopeByIDUseCase: GetEnvelopeByIDUseCase,
     private val getTransactionSourceListUseCase: GetTransactionSourceListUseCase,
     private val createTransactionUseCase: CreateTransactionUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
@@ -59,7 +57,7 @@ class TransactionViewModel @Inject constructor(
                 val sourceId = sourceIdStr.toLong()
 
                 when(sourceType){
-                    TransactionSourceType.ENVELOPE -> transactionSource = getEnvelopeByIDUseCase(sourceId)
+//                    TransactionSourceType.ENVELOPE -> transactionSource = getEnvelopeByIDUseCase(sourceId)
                     TransactionSourceType.ACCOUNT -> transactionSource = getAccountByIDUseCase(sourceId)
                 }
             }
@@ -340,7 +338,7 @@ class TransactionViewModel @Inject constructor(
                     currency = _transactionUIState.value.originSource!!.currency,
                     exchangeRate = _transactionUIState.value.originSource!!.currency.exchangeRate,
                     description = _transactionUIState.value.description,
-                    category = _transactionUIState.value.category
+                    category = _transactionUIState.value.category!!
                 )
 
                 //MAP TRANSACTION DESTINATION TO DOMAIN ENTITY
@@ -353,7 +351,7 @@ class TransactionViewModel @Inject constructor(
                         currency = _transactionUIState.value.destinationSource!!.currency,
                         exchangeRate = _transactionUIState.value.destinationSource!!.currency.exchangeRate,
                         description = _transactionUIState.value.description,
-                        category = _transactionUIState.value.category
+                        category = _transactionUIState.value.category!!
                     )
                 }
 

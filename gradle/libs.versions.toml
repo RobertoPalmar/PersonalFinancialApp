@@ -17,7 +17,9 @@ lifecycleLivedataKtx = "2.9.3"
 lifecycleRuntimeCompose = "2.9.3"
 lifecycleRuntimeKtx = "2.9.3"
 lifecycleViewmodelKtx = "2.7.0"
+lineAwesome = "1.1.1"
 material = "1.13.0"
+octicons = "1.1.1"
 pagingCompose = "3.3.2"
 pagingRuntimeKtx = "3.3.2"
 retrofit = "2.11.0"
@@ -57,7 +59,9 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose" }
+line-awesome = { module = "br.com.devsrsouza.compose.icons:line-awesome", version.ref = "lineAwesome" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+octicons = { module = "br.com.devsrsouza.compose.icons:octicons", version.ref = "octicons" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]
