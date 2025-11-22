@@ -38,6 +38,8 @@ import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
 import com.rpalmar.financialapp.views.ui.componentes.refactor.CreditCardIcon
 import com.rpalmar.financialapp.views.ui.componentes.refactor.DefaultIcon
+import com.rpalmar.financialapp.views.ui.componentes.refactor.IncomeExpenseSection
+import com.rpalmar.financialapp.views.ui.componentes.refactor.TransactionRow
 import com.rpalmar.financialapp.views.ui.componentes.refactor.formatAmount
 import com.rpalmar.financialapp.views.ui.componentes.refactor.formatDate
 import com.rpalmar.financialapp.views.ui.componentes.refactor.transactionColor
@@ -73,9 +75,14 @@ fun AccountDetailsScreen(
                     onDeleteClick = onDeleteClick,
                     onEditClick = onEditClick
                 )
-                IncomeExpenseSummarySection()
+                IncomeExpenseSection(
+                    income = 18250.00,
+                    expenses = 7420.25,
+                    firstCurrency = MockupProvider.getMockCurrencies()[0],
+                    altCurrency = MockupProvider.getMockCurrencies()[1]
+                )
             }
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             TransactionListSection(
                 transactions = getMockTransactions()
             )
@@ -108,14 +115,14 @@ fun AccountDataCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(190.dp)
-            .padding(bottom = 20.dp, start = 15.dp, end = 15.dp),
+            .padding(bottom = 10.dp, start = 15.dp, end = 15.dp),
         colors = CardDefaults.cardColors(containerColor = DarkGrey),
         shape = RoundedCornerShape(14.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(vertical = 12.dp, horizontal = 18.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -185,37 +192,37 @@ fun AccountDataCard(
                     Row {
                         IconButton(
                             onClick = onAddClick,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(35.dp)
                         ) {
                             Icon(
                                 painter = rememberVectorPainter(image = Octicons.PlusCircle24),
                                 contentDescription = "Add",
                                 tint = White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
                         IconButton(
                             onClick = onDeleteClick,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(35.dp)
                         ) {
                             Icon(
                                 painter = rememberVectorPainter(image = Octicons.Trash24),
                                 contentDescription = "Delete",
                                 tint = White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
                         IconButton(
                             onClick = onEditClick,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(35.dp)
                         ) {
                             Icon(
                                 painter = rememberVectorPainter(image = Octicons.Pencil24),
                                 contentDescription = "Edit",
                                 tint = White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
                     }
@@ -226,41 +233,6 @@ fun AccountDataCard(
                     CreditCardIcon(size = 50.dp)
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun IncomeExpenseSummarySection() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-        ) {
-
-            //INCOME
-            SummaryAmountCard(
-                modifier = Modifier.weight(1f),
-                icon = LineAwesomeIcons.ArrowUpSolid,
-                color = Green,
-                title = "Income",
-                amount = "$ 61,550.48",
-                amountInPrimaryCurrency = "Bs 17548.15"
-            )
-
-            Spacer(modifier = Modifier.padding(5.dp))
-
-            //EXPENSES
-            SummaryAmountCard(
-                modifier = Modifier.weight(1f),
-                icon = LineAwesomeIcons.ArrowDownSolid,
-                color = Red,
-                title = "Expenses",
-                amount = "$ 12,000.25",
-                amountInPrimaryCurrency = "Bs 548.15"
-            )
         }
     }
 }
@@ -362,74 +334,6 @@ fun TransactionListSection(transactions: List<TransactionDomain>) {
         }
     }
 }
-
-
-@Composable
-fun TransactionRow(t: TransactionDomain) {
-    val color = transactionColor(t.transactionType)
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-
-        Row() {
-            //CATEGORY ICON
-            DefaultIcon(
-                title = t.description,
-                icon = LineAwesomeIcons.HomeSolid,
-                color = color,
-                circleSize = 40.dp,
-                iconSize = 25.dp
-            )
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            //DESCRIPTION AND CATEGORY
-            Column {
-
-                Text(
-                    text = t.description,
-                    color = DarkGrey,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                )
-
-                Text(
-                    text = t.category.name,
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        //AMOUNT AND DATE
-        Column(
-            horizontalAlignment = Alignment.End
-        ) {
-            Text(
-                text = formatAmount(t.amountInBaseCurrency, t.currency.symbol),
-                color = color,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = formatDate(t.transactionDate),
-                color = Color.DarkGray,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-    }
-}
-
 
 @Composable
 @Preview(showBackground = true)

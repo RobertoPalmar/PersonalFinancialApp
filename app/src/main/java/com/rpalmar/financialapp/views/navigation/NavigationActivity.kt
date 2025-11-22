@@ -8,15 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
 import com.rpalmar.financialapp.views.account.AccountDetailsScreen
-import com.rpalmar.financialapp.views.transaction.TransactionFormScreen
+import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.ui.componentes.refactor.BottomNavBar
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,15 +42,18 @@ fun AppNavigation() {
             BottomNavBar(navController)
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
+        Box(modifier = Modifier.padding(bottom = 10.dp)) {
 
             NavHost(
                 navController = navController,
-                startDestination = ScreenSections.Home,
+                startDestination = ScreenSections.Home.route,
             ) {
-                composable(ScreenSections.Home.route) {}
-                composable(ScreenSections.Home.route) { AccountDetailsScreen() }
+                composable(ScreenSections.Home.route) { MainMenuScreen() }
+                composable(ScreenSections.Stats.route) { AccountDetailsScreen() }
             }
+        }
+    }
+}
 
 //        navigation(
 //            startDestination = "accounts",
@@ -106,8 +107,6 @@ fun AppNavigation() {
 //
 //            }
 //        }
-        }
-    }
-}
+
 
 
