@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,19 +49,24 @@ import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
 import com.rpalmar.financialapp.views.ui.componentes.refactor.TransactionRow
 import com.rpalmar.financialapp.views.ui.componentes.refactor.formatAmount
 import com.rpalmar.financialapp.views.ui.componentes.refactor.formatDate
+import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.LightGreen
+import com.rpalmar.financialapp.views.ui.theme.LightGrey
 import com.rpalmar.financialapp.views.ui.theme.Orange
 import com.rpalmar.financialapp.views.ui.theme.Red
 import com.rpalmar.financialapp.views.ui.theme.White
 import compose.icons.LineAwesomeIcons
+import compose.icons.Octicons
+import compose.icons.lineawesomeicons.ArrowLeftSolid
 import compose.icons.lineawesomeicons.CoinsSolid
 import compose.icons.lineawesomeicons.ExchangeAltSolid
 import compose.icons.lineawesomeicons.HomeSolid
 import compose.icons.lineawesomeicons.TagsSolid
 import compose.icons.lineawesomeicons.WalletSolid
+import compose.icons.octicons.PlusCircle24
 
 @Composable
 fun MainMenuScreen() {
@@ -67,7 +76,7 @@ fun MainMenuScreen() {
     MainLayout {
         Column {
 
-            //SUMARY SECTION
+            //---------------------------SUMMARY SECTION---------------------------//
             when (currentSection) {
                 is MainSectionContent.Home,
                 is MainSectionContent.Accounts -> {
@@ -82,6 +91,7 @@ fun MainMenuScreen() {
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            //---------------------------WHITE SECTION---------------------------//
             BackgroundWhiteCardSection {
 
                 when (currentSection) {
@@ -110,14 +120,16 @@ fun MainMenuScreen() {
                             accounts = MockupProvider.getMockAccounts(),
                             onClick = { account ->
                                 currentSection = MainSectionContent.AccountDetail(account)
-                            }
+                            },
+                            onBackClick = { currentSection = MainSectionContent.Home }
                         )
                     }
 
                     is MainSectionContent.AccountDetail -> {
                         TransactionsListSection(
                             transactions = MockupProvider.getMockTransactions(),
-                            onClick = {}
+                            onClick = {},
+                            onBackClick = { currentSection = MainSectionContent.Accounts }
                         )
                     }
                 }
@@ -134,6 +146,7 @@ fun GeneralSummaryBalance() {
 
     Column(
         modifier = Modifier
+            .height(280.dp)
             .padding(horizontal = 18.dp, vertical = 10.dp)
             .padding(top = 10.dp)
     ) {
@@ -156,6 +169,7 @@ fun GeneralSummaryBalance() {
 fun AccountSummaryBalance(account: AccountDomain) {
     Column(
         modifier = Modifier
+            .height(280.dp)
             .padding(horizontal = 18.dp, vertical = 10.dp)
             .padding(top = 10.dp)
     ) {
@@ -221,14 +235,38 @@ fun MainMenuGridSection(
 
 @Composable
 fun SectionTitle(
-    title: String
+    title: String,
+    onBackClick: (() -> Unit)? = null,
+    actionButton: @Composable (() -> Unit)? = null
 ) {
-    // Title
-    Text(
-        text = title,
-        color = DarkGrey,
-        style = MaterialTheme.typography.titleMedium
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (onBackClick != null) {
+            Icon(
+                modifier = Modifier
+                    .size(25.dp)
+                    .padding(end = 5.dp)
+                    .clickable { onBackClick() },
+                painter = rememberVectorPainter(LineAwesomeIcons.ArrowLeftSolid),
+                contentDescription = "back",
+                tint = DarkGrey
+            )
+        }
+
+        // Title
+        Text(
+            text = title,
+            color = DarkGrey,
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        if (actionButton != null) {
+            actionButton()
+        }
+    }
 
     Spacer(modifier = Modifier.height(5.dp))
 }
@@ -349,7 +387,8 @@ fun TotalBalanceCard(
 @Composable
 fun TransactionsListSection(
     transactions: List<TransactionDomain>,
-    onClick: (TransactionDomain) -> Unit
+    onClick: (TransactionDomain) -> Unit,
+    onBackClick: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -360,7 +399,7 @@ fun TransactionsListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
-        SectionTitle("Last Transactions")
+        SectionTitle("Last Transactions", onBackClick, )
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
@@ -379,6 +418,7 @@ fun TransactionsListSection(
 @Composable
 fun AccountsListSection(
     accounts: List<AccountDomain>,
+    onBackClick: () -> Unit,
     onClick: (AccountDomain) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -390,7 +430,23 @@ fun AccountsListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
-        SectionTitle("Accounts")
+        SectionTitle(
+            "Accounts",
+            onBackClick,
+            actionButton = {
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Octicons.PlusCircle24),
+                        contentDescription = "Add",
+                        tint = DarkGrey,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+        )
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
@@ -471,8 +527,7 @@ fun AccountRow(
                     Text(
                         text = formatAmount(account.balanceInMainCurrency, account.currency.symbol),
                         color = Color.DarkGray,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

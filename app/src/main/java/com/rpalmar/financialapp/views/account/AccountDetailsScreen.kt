@@ -114,7 +114,7 @@ fun AccountDataCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(190.dp)
+            .height(173.dp)
             .padding(bottom = 10.dp, start = 15.dp, end = 15.dp),
         colors = CardDefaults.cardColors(containerColor = DarkGrey),
         shape = RoundedCornerShape(14.dp)
@@ -144,7 +144,7 @@ fun AccountDataCard(
                         Spacer(modifier = Modifier.height(2.dp))
 
                         Text(
-                            text = "Total Balance",
+                            text = "Account Balance",
                             color = White,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -187,6 +187,10 @@ fun AccountDataCard(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    //UI CREDIT CARD CANVAS
+                    CreditCardIcon(size = 50.dp, modifier = Modifier.padding(start = 10.dp))
+
+                    Spacer(modifier = Modifier.weight(1f))
 
                     //ACTION BUTTONS SECTION
                     Row {
@@ -226,11 +230,6 @@ fun AccountDataCard(
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    //UI CREDIT CARD CANVAS
-                    CreditCardIcon(size = 50.dp)
                 }
             }
         }

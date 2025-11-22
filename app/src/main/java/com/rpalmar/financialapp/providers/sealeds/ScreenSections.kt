@@ -10,7 +10,7 @@ import compose.icons.lineawesomeicons.HomeSolid
 import compose.icons.lineawesomeicons.ToolsSolid
 
 sealed class ScreenSections(val route: String, val label: String, val icon: ImageVector) {
-    object Home : ScreenSections("home", "Inicio", LineAwesomeIcons.CreditCardSolid)
+    object Home : ScreenSections("home", "Inicio", LineAwesomeIcons.HomeSolid)
     object Stats : ScreenSections("stats", "Estadísticas", LineAwesomeIcons.ChartPieSolid)
     object Settings : ScreenSections("settings", "Ajustes", LineAwesomeIcons.ToolsSolid)
 }

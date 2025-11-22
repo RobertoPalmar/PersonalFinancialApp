@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
+import com.rpalmar.financialapp.views.ui.theme.White
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
@@ -25,7 +26,8 @@ fun BottomNavBar(navController: NavHostController) {
     )
 
     NavigationBar(
-        modifier = Modifier.height(45.dp),
+        modifier = Modifier.height(50.dp),
+        containerColor = White
     ) {
         val currentDestination = navController.currentBackStackEntryAsState().value?.destination
 
@@ -56,6 +58,6 @@ fun BottomNavBar(navController: NavHostController) {
 @Preview(showBackground = true)
 @Composable
 fun BottomNavBarPreview() {
-    val navController = rememberNavController() // NavController de prueba para preview
+    val navController = rememberNavController()
     BottomNavBar(navController = navController)
 }
