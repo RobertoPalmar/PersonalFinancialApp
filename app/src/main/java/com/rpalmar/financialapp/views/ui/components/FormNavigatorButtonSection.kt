@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.componentes
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.ButtonType
 import com.rpalmar.financialapp.views.ui.theme.Black
-import com.rpalmar.financialapp.views.ui.theme.Blue
-import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.White
 

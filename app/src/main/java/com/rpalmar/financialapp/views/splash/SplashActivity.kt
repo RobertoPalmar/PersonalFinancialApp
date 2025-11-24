@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.views.navigation.MainActivity
-import com.rpalmar.financialapp.views.ui.componentes.refactor.CreditCardIcon
+import com.rpalmar.financialapp.views.ui.components.refactor.CreditCardIcon
 import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import dagger.hilt.android.AndroidEntryPoint

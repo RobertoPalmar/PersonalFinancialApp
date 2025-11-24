@@ -1,14 +1,17 @@
 package com.rpalmar.financialapp.mock
 
 import com.rpalmar.financialapp.models.CategoryType
-import com.rpalmar.financialapp.models.database.StyleEntity
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.CategoryDomain
+import com.rpalmar.financialapp.models.domain.StyleDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
+import com.rpalmar.financialapp.views.ui.components.refactor.IconMapper
+import com.rpalmar.financialapp.views.ui.components.refactor.toColor
+import com.rpalmar.financialapp.views.ui.theme.*
 import java.util.Date
 import java.util.UUID
 
@@ -56,6 +59,7 @@ object MockupProvider {
 
     fun getMockAccounts(): List<AccountDomain> {
         val currencies = getMockCurrencies()
+
         return listOf(
             AccountDomain(
                 id = 101L,
@@ -64,10 +68,10 @@ object MockupProvider {
                 balance = 2450.75,
                 balanceInMainCurrency = 5161.65,
                 currency = currencies[0], // USD
-                style = StyleEntity(
-                    color = "#E3F2FD",
-                    icon = "ic_account_balance_wallet"
-                ),
+                style = StyleDomain(
+                    uiColor = Green,                 // 🌱 Verde vibrante
+                    uiIcon = IconMapper.fromName("AccountBalanceWallet")
+                )
             ),
             AccountDomain(
                 id = 102L,
@@ -75,10 +79,10 @@ object MockupProvider {
                 description = "Emergency fund and savings",
                 balance = 12000.00,
                 balanceInMainCurrency = 5161.65,
-                currency = currencies[0], // USD
-                style = StyleEntity(
-                    color = "#1B5E20",
-                    icon = "ic_savings"
+                currency = currencies[0],
+                style = StyleDomain(
+                    uiColor = Indigo,               // 🔵 Azul índigo fuerte
+                    uiIcon = IconMapper.fromName("ic_savings")
                 )
             ),
             AccountDomain(
@@ -88,9 +92,9 @@ object MockupProvider {
                 balance = 3500.00,
                 balanceInMainCurrency = 5161.65,
                 currency = currencies[1], // EUR
-                style = StyleEntity(
-                    color = "#FFF3E0",
-                    icon = "ic_flight"
+                style = StyleDomain(
+                    uiColor = Cyan,                 // 🟦 Cyan brillante
+                    uiIcon = IconMapper.fromName("ic_flight")
                 )
             ),
             AccountDomain(
@@ -99,10 +103,10 @@ object MockupProvider {
                 description = "Stock and ETF portfolio",
                 balance = 580000.0,
                 balanceInMainCurrency = 5161.65,
-                currency = currencies[2], // JPY
-                style = StyleEntity(
-                    color = "#F3E5F5",
-                    icon = "ic_trending_up"
+                currency = currencies[2],
+                style = StyleDomain(
+                    uiColor = Purple,               // 🟪 Morado fuerte (finanzas/crecimiento)
+                    uiIcon = IconMapper.fromName("ic_trending_up")
                 )
             ),
             AccountDomain(
@@ -111,10 +115,10 @@ object MockupProvider {
                 description = "Company operations account",
                 balance = 185000.25,
                 balanceInMainCurrency = 5161.65,
-                currency = currencies[3], // MXN
-                style = StyleEntity(
-                    color = "#FFEBEE",
-                    icon = "ic_business"
+                currency = currencies[3],
+                style = StyleDomain(
+                    uiColor = Orange,               // 🟧 Naranja corporativo llamativo
+                    uiIcon = IconMapper.fromName("ic_business")
                 )
             )
         )
@@ -123,6 +127,7 @@ object MockupProvider {
     fun getMockTransactions(): List<TransactionDomain> {
         val accounts = getMockAccounts()
         val currencies = getMockCurrencies()
+        val categories = getMockCategories() // ⬅️ USAMOS LAS CATEGORÍAS MOCK
 
         // Crear SimpleTransactionSourceAux a partir de las cuentas
         val accountSources = accounts.map { acc ->
@@ -146,6 +151,11 @@ object MockupProvider {
             val amount = (50..1000).random() + (0..99).random() / 100.0
             val date = Date(System.currentTimeMillis() - (0..30).random() * 24 * 60 * 60 * 1000L)
 
+            // ⬅️ Escoger una categoría válida para el tipo de transacción
+            val category = categories
+                .filter { it.type == CategoryType.TRANSACTION }
+                .random()
+
             transactions.add(
                 TransactionDomain(
                     id = i.toLong(),
@@ -158,20 +168,12 @@ object MockupProvider {
                     currency = currency,
                     exchangeRate = currency.exchangeRate,
                     description = "Mock ${type.name.lowercase()} transaction $i",
-                    category = CategoryDomain(
-                        id = 1L,
-                        name = "Category $i",
-                        type = CategoryType.TRANSACTION,
-                        style = StyleEntity(
-                            color = "#E3F2FD",
-                            icon = "ic_account_balance_wallet"
-                        )
-                    )
+                    category = category
                 )
             )
         }
 
-        // Generar una transferencia con linkedTransaction
+        // -------- Transferencia con linkedTransaction --------
         val sourceAccount = accountSources[0]
         val destAccount = accountSources[1]
         val currencySource = currencies[0]
@@ -179,6 +181,8 @@ object MockupProvider {
 
         val transferAmount = 300.0
         val transferDate = Date(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L)
+
+        val transferCategory = categories.random() // cualquier categoría mock
 
         val linkedTransaction = TransactionDomain(
             id = 100L,
@@ -191,15 +195,7 @@ object MockupProvider {
             currency = currencyDest,
             exchangeRate = currencyDest.exchangeRate,
             description = "Linked transfer to ${destAccount.name}",
-            category = CategoryDomain(
-                id = 1L,
-                name = "Category 2",
-                type = CategoryType.TRANSACTION,
-                style = StyleEntity(
-                    color = "#E3F2FD",
-                    icon = "ic_account_balance_wallet"
-                )
-            )
+            category = transferCategory
         )
 
         val mainTransaction = TransactionDomain(
@@ -214,21 +210,108 @@ object MockupProvider {
             exchangeRate = currencySource.exchangeRate,
             description = "Transfer to ${destAccount.name}",
             linkedTransaction = linkedTransaction,
-            category = CategoryDomain(
-                id = 1L,
-                name = "Category 1",
-                type = CategoryType.TRANSACTION,
-                style = StyleEntity(
-                    color = "#E3F2FD",
-                    icon = "ic_account_balance_wallet"
-                )
-            )
+            category = transferCategory
         )
 
         transactions.add(linkedTransaction)
         transactions.add(mainTransaction)
 
         return transactions
+    }
+
+    fun getMockCategories(): List<CategoryDomain> {
+        return listOf(
+            CategoryDomain(
+                id = 1,
+                type = CategoryType.TRANSACTION,
+                name = "Comida",
+                style = StyleDomain(
+                    uiColor = Coral,                      // 🍽️ Naranja coral intenso
+                    uiIcon = IconMapper.fromName("UtensilsSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 2,
+                type = CategoryType.TRANSACTION,
+                name = "Salario",
+                style = StyleDomain(
+                    uiColor = Emerald,                     // 💵 Verde intenso
+                    uiIcon = IconMapper.fromName("MoneyBillWaveSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 3,
+                type = CategoryType.TRANSACTION,
+                name = "Transporte",
+                style = StyleDomain(
+                    uiColor = RoyalBlue,                   // 🚌 Azul fuerte
+                    uiIcon = IconMapper.fromName("CarSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 4,
+                type = CategoryType.TRANSACTION,
+                name = "Compras",
+                style = StyleDomain(
+                    uiColor = Magenta,                     // 🛍️ Rosa fuerte
+                    uiIcon = IconMapper.fromName("ShoppingBagSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 5,
+                type = CategoryType.TRANSACTION,
+                name = "Salud",
+                style = StyleDomain(
+                    uiColor = Red,                         // ❤️ Rojo intenso
+                    uiIcon = IconMapper.fromName("HeartSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 6,
+                type = CategoryType.TRANSACTION,
+                name = "Servicios",
+                style = StyleDomain(
+                    uiColor = DeepOrange,                  // ⚡ Naranja oscuro
+                    uiIcon = IconMapper.fromName("BoltSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 7,
+                type = CategoryType.TRANSACTION,
+                name = "Entretenimiento",
+                style = StyleDomain(
+                    uiColor = NeonPink,                    // 🎬 Rosa neón
+                    uiIcon = IconMapper.fromName("GiftSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 8,
+                type = CategoryType.TRANSACTION,
+                name = "Educación",
+                style = StyleDomain(
+                    uiColor = Violet,                       // 📚 Violeta intenso
+                    uiIcon = IconMapper.fromName("BookSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 9,
+                type = CategoryType.TRANSACTION,
+                name = "Regalos",
+                style = StyleDomain(
+                    uiColor = Amber,                        // 🎁 Amarillo ámbar
+                    uiIcon = IconMapper.fromName("GiftSolid")
+                )
+            ),
+            CategoryDomain(
+                id = 10,
+                type = CategoryType.TRANSACTION,
+                name = "Ahorro",
+                style = StyleDomain(
+                    uiColor = Teal,                         // 💰 Teal intenso
+                    uiIcon = IconMapper.fromName("WalletSolid")
+                )
+            )
+        )
     }
 
 }

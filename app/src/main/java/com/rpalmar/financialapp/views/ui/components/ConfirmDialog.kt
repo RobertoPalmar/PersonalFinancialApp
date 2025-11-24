@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.componentes
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme

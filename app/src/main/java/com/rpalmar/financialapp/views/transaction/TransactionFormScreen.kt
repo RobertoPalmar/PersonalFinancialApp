@@ -30,12 +30,12 @@ import com.rpalmar.financialapp.views.transaction.data.TransactionFormEvent
 import com.rpalmar.financialapp.views.transaction.data.TransactionUiState
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
-import com.rpalmar.financialapp.views.ui.componentes.BaseTextField
-import com.rpalmar.financialapp.views.ui.componentes.DatePickerDialogComponent
-import com.rpalmar.financialapp.views.ui.componentes.FormNavigatorButtonSection
-import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
-import com.rpalmar.financialapp.views.ui.componentes.SimpleSelector
-import com.rpalmar.financialapp.views.ui.componentes.TitleSectionCard
+import com.rpalmar.financialapp.views.ui.components.BaseTextField
+import com.rpalmar.financialapp.views.ui.components.DatePickerDialogComponent
+import com.rpalmar.financialapp.views.ui.components.FormNavigatorButtonSection
+import com.rpalmar.financialapp.views.ui.components.refactor.MainLayout
+import com.rpalmar.financialapp.views.ui.components.SimpleSelector
+import com.rpalmar.financialapp.views.ui.components.TitleSectionCard
 import java.text.NumberFormat
 import java.util.Locale
 

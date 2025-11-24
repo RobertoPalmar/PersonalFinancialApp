@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.domain.StyleDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.usecases.account.CreateAccountUseCase
 import com.rpalmar.financialapp.usecases.account.DeleteAccountUseCase
@@ -16,6 +17,9 @@ import com.rpalmar.financialapp.usecases.account.GetTransactionListPerAccountUse
 import com.rpalmar.financialapp.usecases.account.UpdateAccountUseCase
 import com.rpalmar.financialapp.usecases.currency.GetCurrenciesUseCase
 import com.rpalmar.financialapp.views.ui.UIEvent
+import com.rpalmar.financialapp.views.ui.components.refactor.IconMapper
+import com.rpalmar.financialapp.views.ui.components.refactor.toColor
+import com.rpalmar.financialapp.views.ui.components.refactor.toHex
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -133,9 +137,9 @@ class AccountViewModel @Inject constructor(
                     currency = _accountUIState.value.currency!!,
                     balance = _accountUIState.value.balance.toDouble(),
                     balanceInMainCurrency = 0.0,
-                    style = com.rpalmar.financialapp.models.database.StyleEntity(
-                        color = _accountUIState.value.color,
-                        icon = _accountUIState.value.icon
+                    style = StyleDomain(
+                        uiColor = _accountUIState.value.color.toColor(),
+                        uiIcon = IconMapper.fromName(_accountUIState.value.icon)
                     )
                 )
 
@@ -180,9 +184,9 @@ class AccountViewModel @Inject constructor(
                     currency = _accountUIState.value.currency!!,
                     balance = _accountUIState.value.balance.toDouble(),
                     balanceInMainCurrency = 0.0,
-                    style = com.rpalmar.financialapp.models.database.StyleEntity(
-                        color = _accountUIState.value.color,
-                        icon = _accountUIState.value.icon
+                    style = StyleDomain(
+                        uiColor = _accountUIState.value.color.toColor(),
+                        uiIcon = IconMapper.fromName(_accountUIState.value.icon)
                     )
                 )
 
@@ -362,8 +366,8 @@ class AccountViewModel @Inject constructor(
                 description = currentAccount.description,
                 currency = currentAccount.currency,
                 balance = currentAccount.balance.toString(),
-                color = currentAccount.style?.color ?: "",
-                icon = currentAccount.style?.icon ?: "",
+                color = currentAccount.style.uiColor.toHex(),
+                icon = currentAccount.style.uiIcon.name,
                 errors = emptyMap(),
                 isEditing = true
             )

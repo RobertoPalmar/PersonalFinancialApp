@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.componentes.refactor
+package com.rpalmar.financialapp.views.ui.components.refactor
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

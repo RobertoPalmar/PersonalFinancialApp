@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.componentes.refactor
+package com.rpalmar.financialapp.views.ui.components.refactor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,8 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
-import compose.icons.LineAwesomeIcons
-import compose.icons.lineawesomeicons.HomeSolid
 
 
 @Composable
@@ -40,8 +38,8 @@ fun TransactionRow(
             //CATEGORY ICON
             DefaultIcon(
                 title = transaction.description,
-                icon = LineAwesomeIcons.HomeSolid,
-                color = color,
+                icon = transaction.category.style.uiIcon,
+                color = transaction.category.style.uiColor,
                 circleSize = 40.dp,
                 iconSize = 25.dp
             )

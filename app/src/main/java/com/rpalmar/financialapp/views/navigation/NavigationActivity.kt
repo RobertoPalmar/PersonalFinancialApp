@@ -15,7 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
 import com.rpalmar.financialapp.views.account.AccountDetailsScreen
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
-import com.rpalmar.financialapp.views.ui.componentes.refactor.BottomNavBar
+import com.rpalmar.financialapp.views.ui.components.refactor.BottomNavBar
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import dagger.hilt.android.AndroidEntryPoint
 

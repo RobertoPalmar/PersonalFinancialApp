@@ -18,7 +18,7 @@ data class AccountEntity(
     @ColumnInfo("description") override val description: String,
     @ColumnInfo("balance") override var balance: Double,
     @ColumnInfo("currencyID") val currencyID: Long,
-    @ColumnInfo("style") val style:StyleEntity?,
+    @ColumnInfo("style") val style:StyleEntity,
     @ColumnInfo("isDelete") override val isDelete: Boolean = false,
     @ColumnInfo("createAt") override val createAt: Date,
 ): IEntity, IHistorical, ISoftDelete, IEntityTransaction

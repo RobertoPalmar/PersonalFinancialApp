@@ -61,3 +61,9 @@ enum class NavScreen{
     STATS,
     SETTINGS
 }
+
+enum class SummaryAnimationDirection {
+    FORWARD,
+    BACKWARD,
+    NONE
+}

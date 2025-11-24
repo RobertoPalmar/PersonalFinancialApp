@@ -1,22 +1,23 @@
 package com.rpalmar.financialapp.views.mainMenu
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,29 +34,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.domain.CategoryDomain
+import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.ui.MainMenuItem
 import com.rpalmar.financialapp.providers.sealeds.MainSectionContent
 import com.rpalmar.financialapp.views.account.AccountDataCard
-import com.rpalmar.financialapp.views.ui.componentes.refactor.CreditCardIcon
-import com.rpalmar.financialapp.views.ui.componentes.refactor.DefaultIcon
-import com.rpalmar.financialapp.views.ui.componentes.refactor.IncomeExpenseSection
-import com.rpalmar.financialapp.views.ui.componentes.refactor.MainLayout
-import com.rpalmar.financialapp.views.ui.componentes.refactor.TransactionRow
-import com.rpalmar.financialapp.views.ui.componentes.refactor.formatAmount
-import com.rpalmar.financialapp.views.ui.componentes.refactor.formatDate
-import com.rpalmar.financialapp.views.ui.theme.Black
+import com.rpalmar.financialapp.views.ui.animations.CarouselAnimatedSummary
+import com.rpalmar.financialapp.views.ui.components.refactor.AccountRow
+import com.rpalmar.financialapp.views.ui.components.refactor.CreditCardIcon
+import com.rpalmar.financialapp.views.ui.components.refactor.CurrencyRow
+import com.rpalmar.financialapp.views.ui.components.refactor.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.refactor.IncomeExpenseSection
+import com.rpalmar.financialapp.views.ui.components.refactor.MainLayout
+import com.rpalmar.financialapp.views.ui.components.refactor.TransactionRow
+import com.rpalmar.financialapp.views.ui.components.refactor.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
 import com.rpalmar.financialapp.views.ui.theme.LightGreen
-import com.rpalmar.financialapp.views.ui.theme.LightGrey
 import com.rpalmar.financialapp.views.ui.theme.Orange
 import com.rpalmar.financialapp.views.ui.theme.Red
 import com.rpalmar.financialapp.views.ui.theme.White
@@ -63,30 +69,95 @@ import compose.icons.Octicons
 import compose.icons.lineawesomeicons.ArrowLeftSolid
 import compose.icons.lineawesomeicons.CoinsSolid
 import compose.icons.lineawesomeicons.ExchangeAltSolid
-import compose.icons.lineawesomeicons.HomeSolid
 import compose.icons.lineawesomeicons.TagsSolid
 import compose.icons.lineawesomeicons.WalletSolid
 import compose.icons.octicons.PlusCircle24
 
 @Composable
-fun MainMenuScreen() {
+fun MainMenuScreen(
 
+) {
+    val context = LocalContext.current
     var currentSection by remember { mutableStateOf<MainSectionContent>(MainSectionContent.Home) }
+
+    //ON BACK LOGIC
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        when (currentSection) {
+            MainSectionContent.Home -> {
+                showExitDialog = true
+            }
+            else -> {
+                currentSection = MainSectionContent.Home
+            }
+        }
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            shape = RoundedCornerShape(24.dp),
+            tonalElevation = 4.dp,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            title = {
+                Text(
+                    text = "Salir",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "¿Deseas salir de la aplicación?",
+                    style = MaterialTheme.typography.bodyLarge,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                Text(
+                    "Sí",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = DarkGrey,
+                    modifier = Modifier
+                        .clickable {
+                            showExitDialog = false
+                            // Cerrar la app
+                            (context as? Activity)?.finish()
+                        }
+                        .padding(10.dp)
+                )
+            },
+            dismissButton = {
+                Text(
+                    "No",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = DarkGrey,
+                    modifier = Modifier
+                        .clickable {
+                            showExitDialog = false
+                        }
+                        .padding(10.dp)
+                )
+            }
+        )
+    }
+
+    //ANIMATION LOGIC
+    var previousSection by remember { mutableStateOf<MainSectionContent>(currentSection) }
+
+    LaunchedEffect(currentSection) {
+        previousSection = currentSection
+    }
 
     MainLayout {
         Column {
 
             //---------------------------SUMMARY SECTION---------------------------//
-            when (currentSection) {
-                is MainSectionContent.Home,
-                is MainSectionContent.Accounts -> {
-                    GeneralSummaryBalance()
-                }
-
-                is MainSectionContent.AccountDetail -> {
-                    val account = (currentSection as MainSectionContent.AccountDetail).account
-                    AccountSummaryBalance(account)
-                }
+            CarouselAnimatedSummary(currentSection, previousSection) { section ->
+                SummaryContent(section)
             }
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -106,15 +177,20 @@ fun MainMenuScreen() {
                             onItemClick = { item ->
                                 when (item.title) {
                                     "Accounts" -> currentSection = MainSectionContent.Accounts
+                                    "Transactions" -> currentSection = MainSectionContent.Transactions
+                                    "Currencies" -> currentSection = MainSectionContent.Currencies
+                                    "Categories" -> currentSection = MainSectionContent.Categories
                                 }
                             }
                         )
-                        TransactionsListSection(
-                            transactions = MockupProvider.getMockTransactions(),
-                            onClick = {}
-                        )
+//                        TransactionsListSection(
+//                            title = "Last Transactions",
+//                            transactions = MockupProvider.getMockTransactions(),
+//                            onClick = {}
+//                        )
                     }
 
+                    //ACCOUNT SECTION
                     is MainSectionContent.Accounts -> {
                         AccountsListSection(
                             accounts = MockupProvider.getMockAccounts(),
@@ -127,9 +203,38 @@ fun MainMenuScreen() {
 
                     is MainSectionContent.AccountDetail -> {
                         TransactionsListSection(
+                            title = "Account Transactions",
                             transactions = MockupProvider.getMockTransactions(),
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Accounts }
+                        )
+                    }
+
+                    //TRANSACTION SECTION
+                    is MainSectionContent.Transactions -> {
+                        TransactionsListSection(
+                            title = "Last Transactions",
+                            transactions = MockupProvider.getMockTransactions(),
+                            onClick = {},
+                            onBackClick = { currentSection = MainSectionContent.Home }
+                        )
+                    }
+
+                    //CATEGORY SECTION
+                    is MainSectionContent.Categories -> {
+                        CategoriesListSection(
+                            categories = MockupProvider.getMockCategories(),
+                            onClick = {},
+                            onBackClick = { currentSection = MainSectionContent.Home }
+                        )
+                    }
+
+                    //CURRENCY SECTION
+                    is MainSectionContent.Currencies -> {
+                        CurrenciesListSection(
+                            currencies = MockupProvider.getMockCurrencies(),
+                            onClick = {},
+                            onBackClick = { currentSection = MainSectionContent.Home }
                         )
                     }
                 }
@@ -138,6 +243,24 @@ fun MainMenuScreen() {
         }
     }
 }
+
+@Composable
+fun SummaryContent(section: MainSectionContent) {
+    when (section) {
+        is MainSectionContent.Home,
+        is MainSectionContent.Accounts,
+        is MainSectionContent.Transactions,
+        is MainSectionContent.Currencies,
+        MainSectionContent.Categories -> {
+            GeneralSummaryBalance()
+        }
+
+        is MainSectionContent.AccountDetail -> {
+            AccountSummaryBalance(section.account)
+        }
+    }
+}
+
 
 @Composable
 fun GeneralSummaryBalance() {
@@ -254,14 +377,14 @@ fun SectionTitle(
             )
         }
 
+        Spacer(modifier = Modifier.weight(1f))
+
         // Title
         Text(
             text = title,
             color = DarkGrey,
             style = MaterialTheme.typography.titleMedium
         )
-
-        Spacer(modifier = Modifier.weight(1f))
 
         if (actionButton != null) {
             actionButton()
@@ -270,7 +393,6 @@ fun SectionTitle(
 
     Spacer(modifier = Modifier.height(5.dp))
 }
-
 
 @Composable
 fun MainMenuCard(
@@ -386,6 +508,7 @@ fun TotalBalanceCard(
 
 @Composable
 fun TransactionsListSection(
+    title: String,
     transactions: List<TransactionDomain>,
     onClick: (TransactionDomain) -> Unit,
     onBackClick: (() -> Unit)? = null
@@ -399,7 +522,7 @@ fun TransactionsListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
-        SectionTitle("Last Transactions", onBackClick, )
+        SectionTitle(title, onBackClick)
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
@@ -463,73 +586,139 @@ fun AccountsListSection(
 }
 
 @Composable
-fun AccountRow(
-    account: AccountDomain,
+fun CategoriesListSection(
+    categories: List<CategoryDomain>,
+    onBackClick: () -> Unit,
+    onClick: (CategoryDomain) -> Unit
+) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(25.dp, 5.dp)
+            .padding(bottom = 30.dp)
+    ) {
+        SectionTitle(
+            "Categories",
+            onBackClick,
+            actionButton = {
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Octicons.PlusCircle24),
+                        contentDescription = "Add",
+                        tint = DarkGrey,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+        )
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            userScrollEnabled = true
+        ) {
+            items(categories.size) { index ->
+                CategoryCard(
+                    category = categories[index],
+                    onClick = { }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryCard(
+    category: CategoryDomain,
     onClick: () -> Unit
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp),
-        onClick = onClick,
+            .height(95.dp)
+            .padding(bottom = 8.dp, top = 5.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(vertical = 8.dp, horizontal = 18.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row {
-                //ACCOUNT ICON
-                DefaultIcon(
-                    title = account.name,
-                    icon = LineAwesomeIcons.HomeSolid,
-                    color = LightGreen,
-                    circleSize = 40.dp,
-                    iconSize = 25.dp
-                )
+            // ICON
+            DefaultIcon(
+                title = category.name,
+                icon = category.style.uiIcon,
+                color = category.style.uiColor,
+                circleSize = 38.dp,
+                iconSize = 22.dp
+            )
 
-                Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-                //DETAIL DATA
-                Column {
-                    Text(
-                        text = account.name,
-                        color = DarkGrey,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = account.description,
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            // TITLE
+            Text(
+                text = category.name,
+                color = DarkGrey,
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+    }
+}
 
-                Spacer(modifier = Modifier.weight(1f))
+@Composable
+fun CurrenciesListSection(
+    currencies: List<CurrencyDomain>,
+    onBackClick: () -> Unit,
+    onClick: (CurrencyDomain) -> Unit
+) {
+    val scrollState = rememberScrollState()
 
-                //AMOUNT DATA
-                Column(
-                    horizontalAlignment = Alignment.End
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(25.dp, 5.dp)
+            .padding(bottom = 30.dp)
+    ) {
+        SectionTitle(
+            "Currencies",
+            onBackClick,
+            actionButton = {
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier.size(30.dp)
                 ) {
-                    Text(
-                        text = formatAmount(account.balance, account.currency.symbol),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = DarkGrey
-                    )
-                    Text(
-                        text = formatAmount(account.balanceInMainCurrency, account.currency.symbol),
-                        color = Color.DarkGray,
-                        style = MaterialTheme.typography.bodyMedium
+                    Icon(
+                        painter = rememberVectorPainter(image = Octicons.PlusCircle24),
+                        contentDescription = "Add",
+                        tint = DarkGrey,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
+            }
+        )
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(vertical = 5.dp)
+        ) {
+            currencies.forEach { currency ->
+                CurrencyRow(
+                    currency,
+                    onClick = { onClick(currency) }
+                )
             }
         }
     }

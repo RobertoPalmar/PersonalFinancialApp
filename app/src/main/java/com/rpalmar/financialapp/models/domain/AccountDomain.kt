@@ -15,7 +15,7 @@ data class AccountDomain(
     override val balance: Double,
     override val currency: CurrencyDomain,
     val balanceInMainCurrency: Double,
-    val style:StyleEntity?,
+    val style: StyleDomain,
 ): IDomain, IDomainTransaction {
     override fun toEntity(): AccountEntity{
         return AccountEntity(
@@ -24,7 +24,7 @@ data class AccountDomain(
             description = description,
             balance = balance,
             currencyID = currency.id,
-            style = style,
+            style = style.toEntity(),
             createAt = Date(),
             isDelete = false
         );

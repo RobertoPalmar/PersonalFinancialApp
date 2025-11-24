@@ -21,7 +21,7 @@ data class CategoryEntity (
             id = id,
             type = type,
             name = name,
-            style = style
+            style = style.toDomain()
         )
     }
 }
