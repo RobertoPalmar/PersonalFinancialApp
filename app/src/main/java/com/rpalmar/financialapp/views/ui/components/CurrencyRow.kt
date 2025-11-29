@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,13 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
+import com.rpalmar.financialapp.views.ui.theme.Red
 
 
 @Composable
-fun AccountRow(
-    account: AccountDomain,
+fun CurrencyRow(
+    currency: CurrencyDomain,
     onClick: () -> Unit
 ) {
 
@@ -46,11 +47,11 @@ fun AccountRow(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row {
-                //ACCOUNT ICON
+                //CURRENCY ICON
                 DefaultIcon(
-                    title = account.name,
-                    icon = account.style.uiIcon,
-                    color = account.style.uiColor,
+                    title = currency.name,
+                    textIcon = currency.symbol,
+                    color = Red,
                     circleSize = 40.dp,
                     iconSize = 25.dp
                 )
@@ -59,14 +60,33 @@ fun AccountRow(
 
                 //DETAIL DATA
                 Column {
+
+                    //MAIN CURRENCY ICON
+                    if(currency.mainCurrency){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = currency.name,
+                                color = DarkGrey,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            PreferenceStarIcon()
+                        }
+                    }
+                    else{
+                        Text(
+                            text = currency.name,
+                            color = DarkGrey,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+
                     Text(
-                        text = account.name,
-                        color = DarkGrey,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = account.description,
+                        text = currency.ISO,
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
@@ -80,13 +100,13 @@ fun AccountRow(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = formatAmount(account.balance, account.currency.symbol),
+                        text = formatAmount(currency.exchangeRate),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
                         color = DarkGrey
                     )
                     Text(
-                        text = formatAmount(account.balanceInMainCurrency, account.currency.symbol),
+                        text = "Exchange Rate",
                         color = Color.DarkGray,
                         style = MaterialTheme.typography.bodyMedium
                     )

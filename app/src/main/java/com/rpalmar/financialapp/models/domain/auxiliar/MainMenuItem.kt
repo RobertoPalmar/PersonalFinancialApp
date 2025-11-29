@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.models.ui
+package com.rpalmar.financialapp.models.domain.auxiliar
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector

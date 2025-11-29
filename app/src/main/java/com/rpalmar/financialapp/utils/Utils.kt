@@ -1,6 +1,8 @@
 package com.rpalmar.financialapp.utils
 
+import com.rpalmar.financialapp.models.domain.auxiliar.DateRangeData
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -18,5 +20,22 @@ object Utils {
     fun getFormatHours(date: Date): String {
         val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return formatter.format(date)
+    }
+
+    fun getCurrentMonthDateRange():DateRangeData{
+        // GET START MONTH DATE
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val firstDate = calendar.time
+
+        //GET LAST MONTH DATE
+        val lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        calendar.set(Calendar.DAY_OF_MONTH, lastDay)
+        val lastDate = calendar.time
+
+        return DateRangeData(
+            startDate = firstDate,
+            endDate = lastDate
+        )
     }
 }

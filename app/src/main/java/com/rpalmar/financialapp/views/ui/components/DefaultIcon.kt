@@ -1,10 +1,11 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +46,7 @@ fun DefaultIcon(
 
             !textIcon.isNullOrBlank() -> {
                 //SHOW TEXT
-                androidx.compose.material3.Text(
+                Text(
                     text = textIcon,
                     color = textColor,
                     fontWeight = FontWeight.Bold,
@@ -55,7 +56,7 @@ fun DefaultIcon(
 
             else -> {
                 //PLACEHOLDER
-                androidx.compose.material3.Text(
+                Text(
                     text = "?",
                     color = textColor,
                     fontSize = (iconSize.value * 0.8).sp

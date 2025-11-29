@@ -1,8 +1,8 @@
 package com.rpalmar.financialapp.models.database
 
 import com.rpalmar.financialapp.models.domain.StyleDomain
-import com.rpalmar.financialapp.views.ui.components.refactor.IconMapper
-import com.rpalmar.financialapp.views.ui.components.refactor.toColor
+import com.rpalmar.financialapp.views.ui.components.IconMapper
+import com.rpalmar.financialapp.views.ui.components.toColor
 
 data class StyleEntity (
     val stringColor:String,

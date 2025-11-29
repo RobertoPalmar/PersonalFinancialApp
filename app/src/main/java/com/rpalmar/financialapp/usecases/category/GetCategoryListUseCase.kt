@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetCategoriesUseCase @Inject constructor(
+class GetCategoryListUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
     val TAG = "GetCategoriesUseCase"

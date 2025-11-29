@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.providers.database.DAOs
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import com.rpalmar.financialapp.models.database.AccountEntity
@@ -13,6 +14,9 @@ interface CurrencyDAO : BaseDao<CurrencyEntity> {
 
     @Query("SELECT * FROM currency_table WHERE isDelete = 0")
     fun getAll(): Flow<List<CurrencyEntity>>
+
+    @Query("SELECT * FROM currency_table WHERE isDelete = 0")
+    fun getCurrencyListPaginated():PagingSource<Int, CurrencyEntity>
 
     @Query("SELECT * FROM currency_table WHERE mainCurrency = 1")
     fun getMainCurrency(): CurrencyEntity?

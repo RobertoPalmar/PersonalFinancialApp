@@ -9,8 +9,7 @@ import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.StyleDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
-import com.rpalmar.financialapp.views.ui.components.refactor.IconMapper
-import com.rpalmar.financialapp.views.ui.components.refactor.toColor
+import com.rpalmar.financialapp.views.ui.components.IconMapper
 import com.rpalmar.financialapp.views.ui.theme.*
 import java.util.Date
 import java.util.UUID
@@ -36,7 +35,7 @@ object MockupProvider {
                 ISO = "EUR",
                 symbol = "€",
                 exchangeRate = 0.92,
-                mainCurrency = true
+                mainCurrency = false
             ),
             CurrencyDomain(
                 id = 3L,
@@ -44,7 +43,7 @@ object MockupProvider {
                 ISO = "JPY",
                 symbol = "¥",
                 exchangeRate = 145.3,
-                mainCurrency = true
+                mainCurrency = false
             ),
             CurrencyDomain(
                 id = 4L,
@@ -52,7 +51,7 @@ object MockupProvider {
                 ISO = "MXN",
                 symbol = "$",
                 exchangeRate = 17.1,
-                mainCurrency = true
+                mainCurrency = false
             )
         )
     }
@@ -67,9 +66,9 @@ object MockupProvider {
                 description = "Main account for daily expenses",
                 balance = 2450.75,
                 balanceInMainCurrency = 5161.65,
-                currency = currencies[0], // USD
+                currency = currencies[1],
                 style = StyleDomain(
-                    uiColor = Green,                 // 🌱 Verde vibrante
+                    uiColor = Green,                 // 🌱 Verde
                     uiIcon = IconMapper.fromName("AccountBalanceWallet")
                 )
             ),
@@ -77,11 +76,11 @@ object MockupProvider {
                 id = 102L,
                 name = "Savings Account",
                 description = "Emergency fund and savings",
-                balance = 12000.00,
+                balance = 12000.0,
                 balanceInMainCurrency = 5161.65,
                 currency = currencies[0],
                 style = StyleDomain(
-                    uiColor = Indigo,               // 🔵 Azul índigo fuerte
+                    uiColor = Indigo,               // 🔵 Índigo
                     uiIcon = IconMapper.fromName("ic_savings")
                 )
             ),
@@ -89,11 +88,11 @@ object MockupProvider {
                 id = 103L,
                 name = "Travel Fund",
                 description = "Money saved for trips",
-                balance = 3500.00,
+                balance = 3500.0,
                 balanceInMainCurrency = 5161.65,
-                currency = currencies[1], // EUR
+                currency = currencies[1],
                 style = StyleDomain(
-                    uiColor = Cyan,                 // 🟦 Cyan brillante
+                    uiColor = Blue,                 // 🟦 Azul
                     uiIcon = IconMapper.fromName("ic_flight")
                 )
             ),
@@ -105,7 +104,7 @@ object MockupProvider {
                 balanceInMainCurrency = 5161.65,
                 currency = currencies[2],
                 style = StyleDomain(
-                    uiColor = Purple,               // 🟪 Morado fuerte (finanzas/crecimiento)
+                    uiColor = Purple,               // 🟪 Morado
                     uiIcon = IconMapper.fromName("ic_trending_up")
                 )
             ),
@@ -117,7 +116,7 @@ object MockupProvider {
                 balanceInMainCurrency = 5161.65,
                 currency = currencies[3],
                 style = StyleDomain(
-                    uiColor = Orange,               // 🟧 Naranja corporativo llamativo
+                    uiColor = Orange,               // 🟧 Naranja
                     uiIcon = IconMapper.fromName("ic_business")
                 )
             )
@@ -226,7 +225,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Comida",
                 style = StyleDomain(
-                    uiColor = Coral,                      // 🍽️ Naranja coral intenso
+                    uiColor = Orange,
                     uiIcon = IconMapper.fromName("UtensilsSolid")
                 )
             ),
@@ -235,7 +234,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Salario",
                 style = StyleDomain(
-                    uiColor = Emerald,                     // 💵 Verde intenso
+                    uiColor = Green,
                     uiIcon = IconMapper.fromName("MoneyBillWaveSolid")
                 )
             ),
@@ -244,7 +243,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Transporte",
                 style = StyleDomain(
-                    uiColor = RoyalBlue,                   // 🚌 Azul fuerte
+                    uiColor = Blue,
                     uiIcon = IconMapper.fromName("CarSolid")
                 )
             ),
@@ -253,7 +252,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Compras",
                 style = StyleDomain(
-                    uiColor = Magenta,                     // 🛍️ Rosa fuerte
+                    uiColor = Purple,
                     uiIcon = IconMapper.fromName("ShoppingBagSolid")
                 )
             ),
@@ -262,7 +261,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Salud",
                 style = StyleDomain(
-                    uiColor = Red,                         // ❤️ Rojo intenso
+                    uiColor = Red,
                     uiIcon = IconMapper.fromName("HeartSolid")
                 )
             ),
@@ -271,7 +270,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Servicios",
                 style = StyleDomain(
-                    uiColor = DeepOrange,                  // ⚡ Naranja oscuro
+                    uiColor = Orange,
                     uiIcon = IconMapper.fromName("BoltSolid")
                 )
             ),
@@ -280,7 +279,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Entretenimiento",
                 style = StyleDomain(
-                    uiColor = NeonPink,                    // 🎬 Rosa neón
+                    uiColor = Purple,
                     uiIcon = IconMapper.fromName("GiftSolid")
                 )
             ),
@@ -289,7 +288,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Educación",
                 style = StyleDomain(
-                    uiColor = Violet,                       // 📚 Violeta intenso
+                    uiColor = Indigo,
                     uiIcon = IconMapper.fromName("BookSolid")
                 )
             ),
@@ -298,7 +297,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Regalos",
                 style = StyleDomain(
-                    uiColor = Amber,                        // 🎁 Amarillo ámbar
+                    uiColor = Amber,
                     uiIcon = IconMapper.fromName("GiftSolid")
                 )
             ),
@@ -307,7 +306,7 @@ object MockupProvider {
                 type = CategoryType.TRANSACTION,
                 name = "Ahorro",
                 style = StyleDomain(
-                    uiColor = Teal,                         // 💰 Teal intenso
+                    uiColor = LightGreen,
                     uiIcon = IconMapper.fromName("WalletSolid")
                 )
             )

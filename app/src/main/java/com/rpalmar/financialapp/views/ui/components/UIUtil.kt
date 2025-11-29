@@ -1,21 +1,29 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.rpalmar.financialapp.models.TransactionType
-import com.rpalmar.financialapp.providers.sealeds.MainSectionContent
 import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Red
 import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.BellSolid
 import compose.icons.lineawesomeicons.BoltSolid
 import compose.icons.lineawesomeicons.CarSolid
+import compose.icons.lineawesomeicons.CashRegisterSolid
+import compose.icons.lineawesomeicons.ChartBarSolid
+import compose.icons.lineawesomeicons.CheckCircleSolid
+import compose.icons.lineawesomeicons.CreditCardSolid
+import compose.icons.lineawesomeicons.EnvelopeSolid
 import compose.icons.lineawesomeicons.GiftSolid
 import compose.icons.lineawesomeicons.HeartSolid
 import compose.icons.lineawesomeicons.HomeSolid
+import compose.icons.lineawesomeicons.InfoCircleSolid
 import compose.icons.lineawesomeicons.MoneyBillWaveSolid
 import compose.icons.lineawesomeicons.PlaneSolid
 import compose.icons.lineawesomeicons.QuestionSolid
 import compose.icons.lineawesomeicons.ShoppingBagSolid
+import compose.icons.lineawesomeicons.StarSolid
+import compose.icons.lineawesomeicons.ToolsSolid
 import compose.icons.lineawesomeicons.UtensilsSolid
 import compose.icons.lineawesomeicons.WalletSolid
 import java.text.SimpleDateFormat
@@ -72,21 +80,24 @@ fun String.toColor(): Color{
 }
 
 object IconMapper {
-    private val icons = mapOf(
-        "WalletSolid" to LineAwesomeIcons.WalletSolid,
-        "ShoppingBagSolid" to LineAwesomeIcons.ShoppingBagSolid,
-        "UtensilsSolid" to LineAwesomeIcons.UtensilsSolid,
-        "CarSolid" to LineAwesomeIcons.CarSolid,
+    val icons = mapOf(
         "HomeSolid" to LineAwesomeIcons.HomeSolid,
+        "StarSolid" to LineAwesomeIcons.StarSolid,
+        "ChartBarSolid" to LineAwesomeIcons.ChartBarSolid,
+        "CashRegisterSolid" to LineAwesomeIcons.CashRegisterSolid,
+        "CreditCardSolid" to LineAwesomeIcons.CreditCardSolid,
+        "ShoppingBagSolid" to LineAwesomeIcons.ShoppingBagSolid,
         "HeartSolid" to LineAwesomeIcons.HeartSolid,
-        "PlaneSolid" to LineAwesomeIcons.PlaneSolid,
-        "MoneyBillWaveSolid" to LineAwesomeIcons.MoneyBillWaveSolid,
-        "GiftSolid" to LineAwesomeIcons.GiftSolid,
-        "BoltSolid" to LineAwesomeIcons.BoltSolid
+        "BellSolid" to LineAwesomeIcons.BellSolid,
+        "EnvelopeSolid" to LineAwesomeIcons.EnvelopeSolid,
+        "CheckCircleSolid" to LineAwesomeIcons.CheckCircleSolid,
+        "InfoCircleSolid" to LineAwesomeIcons.InfoCircleSolid,
+        "ToolsSolid" to LineAwesomeIcons.ToolsSolid
     )
 
     fun fromName(name: String) = icons[name] ?: LineAwesomeIcons.QuestionSolid
 }
+
 
 
 

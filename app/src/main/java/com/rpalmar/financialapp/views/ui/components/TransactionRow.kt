@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

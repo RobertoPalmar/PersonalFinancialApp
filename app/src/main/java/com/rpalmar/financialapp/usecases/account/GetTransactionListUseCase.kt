@@ -5,8 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
-import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
-import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import com.rpalmar.financialapp.providers.database.repositories.AccountRepository
 import com.rpalmar.financialapp.providers.database.repositories.TransactionRepository
 import kotlinx.coroutines.flow.Flow
@@ -19,18 +17,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetTransactionListPerAccountUseCase @Inject constructor(
+class GetTransactionListUseCase @Inject constructor(
     private val accountRepository: AccountRepository,
     private val transactionRepository: TransactionRepository,
 ) {
-    fun getPagingData(accountID: Long, pageSize:Int = 20):  Flow<PagingData<TransactionDomain>>{
+    fun getPagingDataByAccount(accountID: Long, pageSize: Int = 20): Flow<PagingData<TransactionDomain>> {
         return flow {
             //GET ACCOUNT
             val account = accountRepository.getByID(accountID)
-
-//            //GET ENVELOPS AUX MAP
-//            var envelopeList = envelopeRepository.getEnvelopeListWithCurrencyWithDelete().first();
-//            val envelopeAuxMap = envelopeList.map { it.toDomain().toAuxDomain() }.associateBy { it.id }
 
             //GET ACCOUNT AUX MAP
             var accountList = accountRepository.getAccountListWithCurrencyWithDelete().first();
@@ -50,7 +44,7 @@ class GetTransactionListPerAccountUseCase @Inject constructor(
                             //GET AUX DATA
                             val transaction = transactionWithCurrency.transaction;
                             val auxOriginSource =
-                                when(transaction.sourceType){
+                                when (transaction.sourceType) {
                                     TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.sourceID]
 //                                    TransactionSourceType.ENVELOPE -> envelopeAuxMap[transaction.sourceID]
                                     else -> null
@@ -64,6 +58,33 @@ class GetTransactionListPerAccountUseCase @Inject constructor(
                 //RETURN FLOW WITH DATA
                 emitAll(transactionFlow)
             }
+        }
+    }
+
+    fun getPagingData(pageSize: Int = 20): Flow<PagingData<TransactionDomain>> {
+        return flow {
+            //GET ACCOUNT AUX MAP
+            var accountList = accountRepository.getAccountListWithCurrencyWithDelete().first();
+            val accountAuxMap = accountList.map { it.toDomain().toAuxDomain() }.associateBy { it.id }
+
+            //FORMAT TRANSACTION AND RETURN DOMAIN
+            val transactionFlow = transactionRepository.getLastPaginated(pageSize)
+                .map { pagingData ->
+                    pagingData.map { transactionWithCurrency ->
+                        //GET AUX DATA
+                        val transaction = transactionWithCurrency.transaction;
+                        val auxOriginSource =
+                            when (transaction.sourceType) {
+                                TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.sourceID]
+                            }
+
+                        //MAP TO DOMAIN
+                        transactionWithCurrency.toDomain(auxOriginSource!!)
+                    }
+                }
+
+            //RETURN FLOW WITH DATA
+            emitAll(transactionFlow)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
-import com.rpalmar.financialapp.views.account.SummaryAmountCard
 import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Red
 import compose.icons.LineAwesomeIcons
@@ -21,15 +20,17 @@ fun IncomeExpenseSection(
     income: Double,
     expenses: Double,
     firstCurrency: CurrencyDomain,
-    altCurrency: CurrencyDomain
+    altCurrency: CurrencyDomain? = null
 ) {
     val formatIncome = formatAmount(income, firstCurrency.symbol)
-    val formatIncomeAlt = formatAmount(
+    val formatIncomeAlt = if(altCurrency == null) null
+    else formatAmount(
         income * firstCurrency.exchangeRate / altCurrency.exchangeRate,
         altCurrency.symbol
     )
     val formatExpense = formatAmount(expenses, firstCurrency.symbol)
-    val formatExpenseAlt = formatAmount(
+    val formatExpenseAlt = if(altCurrency == null) null
+    else formatAmount(
         income * firstCurrency.exchangeRate / altCurrency.exchangeRate,
         altCurrency.symbol
     )
@@ -44,7 +45,7 @@ fun IncomeExpenseSection(
             color = Green,
             title = "Income",
             amount = formatIncome,
-            amountInPrimaryCurrency = formatIncomeAlt
+            amountInAltCurrency = formatIncomeAlt
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -55,7 +56,7 @@ fun IncomeExpenseSection(
             color = Red,
             title = "Expenses",
             amount = formatExpense,
-            amountInPrimaryCurrency = formatExpenseAlt
+            amountInAltCurrency = formatExpenseAlt
         )
     }
 }

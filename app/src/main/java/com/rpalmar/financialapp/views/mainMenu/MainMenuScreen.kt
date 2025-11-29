@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,20 +13,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,27 +41,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.rpalmar.financialapp.mock.MockupProvider
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
-import com.rpalmar.financialapp.models.ui.MainMenuItem
+import com.rpalmar.financialapp.models.domain.auxiliar.AccountSummaryData
+import com.rpalmar.financialapp.models.domain.auxiliar.MainMenuItem
 import com.rpalmar.financialapp.providers.sealeds.MainSectionContent
-import com.rpalmar.financialapp.views.account.AccountDataCard
+import com.rpalmar.financialapp.providers.sealeds.ScreenSections
+import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.mainMenu.data.MainMenuUIState
+import com.rpalmar.financialapp.views.mainMenu.data.MainMenuViewModel
+import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.animations.CarouselAnimatedSummary
-import com.rpalmar.financialapp.views.ui.components.refactor.AccountRow
-import com.rpalmar.financialapp.views.ui.components.refactor.CreditCardIcon
-import com.rpalmar.financialapp.views.ui.components.refactor.CurrencyRow
-import com.rpalmar.financialapp.views.ui.components.refactor.DefaultIcon
-import com.rpalmar.financialapp.views.ui.components.refactor.IncomeExpenseSection
-import com.rpalmar.financialapp.views.ui.components.refactor.MainLayout
-import com.rpalmar.financialapp.views.ui.components.refactor.TransactionRow
-import com.rpalmar.financialapp.views.ui.components.refactor.formatAmount
+import com.rpalmar.financialapp.views.ui.components.AccountDataCard
+import com.rpalmar.financialapp.views.ui.components.AccountRow
+import com.rpalmar.financialapp.views.ui.components.CreditCardIcon
+import com.rpalmar.financialapp.views.ui.components.CurrencyRow
+import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.IncomeExpenseSection
+import com.rpalmar.financialapp.views.ui.components.LoadingScreen
+import com.rpalmar.financialapp.views.ui.components.MainLayout
+import com.rpalmar.financialapp.views.ui.components.ModalDialog
+import com.rpalmar.financialapp.views.ui.components.TransactionRow
+import com.rpalmar.financialapp.views.ui.components.TransactionTypeDialog
+import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
@@ -75,81 +93,61 @@ import compose.icons.octicons.PlusCircle24
 
 @Composable
 fun MainMenuScreen(
-
+    navController: NavController,
+    viewModel: MainMenuViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel,
+    transactionViewModel: TransactionViewModel
 ) {
+    //GLOBAL ACCESS
     val context = LocalContext.current
+    val uiState by viewModel.mainMenuUIState.collectAsState()
+
+    //TOOL FUNCTIONS
+    fun onCreateAccountHandler(){
+        accountViewModel.cleanForm()
+        navController.navigate(ScreenSections.AccountForm.route)
+    }
+
+    //SECTION UI
     var currentSection by remember { mutableStateOf<MainSectionContent>(MainSectionContent.Home) }
 
     //ON BACK LOGIC
     var showExitDialog by remember { mutableStateOf(false) }
 
+    //ANIMATION LOGIC
     BackHandler {
         when (currentSection) {
             MainSectionContent.Home -> {
                 showExitDialog = true
             }
+
             else -> {
                 currentSection = MainSectionContent.Home
             }
         }
     }
 
+    var previousSection by remember { mutableStateOf<MainSectionContent>(currentSection) }
+    LaunchedEffect(currentSection) {
+        previousSection = currentSection
+    }
+
+    //EXIT DIALOG LOGIC
     if (showExitDialog) {
-        AlertDialog(
-            onDismissRequest = { showExitDialog = false },
-            shape = RoundedCornerShape(24.dp),
-            tonalElevation = 4.dp,
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            title = {
-                Text(
-                    text = "Salir",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Text(
-                    text = "¿Deseas salir de la aplicación?",
-                    style = MaterialTheme.typography.bodyLarge,
-                    lineHeight = 20.sp
-                )
-            },
-            confirmButton = {
-                Text(
-                    "Sí",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = DarkGrey,
-                    modifier = Modifier
-                        .clickable {
-                            showExitDialog = false
-                            // Cerrar la app
-                            (context as? Activity)?.finish()
-                        }
-                        .padding(10.dp)
-                )
-            },
-            dismissButton = {
-                Text(
-                    "No",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = DarkGrey,
-                    modifier = Modifier
-                        .clickable {
-                            showExitDialog = false
-                        }
-                        .padding(10.dp)
-                )
+        ModalDialog(
+            title = "Salir",
+            message = "¿Deseas salir de la aplicación?",
+            onDismiss = { showExitDialog = false },
+            onAccept = {
+                showExitDialog = false
+                (context as? Activity)?.finish()
             }
         )
     }
 
-    //ANIMATION LOGIC
-    var previousSection by remember { mutableStateOf<MainSectionContent>(currentSection) }
-
-    LaunchedEffect(currentSection) {
-        previousSection = currentSection
+    //LOAD BASIC DATA
+    LaunchedEffect(true) {
+        viewModel.loadDashboardData()
     }
 
     MainLayout {
@@ -157,7 +155,18 @@ fun MainMenuScreen(
 
             //---------------------------SUMMARY SECTION---------------------------//
             CarouselAnimatedSummary(currentSection, previousSection) { section ->
-                SummaryContent(section)
+                if (uiState.isLoading) {
+                    LoadingScreen()
+                } else {
+                    SummaryContent(
+                        viewModel = viewModel,
+                        accountViewModel = accountViewModel,
+                        uiState = uiState,
+                        navController = navController,
+                        section = section,
+                        onNavigateToSection = { newSection -> currentSection = newSection }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -183,20 +192,14 @@ fun MainMenuScreen(
                                 }
                             }
                         )
-//                        TransactionsListSection(
-//                            title = "Last Transactions",
-//                            transactions = MockupProvider.getMockTransactions(),
-//                            onClick = {}
-//                        )
                     }
 
                     //ACCOUNT SECTION
                     is MainSectionContent.Accounts -> {
                         AccountsListSection(
-                            accounts = MockupProvider.getMockAccounts(),
-                            onClick = { account ->
-                                currentSection = MainSectionContent.AccountDetail(account)
-                            },
+                            viewModel = viewModel,
+                            onAddClick = { onCreateAccountHandler() },
+                            onAccountClick = { account -> currentSection = MainSectionContent.AccountDetail(account) },
                             onBackClick = { currentSection = MainSectionContent.Home }
                         )
                     }
@@ -204,7 +207,8 @@ fun MainMenuScreen(
                     is MainSectionContent.AccountDetail -> {
                         TransactionsListSection(
                             title = "Account Transactions",
-                            transactions = MockupProvider.getMockTransactions(),
+                            account = (currentSection as MainSectionContent.AccountDetail).account,
+                            viewModel = viewModel,
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Accounts }
                         )
@@ -214,7 +218,7 @@ fun MainMenuScreen(
                     is MainSectionContent.Transactions -> {
                         TransactionsListSection(
                             title = "Last Transactions",
-                            transactions = MockupProvider.getMockTransactions(),
+                            viewModel = viewModel,
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Home }
                         )
@@ -223,7 +227,7 @@ fun MainMenuScreen(
                     //CATEGORY SECTION
                     is MainSectionContent.Categories -> {
                         CategoriesListSection(
-                            categories = MockupProvider.getMockCategories(),
+                            viewModel = viewModel,
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Home }
                         )
@@ -232,7 +236,7 @@ fun MainMenuScreen(
                     //CURRENCY SECTION
                     is MainSectionContent.Currencies -> {
                         CurrenciesListSection(
-                            currencies = MockupProvider.getMockCurrencies(),
+                            viewModel = viewModel,
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Home }
                         )
@@ -245,27 +249,49 @@ fun MainMenuScreen(
 }
 
 @Composable
-fun SummaryContent(section: MainSectionContent) {
+fun SummaryContent(
+    viewModel: MainMenuViewModel,
+    accountViewModel: AccountViewModel,
+    uiState: MainMenuUIState,
+    navController: NavController,
+    section: MainSectionContent,
+    onNavigateToSection: (MainSectionContent) -> Unit
+) {
     when (section) {
         is MainSectionContent.Home,
         is MainSectionContent.Accounts,
         is MainSectionContent.Transactions,
         is MainSectionContent.Currencies,
         MainSectionContent.Categories -> {
-            GeneralSummaryBalance()
+            GeneralSummaryBalance(uiState)
         }
 
         is MainSectionContent.AccountDetail -> {
-            AccountSummaryBalance(section.account)
+            LaunchedEffect(section.account.id) {
+                viewModel.loadAccountSummaryData(section.account)
+            }
+
+            if (uiState.isLoading || uiState.accountSummaryData == null) {
+                LoadingScreen()
+            } else {
+                AccountSummaryBalance(
+                    accountViewModel = accountViewModel,
+                    accountSummaryData = uiState.accountSummaryData!!,
+                    onBackNavigation = { onNavigateToSection(MainSectionContent.Accounts) },
+                    onEditNavigation = { navController.navigate(ScreenSections.AccountForm.route) }
+                )
+            }
         }
     }
 }
 
 
 @Composable
-fun GeneralSummaryBalance() {
-    val totalBalance = 153215.12;
-    val currencySymbol = "$"
+fun GeneralSummaryBalance(
+    uiState: MainMenuUIState
+) {
+    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+    val currencySymbol = mainCurrency!!.symbol;
 
     Column(
         modifier = Modifier
@@ -275,21 +301,58 @@ fun GeneralSummaryBalance() {
     ) {
         GreetingSection()
         TotalBalanceCard(
-            totalBalance = totalBalance,
-            totalBalanceInPrimaryCurrency = 1565.21,
+            totalBalance = uiState.dashboardData.totalBalance,
             currencySymbol = currencySymbol
+//            totalBalanceInPrimaryCurrency = 1565.21,
         )
         IncomeExpenseSection(
-            income = 18250.00,
-            expenses = 7420.25,
-            firstCurrency = MockupProvider.getMockCurrencies()[0],
-            altCurrency = MockupProvider.getMockCurrencies()[1]
+            income = uiState.dashboardData.generalIncome,
+            expenses = uiState.dashboardData.generalExpense,
+            firstCurrency = mainCurrency!!
+//            altCurrency = MockupProvider.getMockCurrencies()[1]
         )
     }
 }
 
 @Composable
-fun AccountSummaryBalance(account: AccountDomain) {
+fun AccountSummaryBalance(
+    accountViewModel: AccountViewModel,
+    accountSummaryData: AccountSummaryData,
+    onBackNavigation: () -> Unit,
+    onEditNavigation: () -> Unit
+) {
+    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+
+    fun handleDeleteAccount() {
+        accountViewModel.handleDeleteAccount(accountSummaryData.account.id)
+        onBackNavigation();
+    }
+
+    fun handleEditAccount() {
+        accountViewModel.handleUpdateAccountForm(accountSummaryData.account)
+        onEditNavigation();
+    }
+
+    //DELETE DIALOG
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showTransactionDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        ModalDialog(
+            title = "Delete Account",
+            message = "Are you sure you want to delete this account?",
+            onAccept = { handleDeleteAccount() },
+            onDismiss = { showDeleteDialog = false }
+        )
+    }
+
+    if(showTransactionDialog){
+        TransactionTypeDialog(
+            onDismiss = { showTransactionDialog = false },
+            onTypeSelected = {}
+        )
+    }
+
     Column(
         modifier = Modifier
             .height(280.dp)
@@ -297,16 +360,19 @@ fun AccountSummaryBalance(account: AccountDomain) {
             .padding(top = 10.dp)
     ) {
         AccountDataCard(
-            account = MockupProvider.getMockAccounts()[0],
-            onAddClick = { },
-            onDeleteClick = {},
-            onEditClick = { }
+            account = accountSummaryData.account,
+            mainCurrency = mainCurrency!!,
+            onAddTransactionClick = { showTransactionDialog = true },
+            onDeleteAccountClick = { showDeleteDialog = true },
+            onEditAccountClick = { handleEditAccount() }
         )
         IncomeExpenseSection(
-            income = 18250.00,
-            expenses = 7420.25,
-            firstCurrency = MockupProvider.getMockCurrencies()[0],
-            altCurrency = MockupProvider.getMockCurrencies()[1]
+            income = accountSummaryData.income,
+            expenses = accountSummaryData.expense,
+            firstCurrency = accountSummaryData.account.currency,
+            altCurrency =
+                if (accountSummaryData.account.currency.id != mainCurrency!!.id) mainCurrency
+                else null
         )
     }
 }
@@ -509,11 +575,15 @@ fun TotalBalanceCard(
 @Composable
 fun TransactionsListSection(
     title: String,
-    transactions: List<TransactionDomain>,
+    account: AccountDomain? = null,
+    viewModel: MainMenuViewModel,
     onClick: (TransactionDomain) -> Unit,
     onBackClick: (() -> Unit)? = null
 ) {
-    val scrollState = rememberScrollState()
+    val transactions =
+        if (account != null) viewModel.getTransactionsPerAccountPaginated(account.id).collectAsLazyPagingItems()
+        else viewModel.getTransactionsPaginated().collectAsLazyPagingItems()
+    val overscrollEffect = rememberOverscrollEffect()
 
     Column(
         modifier = Modifier
@@ -522,17 +592,51 @@ fun TransactionsListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
+        //TITLE
         SectionTitle(title, onBackClick)
-        Column(
+
+        //ACCOUNT ROWS
+        LazyColumn(
             modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(vertical = 5.dp)
+                .overscroll(overscrollEffect),
+            contentPadding = PaddingValues(vertical = 5.dp),
+            state = rememberLazyListState()
         ) {
-            transactions.forEach { transaction ->
-                TransactionRow(
-                    transaction,
-                    onClick = { onClick(transaction) }
-                )
+            when {
+                //HANDLE LOADING STATE
+                transactions.loadState.refresh is LoadState.Loading -> {
+                    item {
+                        Column {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+                    }
+                }
+                //HANDLE NO ITEMS
+                transactions.itemCount == 0 -> {
+                    item {
+                        Text(
+                            text = "Aún no hay transacciones",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            color = DarkGrey
+                        )
+                    }
+                }
+                //HANDLE TRANSACTIONS
+                else -> {
+                    items(transactions.itemCount) { index ->
+                        val transaction = transactions[index]
+                        transaction?.let {
+                            TransactionRow(
+                                transaction,
+                                onClick = { onClick(transaction) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -540,11 +644,13 @@ fun TransactionsListSection(
 
 @Composable
 fun AccountsListSection(
-    accounts: List<AccountDomain>,
+    viewModel: MainMenuViewModel,
+    onAddClick: () -> Unit,
     onBackClick: () -> Unit,
-    onClick: (AccountDomain) -> Unit
+    onAccountClick: (AccountDomain) -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val accounts = viewModel.getAccountsPaginated().collectAsLazyPagingItems()
+    val overscrollEffect = rememberOverscrollEffect()
 
     Column(
         modifier = Modifier
@@ -553,12 +659,13 @@ fun AccountsListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
+        //TITLE
         SectionTitle(
             "Accounts",
             onBackClick,
             actionButton = {
                 IconButton(
-                    onClick = {},
+                    onClick = { onAddClick() },
                     modifier = Modifier.size(30.dp)
                 ) {
                     Icon(
@@ -570,16 +677,49 @@ fun AccountsListSection(
                 }
             }
         )
-        Column(
+
+        //ACCOUNT ROWS
+        LazyColumn(
             modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(vertical = 5.dp)
+                .overscroll(overscrollEffect),
+            contentPadding = PaddingValues(vertical = 5.dp),
+            state = rememberLazyListState()
         ) {
-            accounts.forEach { account ->
-                AccountRow(
-                    account,
-                    onClick = { onClick(account) }
-                )
+            when {
+                //HANDLE LOADING STATE
+                accounts.loadState.refresh is LoadState.Loading -> {
+                    item {
+                        Column {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+                    }
+                }
+                //HANDLE NO ITEMS
+                accounts.itemCount == 0 -> {
+                    item {
+                        Text(
+                            text = "Aún no hay cuentas",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            color = DarkGrey
+                        )
+                    }
+                }
+                //HANDLE ACCOUNTS
+                else -> {
+                    items(accounts.itemCount) { index ->
+                        val account = accounts[index]
+                        account?.let {
+                            AccountRow(
+                                account,
+                                onClick = { onAccountClick(account) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -587,11 +727,11 @@ fun AccountsListSection(
 
 @Composable
 fun CategoriesListSection(
-    categories: List<CategoryDomain>,
+    viewModel: MainMenuViewModel,
     onBackClick: () -> Unit,
     onClick: (CategoryDomain) -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val categories = viewModel.getCategoriesPaginated().collectAsLazyPagingItems()
 
     Column(
         modifier = Modifier
@@ -600,6 +740,7 @@ fun CategoriesListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
+        //TITLE
         SectionTitle(
             "Categories",
             onBackClick,
@@ -617,18 +758,57 @@ fun CategoriesListSection(
                 }
             }
         )
+
+        //CATEGORY GRID
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            userScrollEnabled = true
+            userScrollEnabled = true,
+            contentPadding = PaddingValues(12.dp)
         ) {
-            items(categories.size) { index ->
-                CategoryCard(
-                    category = categories[index],
-                    onClick = { }
-                )
+            when {
+                //HANDLE LOADING STATE
+                categories.loadState.refresh is LoadState.Loading -> {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+
+                //HANDLE EMPTY LIST
+                categories.itemCount == 0 -> {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = "Aún no hay categorías",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            color = DarkGrey
+                        )
+                    }
+                }
+
+                //HANDLE CATEGORY ITEMS
+                else -> {
+                    items(categories.itemCount) { index ->
+                        val category = categories[index]
+                        category?.let {
+                            CategoryCard(
+                                category = it,
+                                onClick = { /* TODO */ }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -679,11 +859,12 @@ fun CategoryCard(
 
 @Composable
 fun CurrenciesListSection(
-    currencies: List<CurrencyDomain>,
+    viewModel: MainMenuViewModel,
     onBackClick: () -> Unit,
     onClick: (CurrencyDomain) -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val currencies = viewModel.getCurrenciesPaginated().collectAsLazyPagingItems()
+    val overscrollEffect = rememberOverscrollEffect()
 
     Column(
         modifier = Modifier
@@ -692,6 +873,7 @@ fun CurrenciesListSection(
             .padding(25.dp, 5.dp)
             .padding(bottom = 30.dp)
     ) {
+        //TITLE
         SectionTitle(
             "Currencies",
             onBackClick,
@@ -709,16 +891,49 @@ fun CurrenciesListSection(
                 }
             }
         )
-        Column(
+
+        //ACCOUNT ROWS
+        LazyColumn(
             modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(vertical = 5.dp)
+                .overscroll(overscrollEffect),
+            contentPadding = PaddingValues(vertical = 5.dp),
+            state = rememberLazyListState()
         ) {
-            currencies.forEach { currency ->
-                CurrencyRow(
-                    currency,
-                    onClick = { onClick(currency) }
-                )
+            when {
+                //HANDLE LOADING STATE
+                currencies.loadState.refresh is LoadState.Loading -> {
+                    item {
+                        Column {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+                    }
+                }
+                //HANDLE NO ITEMS
+                currencies.itemCount == 0 -> {
+                    item {
+                        Text(
+                            text = "Aún no hay monedas",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            color = DarkGrey
+                        )
+                    }
+                }
+                //HANDLE CURRENCIES
+                else -> {
+                    items(currencies.itemCount) { index ->
+                        val currency = currencies[index]
+                        currency?.let {
+                            CurrencyRow(
+                                currency,
+                                onClick = { onClick(currency) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -728,6 +943,11 @@ fun CurrenciesListSection(
 @Composable
 fun MainMenuPreview() {
     FinancialTheme(darkTheme = false) {
-        MainMenuScreen()
+        MainMenuScreen(
+            navController = NavController(LocalContext.current),
+            viewModel = hiltViewModel(),
+            accountViewModel = hiltViewModel(),
+            transactionViewModel = hiltViewModel()
+        )
     }
 }

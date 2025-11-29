@@ -1,272 +1,169 @@
-package com.rpalmar.financialapp.views.transaction
+package com.rpalmar.financialapp.views.ui.components
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.rpalmar.financialapp.models.TransactionType
+import com.rpalmar.financialapp.views.account.data.AccountFormEvent
 import com.rpalmar.financialapp.views.transaction.data.TransactionFormEvent
-import com.rpalmar.financialapp.views.transaction.data.TransactionUiState
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
-import com.rpalmar.financialapp.views.ui.components.BaseTextField
-import com.rpalmar.financialapp.views.ui.components.DatePickerDialogComponent
-import com.rpalmar.financialapp.views.ui.components.FormNavigatorButtonSection
-import com.rpalmar.financialapp.views.ui.components.refactor.MainLayout
-import com.rpalmar.financialapp.views.ui.components.SimpleSelector
-import com.rpalmar.financialapp.views.ui.components.TitleSectionCard
-import java.text.NumberFormat
-import java.util.Locale
+import com.rpalmar.financialapp.views.ui.theme.Black
 
 @Composable
 fun TransactionFormScreen(
     transactionType: TransactionType,
-    onBackPressed: () -> Unit,
-    viewModel: TransactionViewModel = hiltViewModel(),
+    navController: NavHostController,
+    transactionViewModel: TransactionViewModel
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current;
+    val uiState by transactionViewModel.transactionUIState.collectAsState()
 
-    //TRANSACTION STATE DATA
-    val transactionUiState by viewModel.transactionUIState.collectAsState()
+    //HANDLE TRANSACTION CREATION EVENTS
+    LaunchedEffect(true) {
+        transactionViewModel.uiEvent.collect { event ->
+            when (event) {
+                is UIEvent.Success -> navController.popBackStack();
+                is UIEvent.ShowError -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     //HANDLE CLEAN TRANSACTION FORM
     LaunchedEffect(Unit) {
-        if(!transactionUiState.isEditing)
-            viewModel.onTransactionFormEvent(TransactionFormEvent.Reset)
+        if (!uiState.isEditing)
+            transactionViewModel.onTransactionFormEvent(TransactionFormEvent.Reset)
     }
 
-    //HANDLE ACCOUNT CREATION EVENTS
-    LaunchedEffect(true) {
-        viewModel.uiEvent.collect { event ->
-            when (event) {
-                is UIEvent.Success ->
-                    onBackPressed();
-                is UIEvent.ShowError ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+    if (uiState.isLoading) {
+        LoadingScreen()
+    } else {
 
-    MainLayout {
-        if (transactionUiState.isLoading) {
-            CircularProgressIndicator()
-        } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+
             Column(
-                modifier = Modifier.fillMaxSize(1f)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TitleSectionCard(
-                    title = if (false) "Edit Transaction" else "Create Transaction",
-                    subtitle = transactionType.name,
-                    backgroundColor = Blue,
-                )
-                TransactionFormSection(
-                    transactionType = transactionType,
-                    transactionUiState = transactionUiState,
-                    transactionViewModel = viewModel
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                FormNavigatorButtonSection(
-                    onConfirm = { viewModel.onTransactionFormEvent(TransactionFormEvent.Submit(transactionType)) },
-                    onBackPressed = onBackPressed,
-                    isEditing = false,
-                    isSaving = false
-                )
+                FormSectionTitle("New Transaction")
             }
-        }
-    }
-}
 
-@Composable
-fun TransactionFormSection(
-    transactionUiState: TransactionUiState,
-    transactionViewModel: TransactionViewModel,
-    transactionType: TransactionType,
-) {
-    val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
-        maximumFractionDigits = 2
-        minimumFractionDigits = 2
-    }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .padding(0.dp, 10.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        when (transactionType) {
-            TransactionType.INCOME, TransactionType.EXPENSE -> {
-                SimpleSelector(
-                    placeholder = "Source Account",
-                    itemList = transactionUiState.transactionSources,
-                    selectedItem = transactionUiState.originSource,
-                    itemLabel = { it.name },
-                    itemDetail = {"${it.balance} ${it.currency.symbol}"},
-                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
-                    enabled = transactionUiState.originSource == null
-                )
-                BaseTextField(
-                    value = transactionUiState.amount,
-                    onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
-                    label = "Amount",
-                    leadingText = transactionUiState.originSource?.currency?.symbol,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    errorMessage =  if (transactionUiState.errors.containsKey("amount")) transactionUiState.errors["amount"] else null
-                )
-                SimpleSelector(
-                    placeholder = "Category",
-                    itemList = transactionUiState.categories,
-                    selectedItem = transactionUiState.category,
-                    itemLabel = { it.name },
-                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnCategoryChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("category")) transactionUiState.errors["category"] else null
-                )
-            }
-            TransactionType.TRANSFER -> {
-                SimpleSelector(
-                    placeholder = "Source Account",
-                    itemList = transactionUiState.transactionSources,
-                    selectedItem = transactionUiState.originSource,
-                    itemLabel = { it.name },
-                    itemDetail = {"${it.balance} ${it.currency.symbol}"},
-                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
-                    enabled = transactionUiState.originSource == null
-                )
-                SimpleSelector(
-                    placeholder = "Destination Account",
-                    itemList = transactionUiState.transactionSources.filter { it.id != transactionUiState.originSource?.id },
-                    selectedItem = transactionUiState.destinationSource,
-                    itemLabel = { it.name },
-                    itemDetail = {"${it.balance} ${it.currency.symbol}"},
-                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnDestinationSourceChange(it)) },
-                    errorMessage =  if (transactionUiState.errors.containsKey("destinationAccount")) transactionUiState.errors["destinationAccount"] else null
-                )
-                BaseTextField(
-                    value = transactionUiState.amount,
-                    onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
-                    label = "Origin Amount",
-                    leadingText = transactionUiState.originSource?.currency?.symbol,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    errorMessage = if (transactionUiState.errors.containsKey("amount")) transactionUiState.errors["amount"] else null,
-                )
-                BaseTextField(
-                    value = transactionUiState.destinationAmount,
-                    onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnDestinationAmountChange(it)) },
-                    label = "Destination Amount",
-                    leadingText = transactionUiState.destinationSource?.currency?.symbol,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    )
-                )
-//                BaseTextField(
-//                    value = transactionUiState.exchangeRate,
-//                    onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnExchangeRateChange(it)) },
-//                    label = "Exchange Rate",
-//                    keyboardOptions = KeyboardOptions(
-//                        keyboardType = KeyboardType.Number,
-//                        imeAction = ImeAction.Next
-//                    )
-//                )
-            }
-            TransactionType.ADJUSTMENT -> {
-                val adjustmentFormatted = numberFormat.format(transactionUiState.adjustmentAmount ?: 0.0)
+                when (transactionType) {
+                    TransactionType.INCOME, TransactionType.EXPENSE -> {
+                        FormDropdown(
+                            label = "Source Account",
+                            items = uiState.transactionSources,
+                            selectedItem = uiState.originSource,
+                            onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
+                            itemLabel = { it.name },
+                            itemDetail = { "${it.balance} ${it.currency.symbol}" },
+                        )
+                        FormDoubleField(
+                            label = "Amount",
+                            value = uiState.amount,
+                            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
+                        )
+                        FormDropdown(
+                            label = "Category",
+                            items = uiState.categories,
+                            selectedItem = uiState.category,
+                            onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnCategoryChange(it)) },
+                            itemLabel = { it.name }
+                        )
+                    }
 
-                SimpleSelector(
-                    placeholder = "Account to Adjust",
-                    itemList = transactionUiState.transactionSources,
-                    selectedItem = transactionUiState.originSource,
-                    itemLabel = { it.name },
-                    itemDetail = {"${it.balance} ${it.currency.symbol}"},
-                    onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
-                    errorMessage = if (transactionUiState.errors.containsKey("sourceAccount")) transactionUiState.errors["sourceAccount"] else null,
-                    enabled = transactionUiState.originSource == null
-                )
-                BaseTextField(
-                    value = transactionUiState.amount,
-                    onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
-                    label = "Real Amount",
-                    leadingText = transactionUiState.originSource?.currency?.symbol,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    errorMessage =  if (transactionUiState.errors.containsKey("amount")) transactionUiState.errors["amount"] else null
-                )
-                BaseTextField(
-                    value = "Adjustment: $adjustmentFormatted",
-                    onValueChange = { },
-                    label = "Calculated Adjustment",
-                    enabled = false
-                )
-            }
-        }
-        val showDatePicker = remember { mutableStateOf(false) }
+                    TransactionType.TRANSFER -> {
+                        FormDropdown(
+                            label = "Source Account",
+                            items = uiState.transactionSources,
+                            selectedItem = uiState.originSource,
+                            onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
+                            itemLabel = { it.name },
+                            itemDetail = { "${it.balance} ${it.currency.symbol}" },
+                        )
+                        FormDropdown(
+                            label = "Destination Account",
+                            items = uiState.transactionSources.filter { it.id != uiState.originSource?.id },
+                            selectedItem = uiState.destinationSource,
+                            onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
+                            itemLabel = { it.name },
+                            itemDetail = { "${it.balance} ${it.currency.symbol}" },
+                        )
+                        FormDoubleField(
+                            label = "Amount",
+                            value = uiState.amount,
+                            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
+                        )
+                        FormDoubleField(
+                            label = "Exchange Rate",
+                            value = uiState.exchangeRate,
+                            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnExchangeRateChange(it)) },
+                        )
+                    }
 
-        BaseTextField(
-            value = transactionUiState.transactionDate,
-            onValueChange = { },
-            label = "Transaction Date",
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { showDatePicker.value = true }) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Default.DateRange,
-                        contentDescription = "Date Picker"
-                    )
+                    TransactionType.ADJUSTMENT -> {
+                        val adjustmentFormatted = uiState.adjustmentAmount ?: 0.0
+                        FormDropdown(
+                            label = "Account to Adjust",
+                            items = uiState.transactionSources,
+                            selectedItem = uiState.originSource,
+                            onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
+                            itemLabel = { it.name },
+                            itemDetail = { "${it.balance} ${it.currency.symbol}" },
+                            enabled = uiState.originSource == null
+                        )
+                        FormDoubleField(
+                            label = "Real Amount",
+                            value = uiState.amount,
+                            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
+                        )
+                        FormDoubleField(
+                            label = "Calculated Adjustment",
+                            value = adjustmentFormatted,
+                            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnAmountChange(it)) },
+                            enabled = false
+                        )
+                    }
                 }
             }
-        )
 
-        if (showDatePicker.value) {
-            DatePickerDialogComponent(
-                onDateSelected = {
-                    transactionViewModel.onTransactionFormEvent(
-                        TransactionFormEvent.OnDateChange(it)
-                    )
-                    showDatePicker.value = false
-                },
-                onDismiss = { showDatePicker.value = false }
-            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FormButton(
+                    text = if (uiState.isEditing) "Update" else "Create",
+                    onClick = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.Submit(transactionType)) },
+                    primary = true,
+                    enable = !uiState.isSaving
+                )
+                FormButton(
+                    text = "Cancel",
+                    onClick = { navController.popBackStack() },
+                    primary = false
+                )
+            }
         }
-
-        BaseTextField(
-            value = transactionUiState.description,
-            onValueChange = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnDescriptionChange(it)) },
-            label = "Description",
-            errorMessage =  if (transactionUiState.errors.containsKey("description")) transactionUiState.errors["description"] else null
-        )
     }
 }
-
-
-
-

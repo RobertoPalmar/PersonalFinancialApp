@@ -7,6 +7,7 @@ import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.database.relations.TransactionWithCurrencyRelation
 import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,6 +24,14 @@ class TransactionRepository @Inject constructor(
         return transactionDAO.getTransactionWithCurrencyByID(id)
     }
 
+    fun getTransactionWithCurrencyByDateRange(startDate: Date, endDate:Date):List<TransactionWithCurrencyRelation>{
+        return transactionDAO.getTransactionWithCurrencyByDateRange(startDate, endDate);
+    }
+
+    fun getTransactionWithCurrencyByDateRangeAndAccountID(startDate: Date, endDate:Date, accountID:Long):List<TransactionWithCurrencyRelation>{
+        return transactionDAO.getTransactionWithCurrencyByDateRangeAndAccountID(startDate, endDate, accountID);
+    }
+
     fun getAll():List<TransactionEntity>{
         return transactionDAO.getAll()
     }
@@ -37,13 +46,13 @@ class TransactionRepository @Inject constructor(
         ).flow
     }
 
-    fun getByEnvelopeIDPaginated(envelopeID:Long, pageSize:Int = 20):Flow<PagingData<TransactionWithCurrencyRelation>>{
+    fun getLastPaginated(pageSize:Int = 20): Flow<PagingData<TransactionWithCurrencyRelation>>{
         return Pager(
             config = PagingConfig(
                 pageSize = pageSize,
                 enablePlaceholders = false
             ),
-            pagingSourceFactory = { transactionDAO.getTransactionsByEnvelopePaginated(envelopeID)}
+            pagingSourceFactory = { transactionDAO.getLastTransactionsPaginated()}
         ).flow
     }
 

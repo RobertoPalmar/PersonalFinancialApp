@@ -1,6 +1,7 @@
 package com.rpalmar.financialapp.views.account.data
 
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -11,36 +12,35 @@ import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.usecases.account.CreateAccountUseCase
 import com.rpalmar.financialapp.usecases.account.DeleteAccountUseCase
 import com.rpalmar.financialapp.usecases.account.GetAccountByIDUseCase
-import com.rpalmar.financialapp.usecases.account.GetAccountDashboardDataUseCase
 import com.rpalmar.financialapp.usecases.account.GetAccountsListUseCase
-import com.rpalmar.financialapp.usecases.account.GetTransactionListPerAccountUseCase
+import com.rpalmar.financialapp.usecases.account.GetTransactionListUseCase
 import com.rpalmar.financialapp.usecases.account.UpdateAccountUseCase
-import com.rpalmar.financialapp.usecases.currency.GetCurrenciesUseCase
+import com.rpalmar.financialapp.usecases.currency.GetCurrencyListUseCase
 import com.rpalmar.financialapp.views.ui.UIEvent
-import com.rpalmar.financialapp.views.ui.components.refactor.IconMapper
-import com.rpalmar.financialapp.views.ui.components.refactor.toColor
-import com.rpalmar.financialapp.views.ui.components.refactor.toHex
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.CashRegisterSolid
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val getAccountDashboardDataUseCase: GetAccountDashboardDataUseCase,
-    private val getCurrenciesUseCase: GetCurrenciesUseCase,
+    private val getCurrencyListUseCase: GetCurrencyListUseCase,
     private val createAccountUseCase: CreateAccountUseCase,
     private val getAccountByIDUseCase: GetAccountByIDUseCase,
     private val getAccountListUseCase: GetAccountsListUseCase,
-    private val getTransactionListPerAccountUseCase: GetTransactionListPerAccountUseCase,
+    private val getTransactionListUseCase: GetTransactionListUseCase,
     private val updateAccountUseCase: UpdateAccountUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
 ) : ViewModel() {
+
+    val LOG_TAG = "AccountViewModel"
 
     //UI STATE
     private val _accountUIState = MutableStateFlow(AccountUIState())
@@ -91,13 +91,10 @@ class AccountViewModel @Inject constructor(
             }
 
             is AccountFormEvent.OnBalanceChange -> {
-                val regex = Regex("^\\d*\\.?\\d{0,2}$")
-                if (event.value.isEmpty() || event.value.matches(regex)) {
-                    _accountUIState.value = _accountUIState.value.copy(
-                        balance = event.value,
-                        errors = _accountUIState.value.errors - "initBalance"
-                    )
-                }
+                _accountUIState.value = _accountUIState.value.copy(
+                    balance = event.value,
+                    errors = _accountUIState.value.errors - "initBalance"
+                )
             }
 
             is AccountFormEvent.Submit -> {
@@ -138,8 +135,8 @@ class AccountViewModel @Inject constructor(
                     balance = _accountUIState.value.balance.toDouble(),
                     balanceInMainCurrency = 0.0,
                     style = StyleDomain(
-                        uiColor = _accountUIState.value.color.toColor(),
-                        uiIcon = IconMapper.fromName(_accountUIState.value.icon)
+                        uiColor = _accountUIState.value.color,
+                        uiIcon = _accountUIState.value.icon
                     )
                 )
 
@@ -185,8 +182,8 @@ class AccountViewModel @Inject constructor(
                     balance = _accountUIState.value.balance.toDouble(),
                     balanceInMainCurrency = 0.0,
                     style = StyleDomain(
-                        uiColor = _accountUIState.value.color.toColor(),
-                        uiIcon = IconMapper.fromName(_accountUIState.value.icon)
+                        uiColor = _accountUIState.value.color,
+                        uiIcon = _accountUIState.value.icon
                     )
                 )
 
@@ -203,7 +200,9 @@ class AccountViewModel @Inject constructor(
 
             } finally {
                 //FINISH LOADING
-                _accountUIState.value = _accountUIState.value.copy(isSaving = false)
+                _accountUIState.value = _accountUIState.value.copy(
+                    isSaving = false,
+                )
             }
         }
     }
@@ -232,12 +231,6 @@ class AccountViewModel @Inject constructor(
             )
             errorCount++;
         }
-        if (_accountUIState.value.balance.isEmpty()) {
-            _accountUIState.value = _accountUIState.value.copy(
-                errors = _accountUIState.value.errors + ("initBalance" to "Campo Obligatorio")
-            )
-            errorCount++;
-        }
 
         return errorCount == 0;
     }
@@ -251,12 +244,14 @@ class AccountViewModel @Inject constructor(
             _accountUIState.value = _accountUIState.value.copy(isLoading = true)
 
             try {
-                val currencyListFlow = getCurrenciesUseCase()
-                currencyListFlow?.collectLatest { currencyList ->
-                    _accountUIState.value = _accountUIState.value.copy(
-                        currencyList = currencyList
-                    )
-                }
+                val currencyList = getCurrencyListUseCase()!!.first()
+                val mainCurrency = currencyList.first {c -> c.mainCurrency}
+                _accountUIState.value = _accountUIState.value.copy(
+                    currencyList = currencyList,
+                    mainCurrency = mainCurrency
+                )
+            } catch (e: Exception) {
+                Log.e(LOG_TAG, "Error loading currencies: ${e.message}")
             } finally {
                 _accountUIState.value = _accountUIState.value.copy(isLoading = false)
             }
@@ -272,39 +267,12 @@ class AccountViewModel @Inject constructor(
             accountName = "",
             description = "",
             currency = null,
-            balance = "",
-            color = "#FF6200EE",
-            icon = "ic_wallet",
-            errors = emptyMap()
+            balance = 0.0,
+            color = Color(0xFF81C784),
+            icon = LineAwesomeIcons.CashRegisterSolid,
+            errors = emptyMap(),
+            isEditing = false
         )
-    }
-
-    /**
-     * Load account list data for account table
-     */
-    fun loadAccountLisData() {
-        viewModelScope.launch {
-            try {
-                _accountUIState.value = _accountUIState.value.copy(isLoading = true)
-
-                //GET RELATED DATA
-                var accountDashboardData = getAccountDashboardDataUseCase();
-
-                //VALIDATE RESULT
-                if (accountDashboardData == null)
-                    Log.e("AccountViewModel", "Error al obtener los datos de la cuenta")
-                //SET DATA IN STATE
-                else {
-                    _accountUIState.value = _accountUIState.value.copy(
-                        accountList = accountDashboardData.accountList,
-                        mainCurrency = accountDashboardData.mainCurrency,
-                        totalAccountBalance = accountDashboardData.totalAccountBalance,
-                    )
-                }
-            } finally {
-                _accountUIState.value = _accountUIState.value.copy(isLoading = false)
-            }
-        }
     }
 
     /**
@@ -318,7 +286,7 @@ class AccountViewModel @Inject constructor(
      * Return a flow with transactions list per account
      */
     fun getTransactionsPerAccount(accountID: Long): Flow<PagingData<TransactionDomain>> {
-        return getTransactionListPerAccountUseCase.getPagingData(accountID).cachedIn(viewModelScope)
+        return getTransactionListUseCase.getPagingDataByAccount(accountID).cachedIn(viewModelScope)
     }
 
     /**
@@ -345,9 +313,9 @@ class AccountViewModel @Inject constructor(
     /**
      * Set the current account fields to update
      */
-    fun handleDeleteAccount() {
+    fun handleDeleteAccount(accountID: Long) {
         viewModelScope.launch {
-            deleteAccountUseCase(_accountUIState.value.currentSelectedAccount!!.id)
+            deleteAccountUseCase(accountID)
             _accountUIState.value = _accountUIState.value.copy(
                 currentSelectedAccount = null
             )
@@ -357,17 +325,16 @@ class AccountViewModel @Inject constructor(
     /**
      * Set the current account fields to update
      */
-    fun handleUpdateAccountForm() {
+    fun handleUpdateAccountForm(account: AccountDomain) {
         viewModelScope.launch {
-            var currentAccount = _accountUIState.value.currentSelectedAccount;
             _accountUIState.value = _accountUIState.value.copy(
-                id = currentAccount!!.id,
-                accountName = currentAccount.name,
-                description = currentAccount.description,
-                currency = currentAccount.currency,
-                balance = currentAccount.balance.toString(),
-                color = currentAccount.style.uiColor.toHex(),
-                icon = currentAccount.style.uiIcon.name,
+                id = account.id,
+                accountName = account.name,
+                description = account.description,
+                currency = account.currency,
+                balance = account.balance,
+                color = account.style.uiColor,
+                icon = account.style.uiIcon,
                 errors = emptyMap(),
                 isEditing = true
             )

@@ -5,7 +5,7 @@
         <item name="colorOnPrimary">@color/white</item>
 
         <!-- STATUS BAR AND BACKGROUND -->
-        <item name="android:statusBarColor">#F8F9FA</item>
+        <item name="android:statusBarColor">#FF1C1C1C</item>
         <item name="android:windowBackground">#F8F9FA</item>
     </style>
 </resources>

@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components.refactor
+package com.rpalmar.financialapp.views.ui.components
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
@@ -18,9 +18,7 @@ import com.rpalmar.financialapp.views.ui.theme.White
 fun BottomNavBar(navController: NavHostController) {
 
     val screens = listOf(
-        ScreenSections.Home,
-        ScreenSections.Stats,
-        ScreenSections.Settings
+        ScreenSections.Home
     )
 
     NavigationBar(

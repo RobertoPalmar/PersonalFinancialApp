@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.database.relations.TransactionWithCurrencyRelation
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 @Dao
 interface TransactionDAO: BaseDao<TransactionEntity> {
@@ -40,6 +41,56 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
         """
     )
     fun getTransactionWithCurrencyByID(id: Long): TransactionWithCurrencyRelation?
+
+    @Transaction
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
+                cat.id AS category_id,
+                cat.type AS category_type,
+                cat.name AS category_name,
+                cat.style AS category_style,
+                cat.isDelete AS category_isDelete
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN category_table AS cat ON t.categoryID = cat.id
+            WHERE t.transactionDate BETWEEN :startDate AND :endDate
+        """
+    )
+    fun getTransactionWithCurrencyByDateRange(startDate:Date, endDate:Date):List<TransactionWithCurrencyRelation>
+
+    @Transaction
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
+                cat.id AS category_id,
+                cat.type AS category_type,
+                cat.name AS category_name,
+                cat.style AS category_style,
+                cat.isDelete AS category_isDelete
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN category_table AS cat ON t.categoryID = cat.id
+            WHERE t.transactionDate BETWEEN :startDate AND :endDate AND t.sourceID = :accountID
+        """
+    )
+    fun getTransactionWithCurrencyByDateRangeAndAccountID(startDate:Date, endDate:Date, accountID:Long):List<TransactionWithCurrencyRelation>
 
     @Transaction
     @Query(
@@ -98,6 +149,31 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
     fun getTransactionsByAccountPaginated(
         accountID: Long
     ): PagingSource<Int, TransactionWithCurrencyRelation>
+
+    @Transaction
+    @Query(
+        """
+            SELECT 
+                t.*,
+                c.id AS currency_id,
+                c.name AS currency_name,
+                c.ISO AS currency_ISO,
+                c.symbol AS currency_symbol,
+                c.mainCurrency AS currency_mainCurrency,
+                c.currentExchangeRate AS currency_currentExchangeRate,
+                c.isDelete AS currency_isDelete,
+                cat.id AS category_id,
+                cat.type AS category_type,
+                cat.name AS category_name,
+                cat.style AS category_style,
+                cat.isDelete AS category_isDelete
+            FROM transaction_table AS t
+            INNER JOIN currency_table AS c ON t.currencyId = c.id
+            LEFT JOIN category_table AS cat ON t.categoryID = cat.id
+            ORDER BY t.transactionDate DESC
+        """
+    )
+    fun getLastTransactionsPaginated(): PagingSource<Int, TransactionWithCurrencyRelation>
 
     @Transaction
     @Query(

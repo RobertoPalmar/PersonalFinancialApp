@@ -10,9 +10,9 @@ data class TransactionUiState(
     val id: Long? = null,
     val originSource: SimpleTransactionSourceAux? = null,
     val destinationSource: SimpleTransactionSourceAux? = null,
-    val amount: String = "",
-    val destinationAmount: String = "",
-    val exchangeRate: String = "1.0",
+    val amount: Double = 0.0,
+    val destinationAmount: Double = 0.0,
+    val exchangeRate: Double = 1.0,
     val description: String = "",
     val transactionType: TransactionType? = null,
     val transactionDate: String = "",
@@ -34,9 +34,9 @@ data class TransactionUiState(
 sealed class TransactionFormEvent{
     data class OnOriginSourceChange(val value:SimpleTransactionSourceAux): TransactionFormEvent()
     data class OnDestinationSourceChange(val value:SimpleTransactionSourceAux): TransactionFormEvent()
-    data class OnAmountChange(val value: String): TransactionFormEvent()
-    data class OnExchangeRateChange(val value: String): TransactionFormEvent()
-    data class OnDestinationAmountChange(val value: String): TransactionFormEvent()
+    data class OnAmountChange(val value: Double): TransactionFormEvent()
+    data class OnExchangeRateChange(val value: Double): TransactionFormEvent()
+    data class OnDestinationAmountChange(val value: Double): TransactionFormEvent()
     data class OnDescriptionChange(val value:String): TransactionFormEvent()
     data class OnDateChange(val value:String): TransactionFormEvent()
     data class OnCategoryChange(val value: CategoryDomain): TransactionFormEvent()

@@ -12,22 +12,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.rpalmar.financialapp.views.AppViewModel
 import com.rpalmar.financialapp.views.navigation.MainActivity
-import com.rpalmar.financialapp.views.ui.components.refactor.CreditCardIcon
+import com.rpalmar.financialapp.views.ui.components.CreditCardIcon
 import com.rpalmar.financialapp.views.ui.theme.Black
-import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
@@ -55,14 +57,24 @@ class SplashActivity : ComponentActivity() {
 
 @Composable
 fun SplashScreen(
+    appViewModel: AppViewModel = hiltViewModel(),
     goToNextActivity: () -> Unit = {},
 ) {
 
-    LaunchedEffect(Unit) {
-        delay(3000L);
-        goToNextActivity()
-    }
+    //INITIALIZATION
+    val isInitialized by appViewModel.isAppInitialized.collectAsState()
 
+    LaunchedEffect(Unit) {
+        delay(2000)
+        if (isInitialized) {
+            goToNextActivity()
+        } else {
+            appViewModel.isAppInitialized
+                .filter { it }
+                .first()
+            goToNextActivity()
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Black
@@ -80,24 +92,24 @@ fun SplashScreen(
             }
 
 
-            Box(
-                modifier = Modifier.fillMaxSize().padding(bottom = 10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    CircularProgressIndicator(
-                        color = DarkGrey,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier
-                            .size(20.dp)
-                    )
-                }
-            }
+//            Box(
+//                modifier = Modifier.fillMaxSize().padding(bottom = 10.dp)
+//            ) {
+//                Column(
+//                    modifier = Modifier
+//                        .align(Alignment.BottomCenter)
+//                        .padding(10.dp),
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//
+//                    CircularProgressIndicator(
+//                        color = DarkGrey,
+//                        strokeWidth = 2.dp,
+//                        modifier = Modifier
+//                            .size(20.dp)
+//                    )
+//                }
+//            }
 
         }
     }

@@ -3,7 +3,7 @@ package com.rpalmar.financialapp.models.domain
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rpalmar.financialapp.models.database.StyleEntity
-import com.rpalmar.financialapp.views.ui.components.refactor.toHex
+import com.rpalmar.financialapp.views.ui.components.toHex
 
 data class StyleDomain(
     val uiColor: Color,

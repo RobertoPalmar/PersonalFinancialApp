@@ -1,5 +1,6 @@
 [versions]
 accompanistNavigationAnimation = "0.36.0"
+accompanistSystemuicontrollerVersion = "0.35.0"
 activityKtx = "1.11.0"
 agp = "8.9.1"
 composeBom = "2025.09.00"
@@ -52,6 +53,7 @@ androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+google-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontrollerVersion" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
