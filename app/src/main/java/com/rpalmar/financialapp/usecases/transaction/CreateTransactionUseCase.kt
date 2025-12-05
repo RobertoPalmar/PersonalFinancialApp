@@ -106,9 +106,6 @@ class CreateTransactionUseCase @Inject constructor(
             TransactionSourceType.ACCOUNT -> {
                 accountRepository.updateBalance(sourceID, amount)
             }
-//            TransactionSourceType.ENVELOPE -> {
-//                envelopeRepository.updateBalance(sourceID, amount)
-//            }
         }
     }
 }

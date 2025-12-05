@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import com.rpalmar.financialapp.models.database.AccountEntity
 import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.domain.AccountDomain
+import com.rpalmar.financialapp.utils.Utils.calculateExchangeRate
 
 data class AccountWithCurrencyRelation(
     @Embedded val account: AccountEntity,
@@ -15,7 +16,7 @@ data class AccountWithCurrencyRelation(
             name = account.name,
             description = account.description,
             balance = account.balance,
-            balanceInMainCurrency = account.balance / currency.currentExchangeRate,
+            balanceInMainCurrency = calculateExchangeRate(account.balance, currency.currentExchangeRate),
             style = account.style.toDomain(),
             currency = currency.toDomain()
         )

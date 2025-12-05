@@ -17,6 +17,8 @@ import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
 import com.rpalmar.financialapp.views.AppViewModel
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.category.CategoryFormScreen
+import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.components.AccountFormScreen
@@ -54,16 +56,21 @@ fun AppNavigation() {
             navController = navController,
             startDestination = ScreenSections.Home.route,
         ) {
+            //MAIN MENU
             composable(ScreenSections.Home.route) { backStackEntry ->
                 val accountViewModel: AccountViewModel = hiltViewModel(backStackEntry)
                 val transactionViewModel : TransactionViewModel = hiltViewModel(backStackEntry)
+                val categoryViewModel: CategoryViewModel = hiltViewModel(backStackEntry)
+
                 MainMenuScreen(
                     navController = navController,
                     accountViewModel = accountViewModel,
-                    transactionViewModel = transactionViewModel
+                    transactionViewModel = transactionViewModel,
+                    categoryViewModel = categoryViewModel
                 )
             }
 
+            //ACCOUNT FORM
             composable(ScreenSections.AccountForm.route) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
                 val accountViewModel: AccountViewModel = hiltViewModel(parentEntry)
@@ -95,10 +102,23 @@ fun AppNavigation() {
 
                 //PARAMS
                 val transactionTypeEnum = TransactionType.valueOf(backStackEntry.arguments?.getString("transactionType")!!)
+                val sourceAccountID = backStackEntry.arguments?.getString("sourceId")
                 TransactionFormScreen(
                     navController = navController,
+                    transactionViewModel = transactionViewModel,
                     transactionType = transactionTypeEnum,
-                    transactionViewModel = transactionViewModel
+                    sourceAccountID = sourceAccountID?.toLong()
+                )
+            }
+
+            //CATEGORY FORM
+            composable(ScreenSections.CategoryForm.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
+                val categoryViewModel: CategoryViewModel = hiltViewModel(parentEntry)
+
+                CategoryFormScreen(
+                    navController = navController,
+                    categoryViewModel = categoryViewModel
                 )
             }
         }

@@ -10,11 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.rpalmar.financialapp.views.account.data.AccountFormEvent
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
+import com.rpalmar.financialapp.views.ui.components.summaryCard.AccountDataCard
 import com.rpalmar.financialapp.views.ui.theme.Black
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.BellSolid
@@ -134,7 +134,8 @@ fun AccountFormScreen(
                 FormDoubleField(
                     value = uiState.balance,
                     onValueChange = { accountViewModel.onAccountFormEvent(AccountFormEvent.OnBalanceChange(it))},
-                    label = "Balance"
+                    label = "Balance",
+                    prefix = uiState.currency?.symbol
                 )
 
                 FormColorPicker(

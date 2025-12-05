@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.views.transaction.data
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,11 +19,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import androidx.lifecycle.SavedStateHandle
-import com.rpalmar.financialapp.models.TransactionSourceType
+import com.rpalmar.financialapp.models.Constants
+import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
-import com.rpalmar.financialapp.models.interfaces.IDomainTransaction
 import com.rpalmar.financialapp.usecases.category.GetCategoryListUseCase
 import com.rpalmar.financialapp.usecases.transaction.GetTransactionSourceListUseCase
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,45 +45,31 @@ class TransactionViewModel @Inject constructor(
     private val _uiEvent = Channel<UIEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    init {
+    fun loadInitialData(sourceID: Long?) {
         viewModelScope.launch {
-            val sourceTypeStr = savedStateHandle.get<String>("sourceType")
-            val sourceIdStr = savedStateHandle.get<String>("sourceId")
-
-            var transactionSource: IDomainTransaction? = null
-
-            if (sourceTypeStr != null && sourceIdStr != null) {
-                val sourceType = TransactionSourceType.valueOf(sourceTypeStr)
-                val sourceId = sourceIdStr.toLong()
-
-                when (sourceType) {
-//                    TransactionSourceType.ENVELOPE -> transactionSource = getEnvelopeByIDUseCase(sourceId)
-                    TransactionSourceType.ACCOUNT -> transactionSource = getAccountByIDUseCase(sourceId)
-                }
+            //DEFAULT ACCOUNT
+            var originSource: SimpleTransactionSourceAux? = null;
+            if (sourceID != null) {
+                var transactionSource = getAccountByIDUseCase(sourceID)
+                originSource = transactionSource?.toAuxDomain()
             }
 
-            val auxSource = transactionSource?.toAuxDomain()
-            loadInitialData(auxSource)
-
-            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd")
-            val currentDate = sdf.format(java.util.Date())
-            _transactionUIState.update {
-                it.copy(
-                    transactionDate = currentDate
-                )
-            }
-        }
-    }
-
-    private fun loadInitialData(defaultSource: SimpleTransactionSourceAux?) {
-        viewModelScope.launch {
+            //ACCOUNT SOURCES
             val allSources = getTransactionSourceListUseCase() ?: emptyList()
+
+            //CATEGORIES
             val categories = getCategoryListUseCase()
+
+            //CURRENT DATE DEFAULT
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+            val currentDate = dateFormat.format(Date())
+
             _transactionUIState.update {
                 it.copy(
-                    originSource = defaultSource,
                     transactionSources = allSources,
                     categories = categories!!,
+                    transactionDate = currentDate,
+                    originSource = originSource,
                     isLoading = false
                 )
             }
@@ -93,31 +82,16 @@ class TransactionViewModel @Inject constructor(
     fun onTransactionFormEvent(event: TransactionFormEvent) {
         when (event) {
             is TransactionFormEvent.OnAmountChange -> {
-                val regex = Regex("^\\d*\\.?\\d{0,2}$")
-                _transactionUIState.update { currentState ->
-                    val newAmount = event.value
-                    var newDestinationAmount = currentState.destinationAmount
-                    var newAdjustmentAmount = currentState.adjustmentAmount
-
-                    if (currentState.isCrossCurrencyTransaction) {
-                        val amount = newAmount
-                        val exchangeRate = currentState.exchangeRate
-                        val destinationAmount = amount * exchangeRate
-                        newDestinationAmount = destinationAmount
-                    }
-
-                    val realAmountValue = newAmount
-                    val currentBalance = currentState.originSource!!.balance
-                    newAdjustmentAmount = realAmountValue - currentBalance
-
-
-                    currentState.copy(
-                        amount = newAmount,
-                        destinationAmount = newDestinationAmount,
-                        adjustmentAmount = newAdjustmentAmount,
-                        errors = currentState.errors - "amount"
+                _transactionUIState.update {
+                    it.copy(
+                        amount = event.value,
+                        errors = _transactionUIState.value.errors - "amount"
                     )
                 }
+                if (_transactionUIState.value.isCrossCurrencyTransaction) {
+                    recalculateDestinationAmount()
+                }
+                calculateAdjustmentAmount()
             }
 
             is TransactionFormEvent.OnDescriptionChange -> {
@@ -128,99 +102,54 @@ class TransactionViewModel @Inject constructor(
             }
 
             is TransactionFormEvent.OnDestinationSourceChange -> {
-                _transactionUIState.update { currentState ->
-                    val newDestinationSource = event.value
-                    val sourceCurrency = currentState.originSource?.currency
-                    val destinationCurrency = newDestinationSource?.currency
-
-                    val isCrossCurrency = sourceCurrency != null && destinationCurrency != null && sourceCurrency.id != destinationCurrency.id
-
-                    var exchangeRate = 1.0
-                    var newDestinationAmount = currentState.destinationAmount
-
-                    if (isCrossCurrency) {
-                        exchangeRate = (destinationCurrency.exchangeRate / sourceCurrency.exchangeRate)
-                        val amount = currentState.amount
-                        val newExchangeRateValue = exchangeRate
-                        val destinationAmount = amount * newExchangeRateValue
-                        newDestinationAmount = destinationAmount
-                    } else {
-                        newDestinationAmount = currentState.amount
-                    }
-
-                    currentState.copy(
-                        destinationSource = newDestinationSource,
-                        errors = currentState.errors - "destinationAccount",
-                        isCrossCurrencyTransaction = isCrossCurrency,
-                        exchangeRate = exchangeRate,
-                        destinationAmount = newDestinationAmount
+                _transactionUIState.update {
+                    it.copy(
+                        destinationSource = event.value,
+                        errors = _transactionUIState.value.errors - "destinationAccount"
                     )
                 }
+                checkCrossCurrencyAndUpdate()
             }
 
             is TransactionFormEvent.OnOriginSourceChange -> {
-                _transactionUIState.update { currentState ->
-                    val newOriginSource = event.value
-                    val sourceCurrency = newOriginSource?.currency
-                    val destinationCurrency = currentState.destinationSource?.currency
-
-                    val isCrossCurrency = sourceCurrency != null && destinationCurrency != null && sourceCurrency.id != destinationCurrency.id
-
-                    var exchangeRate = 1.0
-                    var newDestinationAmount = currentState.destinationAmount
-
-                    if (isCrossCurrency) {
-                        exchangeRate = destinationCurrency.exchangeRate / sourceCurrency.exchangeRate
-                        val amount = currentState.amount
-                        val newExchangeRateValue = exchangeRate
-                        val destinationAmount = amount * newExchangeRateValue
-                        newDestinationAmount = destinationAmount
-                    } else {
-                        newDestinationAmount = currentState.amount
-                    }
-
-                    currentState.copy(
-                        originSource = newOriginSource,
-                        errors = currentState.errors - "sourceAccount",
-                        isCrossCurrencyTransaction = isCrossCurrency,
-                        exchangeRate = exchangeRate,
-                        destinationAmount = newDestinationAmount
+                _transactionUIState.update {
+                    it.copy(
+                        originSource = event.value,
+                        errors = _transactionUIState.value.errors - "sourceAccount"
                     )
                 }
+                checkCrossCurrencyAndUpdate()
+                calculateAdjustmentAmount()
             }
 
             is TransactionFormEvent.OnExchangeRateChange -> {
-                val regex = Regex("^\\d*\\.?\\d*$")
-                _transactionUIState.update { currentState ->
-                    val newExchangeRate = event.value
-
-                    val amount = currentState.amount
-                    val exchangeRate = newExchangeRate
-                    val destinationAmount = amount * exchangeRate
-                    val newDestinationAmount = destinationAmount
-
-                    currentState.copy(
-                        exchangeRate = newExchangeRate,
-                        destinationAmount = newDestinationAmount
-                    )
+                _transactionUIState.update {
+                    it.copy(exchangeRate = event.value)
                 }
+                recalculateDestinationAmount()
             }
 
             is TransactionFormEvent.OnDestinationAmountChange -> {
-                _transactionUIState.update { currentState ->
-                    val newDestinationAmount = event.value
-                    var newExchangeRate = currentState.exchangeRate
+                _transactionUIState.update {
+                    it.copy(destinationAmount = event.value)
+                }
+                recalculateExchangeRate()
+            }
 
-                    val amount = currentState.amount
-                    val destinationAmount = newDestinationAmount
-                    if (amount > 0) {
-                        val exchangeRate = destinationAmount / amount
-                        newExchangeRate = exchangeRate
-                    }
+            is TransactionFormEvent.Reset -> {
+                cleanForm()
+            }
 
-                    currentState.copy(
-                        destinationAmount = newDestinationAmount,
-                        exchangeRate = newExchangeRate
+            is TransactionFormEvent.Submit -> {
+                if (_transactionUIState.value.isEditing) updateTransaction(event.transactionType)
+                else saveTransaction(event.transactionType)
+            }
+
+            is TransactionFormEvent.OnCategoryChange -> {
+                _transactionUIState.update {
+                    it.copy(
+                        category = event.value,
+                        errors = it.errors - "category"
                     )
                 }
             }
@@ -233,37 +162,96 @@ class TransactionViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
 
-            is TransactionFormEvent.OnCategoryChange -> {
-                _transactionUIState.update {
-                    it.copy(
-                        category = event.value,
-                        errors = it.errors - "category"
-                    )
-                }
+    /**
+     * Recalculate the exchange rate based on the destination amount
+     */
+    private fun recalculateExchangeRate() {
+        val amount = _transactionUIState.value.amount
+        val destinationAmount = _transactionUIState.value.destinationAmount
+        if (amount > 0) {
+            val exchangeRate = destinationAmount / amount
+            _transactionUIState.update {
+                it.copy(exchangeRate = exchangeRate)
             }
+        }
+    }
 
-            TransactionFormEvent.Reset -> {
-                cleanForm()
-            }
+    /**
+     * Recalculate the destination amount based on the exchange rate
+     */
+    private fun recalculateDestinationAmount() {
+        val amount = _transactionUIState.value.amount
+        val exchangeRate = _transactionUIState.value.exchangeRate
+        val destinationAmount = amount * exchangeRate
+        _transactionUIState.update {
+            it.copy(destinationAmount = destinationAmount)
+        }
+    }
 
-            is TransactionFormEvent.Submit -> {
-                if (_transactionUIState.value.isEditing) updateTransaction(event.transactionType)
-                else saveTransaction(event.transactionType)
-            }
+    private fun calculateAdjustmentAmount() {
+        val realAmountValue = _transactionUIState.value.amount
+        val currentBalance = _transactionUIState.value.originSource?.balance ?: 0.0
+        val adjustment = realAmountValue - currentBalance
+        val finalAdjustment = adjustment.toBigDecimal().setScale(2, java.math.RoundingMode.HALF_UP).toDouble()
+        _transactionUIState.update {
+            it.copy(adjustmentAmount = finalAdjustment)
+        }
+    }
+
+    /**
+     * Validate if the transaction is a cross currency transaction
+     */
+    private fun checkCrossCurrencyAndUpdate() {
+        val sourceCurrency = _transactionUIState.value.originSource?.currency
+        val destinationCurrency = _transactionUIState.value.destinationSource?.currency
+
+        val isCrossCurrency = sourceCurrency != null && destinationCurrency != null && sourceCurrency.id != destinationCurrency.id
+
+        var exchangeRate = 1.0
+        if (isCrossCurrency && sourceCurrency != null && destinationCurrency != null) {
+            // El exchangeRate representa cuántas unidades de moneda destino equivalen a 1 unidad de moneda origen
+            // Si sourceCurrency.exchangeRate = 1.0 (USD base) y destinationCurrency.exchangeRate = 0.85 (EUR)
+            // Entonces: 1 USD = 1.0/0.85 = 1.176 EUR
+            exchangeRate = sourceCurrency.exchangeRate / destinationCurrency.exchangeRate
+        }
+
+        _transactionUIState.update {
+            it.copy(
+                isCrossCurrencyTransaction = isCrossCurrency,
+                exchangeRate = exchangeRate
+            )
+        }
+
+        if (isCrossCurrency) {
+            recalculateDestinationAmount()
+        }
+    }
+
+    /**
+     * Set the transaction type in the UI state
+     */
+    fun setTransactionType(transactionType: TransactionType) {
+        _transactionUIState.update {
+            it.copy(transactionType = transactionType)
         }
     }
 
     /**
      * Clean form data to new entries
      */
-    fun cleanForm() {
+    fun cleanForm(transactionType: TransactionType? = null) {
+        val typeToSet = transactionType ?: _transactionUIState.value.transactionType
+
         _transactionUIState.value = _transactionUIState.value.copy(
             id = null,
             originSource = null,
             destinationSource = null,
             amount = 0.0,
             description = "",
+            transactionType = typeToSet,
             errors = emptyMap()
         )
     }
@@ -320,11 +308,26 @@ class TransactionViewModel @Inject constructor(
                 var originTransaction: TransactionDomain? = null;
                 var destinationTransaction: TransactionDomain? = null;
 
+                //SET AMOUNT
                 var amount: Double = 0.0;
                 if (transactionType == TransactionType.ADJUSTMENT)
-                    amount = _transactionUIState.value.adjustmentAmount!!.toDouble()
+                    amount = _transactionUIState.value.adjustmentAmount
                 else
-                    amount = _transactionUIState.value.amount.toDouble()
+                    amount = _transactionUIState.value.amount
+
+                //SET CATEGORY
+                var category: CategoryDomain;
+                when (transactionType) {
+                    TransactionType.INCOME,
+                    TransactionType.EXPENSE ->
+                        category = _transactionUIState.value.category!!
+
+                    TransactionType.ADJUSTMENT ->
+                        category = Constants.ADJUSTMENT_CATEGORY.toDomain()
+
+                    TransactionType.TRANSFER ->
+                        category = Constants.TRANSFER_CATEGORY.toDomain()
+                }
 
                 //MAP TRANSACTION SOURCE TO DOMAIN ENTITY
                 originTransaction = TransactionDomain(
@@ -333,11 +336,11 @@ class TransactionViewModel @Inject constructor(
                     amount = amount,
                     amountInBaseCurrency = 0.0,
                     transactionType = transactionType,
-                    transactionDate = java.text.SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
+                    transactionDate = SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
                     currency = _transactionUIState.value.originSource!!.currency,
                     exchangeRate = _transactionUIState.value.originSource!!.currency.exchangeRate,
                     description = _transactionUIState.value.description,
-                    category = _transactionUIState.value.category!!
+                    category = category
                 )
 
                 //MAP TRANSACTION DESTINATION TO DOMAIN ENTITY
@@ -346,7 +349,7 @@ class TransactionViewModel @Inject constructor(
                         transactionCode = UUID.randomUUID(),
                         source = _transactionUIState.value.destinationSource!!,
                         transactionType = transactionType,
-                        transactionDate = java.text.SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
+                        transactionDate = SimpleDateFormat("yyyy-MM-dd").parse(_transactionUIState.value.transactionDate),
                         currency = _transactionUIState.value.destinationSource!!.currency,
                         exchangeRate = _transactionUIState.value.destinationSource!!.currency.exchangeRate,
                         description = _transactionUIState.value.description,

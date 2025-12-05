@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rpalmar.financialapp.views.ui.theme.Black
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
+import com.rpalmar.financialapp.views.ui.theme.White
 
 @Composable
 fun ModalDialog(
@@ -25,9 +27,9 @@ fun ModalDialog(
         onDismissRequest = {onDismiss()},
         shape = RoundedCornerShape(24.dp),
         tonalElevation = 4.dp,
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        containerColor = Black,
+        titleContentColor = White,
+        textContentColor = White.copy(0.9f),
         title = {
             Text(
                 text = title,
@@ -46,7 +48,6 @@ fun ModalDialog(
             Text(
                 "Sí",
                 style = MaterialTheme.typography.titleSmall,
-                color = DarkGrey,
                 modifier = Modifier
                     .clickable { onAccept() }
                     .padding(10.dp)
@@ -56,7 +57,6 @@ fun ModalDialog(
             Text(
                 "No",
                 style = MaterialTheme.typography.titleSmall,
-                color = DarkGrey,
                 modifier = Modifier
                     .clickable {onDismiss()}
                     .padding(10.dp)

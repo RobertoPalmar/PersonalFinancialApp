@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.TransactionType
+import com.rpalmar.financialapp.views.ui.theme.Black
+import com.rpalmar.financialapp.views.ui.theme.DarkGrey
+import com.rpalmar.financialapp.views.ui.theme.White
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.ArrowsAltSolid
 import compose.icons.lineawesomeicons.ChartBar
@@ -31,14 +36,15 @@ fun TransactionTypeDialog(
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        containerColor = Color(0xFF1E1E1E),           // Fondo oscuro estilo app
-        titleContentColor = Color.White,
-        textContentColor = Color.White.copy(0.9f),
+        containerColor = Black,
+        titleContentColor = White,
+        textContentColor = White.copy(0.9f),
 
         title = {
             Text(
                 "Seleccionar tipo de transacción",
-                color = Color.White
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
         },
 
@@ -63,6 +69,7 @@ fun TransactionTypeDialog(
             TextButton(onClick = onDismiss) {
                 Text(
                     "Cancelar",
+                    style = MaterialTheme.typography.titleSmall,
                     color = Color.White.copy(0.8f)
                 )
             }
@@ -75,20 +82,6 @@ private fun TransactionTypeRow(
     type: TransactionType,
     onClick: () -> Unit
 ) {
-    val icon = when (type) {
-        TransactionType.INCOME -> LineAwesomeIcons.PlusSolid
-        TransactionType.EXPENSE -> LineAwesomeIcons.MinusSolid
-        TransactionType.TRANSFER -> LineAwesomeIcons.ArrowsAltSolid
-        TransactionType.ADJUSTMENT -> LineAwesomeIcons.ChartBar
-    }
-
-    val label = when (type) {
-        TransactionType.INCOME -> "Ingreso"
-        TransactionType.EXPENSE -> "Gasto"
-        TransactionType.TRANSFER -> "Transferencia"
-        TransactionType.ADJUSTMENT -> "Ajuste"
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,15 +92,16 @@ private fun TransactionTypeRow(
     ) {
 
         Icon(
-            imageVector = icon,
-            contentDescription = label,
+            imageVector = type.resolveIcon(),
+            contentDescription = type.resolveLabel(),
             tint = Color.White,
             modifier = Modifier.size(26.dp)
         )
 
         Text(
-            text = label,
+            text = type.resolveLabel(),
             color = Color.White,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
     }

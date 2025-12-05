@@ -25,17 +25,17 @@ class GetAccountSummaryDataUseCase @Inject constructor(
             //GET ACCOUNT MONTH TRANSACTIONS
             val currentMonthDate = Utils.getCurrentMonthDateRange()
             val currentAccountMonthTransactionList =
-                transactionRepository.getTransactionWithCurrencyByDateRange(currentMonthDate.startDate, currentMonthDate.endDate)
+                transactionRepository.getTransactionWithCurrencyByDateRangeAndAccountID(currentMonthDate.startDate, currentMonthDate.endDate, account.id)
 
             // CALCULATE INCOME
             val incomeBalance = currentAccountMonthTransactionList
                 .filter { it.transaction.transactionType == TransactionType.INCOME }
-                .sumOf { it.transaction.amount / it.currency.currentExchangeRate }
+                .sumOf { it.transaction.amount }
 
             // CALCULATE EXPENSE
             val expenseBalance = currentAccountMonthTransactionList
                 .filter { it.transaction.transactionType == TransactionType.EXPENSE }
-                .sumOf { it.transaction.amount / it.currency.currentExchangeRate }
+                .sumOf { it.transaction.amount }
 
             // RESULT
             val accountSummaryData = AccountSummaryData(

@@ -12,7 +12,7 @@ data class AccountUIState(
     //FORM INPUT FIELDS
     var id: Long? = null,
     var accountName: String = "",
-    var description: String = "",
+    var description: String = "Transaction Description",
     var currency: CurrencyDomain? = null,
     var balance: Double = 0.0,
     var color: Color = Color(0xFF81C784),

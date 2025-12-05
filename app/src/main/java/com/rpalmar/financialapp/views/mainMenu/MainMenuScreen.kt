@@ -34,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.rpalmar.financialapp.models.TransactionSourceType
+import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
@@ -58,23 +61,25 @@ import com.rpalmar.financialapp.models.domain.auxiliar.MainMenuItem
 import com.rpalmar.financialapp.providers.sealeds.MainSectionContent
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.mainMenu.data.MainMenuUIState
 import com.rpalmar.financialapp.views.mainMenu.data.MainMenuViewModel
 import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.animations.CarouselAnimatedSummary
-import com.rpalmar.financialapp.views.ui.components.AccountDataCard
-import com.rpalmar.financialapp.views.ui.components.AccountRow
+import com.rpalmar.financialapp.views.ui.components.summaryCard.AccountDataCard
+import com.rpalmar.financialapp.views.ui.components.itemRows.AccountRow
 import com.rpalmar.financialapp.views.ui.components.CreditCardIcon
-import com.rpalmar.financialapp.views.ui.components.CurrencyRow
+import com.rpalmar.financialapp.views.ui.components.itemRows.CurrencyRow
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.IncomeExpenseSection
 import com.rpalmar.financialapp.views.ui.components.LoadingScreen
 import com.rpalmar.financialapp.views.ui.components.MainLayout
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
-import com.rpalmar.financialapp.views.ui.components.TransactionRow
+import com.rpalmar.financialapp.views.ui.components.itemRows.TransactionRow
 import com.rpalmar.financialapp.views.ui.components.TransactionTypeDialog
 import com.rpalmar.financialapp.views.ui.components.formatAmount
+import com.rpalmar.financialapp.views.ui.components.summaryCard.TotalBalanceCard
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
@@ -96,6 +101,7 @@ fun MainMenuScreen(
     navController: NavController,
     viewModel: MainMenuViewModel = hiltViewModel(),
     accountViewModel: AccountViewModel,
+    categoryViewModel: CategoryViewModel,
     transactionViewModel: TransactionViewModel
 ) {
     //GLOBAL ACCESS
@@ -103,13 +109,20 @@ fun MainMenuScreen(
     val uiState by viewModel.mainMenuUIState.collectAsState()
 
     //TOOL FUNCTIONS
-    fun onCreateAccountHandler(){
+    fun onCreateAccountHandler() {
         accountViewModel.cleanForm()
         navController.navigate(ScreenSections.AccountForm.route)
     }
 
+    fun onCreateCategoryHandler(){
+        categoryViewModel.cleanForm()
+        navController.navigate(ScreenSections.CategoryForm.route)
+    }
+
     //SECTION UI
-    var currentSection by remember { mutableStateOf<MainSectionContent>(MainSectionContent.Home) }
+    var currentSection by rememberSaveable(stateSaver = MainSectionContent.Saver) { 
+        mutableStateOf<MainSectionContent>(MainSectionContent.Home) 
+    }
 
     //ON BACK LOGIC
     var showExitDialog by remember { mutableStateOf(false) }
@@ -161,6 +174,7 @@ fun MainMenuScreen(
                     SummaryContent(
                         viewModel = viewModel,
                         accountViewModel = accountViewModel,
+                        transactionViewModel = transactionViewModel,
                         uiState = uiState,
                         navController = navController,
                         section = section,
@@ -228,6 +242,7 @@ fun MainMenuScreen(
                     is MainSectionContent.Categories -> {
                         CategoriesListSection(
                             viewModel = viewModel,
+                            onAddClick = { onCreateCategoryHandler() },
                             onClick = {},
                             onBackClick = { currentSection = MainSectionContent.Home }
                         )
@@ -252,6 +267,7 @@ fun MainMenuScreen(
 fun SummaryContent(
     viewModel: MainMenuViewModel,
     accountViewModel: AccountViewModel,
+    transactionViewModel: TransactionViewModel,
     uiState: MainMenuUIState,
     navController: NavController,
     section: MainSectionContent,
@@ -276,7 +292,9 @@ fun SummaryContent(
             } else {
                 AccountSummaryBalance(
                     accountViewModel = accountViewModel,
+                    transactionViewModel = transactionViewModel,
                     accountSummaryData = uiState.accountSummaryData!!,
+                    navController = navController,
                     onBackNavigation = { onNavigateToSection(MainSectionContent.Accounts) },
                     onEditNavigation = { navController.navigate(ScreenSections.AccountForm.route) }
                 )
@@ -303,13 +321,11 @@ fun GeneralSummaryBalance(
         TotalBalanceCard(
             totalBalance = uiState.dashboardData.totalBalance,
             currencySymbol = currencySymbol
-//            totalBalanceInPrimaryCurrency = 1565.21,
         )
         IncomeExpenseSection(
             income = uiState.dashboardData.generalIncome,
             expenses = uiState.dashboardData.generalExpense,
             firstCurrency = mainCurrency!!
-//            altCurrency = MockupProvider.getMockCurrencies()[1]
         )
     }
 }
@@ -317,11 +333,17 @@ fun GeneralSummaryBalance(
 @Composable
 fun AccountSummaryBalance(
     accountViewModel: AccountViewModel,
+    transactionViewModel: TransactionViewModel,
     accountSummaryData: AccountSummaryData,
     onBackNavigation: () -> Unit,
-    onEditNavigation: () -> Unit
+    onEditNavigation: () -> Unit,
+    navController: NavController
 ) {
     val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+
+    //DELETE DIALOG
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showTransactionDialog by remember { mutableStateOf(false) }
 
     fun handleDeleteAccount() {
         accountViewModel.handleDeleteAccount(accountSummaryData.account.id)
@@ -333,9 +355,12 @@ fun AccountSummaryBalance(
         onEditNavigation();
     }
 
-    //DELETE DIALOG
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showTransactionDialog by remember { mutableStateOf(false) }
+    fun handleCreateAccountTransaction(transactionType: TransactionType){
+        val route = "transactionForm/${transactionType.name}?sourceType=${TransactionSourceType.ACCOUNT}&sourceId=${accountSummaryData.account.id}"
+        transactionViewModel.cleanForm(transactionType)
+        navController.navigate(route)
+        showTransactionDialog = false
+    }
 
     if (showDeleteDialog) {
         ModalDialog(
@@ -346,10 +371,10 @@ fun AccountSummaryBalance(
         )
     }
 
-    if(showTransactionDialog){
+    if (showTransactionDialog) {
         TransactionTypeDialog(
             onDismiss = { showTransactionDialog = false },
-            onTypeSelected = {}
+            onTypeSelected = { transactionType -> handleCreateAccountTransaction(transactionType)}
         )
     }
 
@@ -519,60 +544,6 @@ fun GreetingSection() {
 }
 
 @Composable
-fun TotalBalanceCard(
-    totalBalance: Double,
-    totalBalanceInPrimaryCurrency: Double? = null,
-    currencySymbol: String
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(bottom = 10.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkGrey),
-        shape = RoundedCornerShape(14.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                //GENERAL DATA
-                Column {
-                    Text(
-                        text = "General Balance",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = White
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = formatAmount(totalBalance, currencySymbol),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = White
-                    )
-                    if (totalBalanceInPrimaryCurrency != null) {
-                        Text(
-                            text = formatAmount(totalBalanceInPrimaryCurrency, currencySymbol),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = White,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-
-                CreditCardIcon(size = 50.dp)
-            }
-        }
-    }
-}
-
-@Composable
 fun TransactionsListSection(
     title: String,
     account: AccountDomain? = null,
@@ -584,6 +555,8 @@ fun TransactionsListSection(
         if (account != null) viewModel.getTransactionsPerAccountPaginated(account.id).collectAsLazyPagingItems()
         else viewModel.getTransactionsPaginated().collectAsLazyPagingItems()
     val overscrollEffect = rememberOverscrollEffect()
+
+    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
 
     Column(
         modifier = Modifier
@@ -632,6 +605,7 @@ fun TransactionsListSection(
                         transaction?.let {
                             TransactionRow(
                                 transaction,
+                                mainCurrency = mainCurrency!!,
                                 onClick = { onClick(transaction) }
                             )
                         }
@@ -728,6 +702,7 @@ fun AccountsListSection(
 @Composable
 fun CategoriesListSection(
     viewModel: MainMenuViewModel,
+    onAddClick: () -> Unit,
     onBackClick: () -> Unit,
     onClick: (CategoryDomain) -> Unit
 ) {
@@ -746,7 +721,7 @@ fun CategoriesListSection(
             onBackClick,
             actionButton = {
                 IconButton(
-                    onClick = {},
+                    onClick = {onAddClick()},
                     modifier = Modifier.size(30.dp)
                 ) {
                     Icon(
@@ -765,7 +740,7 @@ fun CategoriesListSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             userScrollEnabled = true,
-            contentPadding = PaddingValues(12.dp)
+            contentPadding = PaddingValues(5.dp)
         ) {
             when {
                 //HANDLE LOADING STATE
@@ -947,7 +922,8 @@ fun MainMenuPreview() {
             navController = NavController(LocalContext.current),
             viewModel = hiltViewModel(),
             accountViewModel = hiltViewModel(),
-            transactionViewModel = hiltViewModel()
+            transactionViewModel = hiltViewModel(),
+            categoryViewModel = hiltViewModel()
         )
     }
 }

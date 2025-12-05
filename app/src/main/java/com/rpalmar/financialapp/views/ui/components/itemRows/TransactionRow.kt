@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components
+package com.rpalmar.financialapp.views.ui.components.itemRows
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,13 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.models.domain.TransactionDomain
+import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.formatAmount
+import com.rpalmar.financialapp.views.ui.components.formatDate
+import com.rpalmar.financialapp.views.ui.components.transactionColor
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 
 
 @Composable
 fun TransactionRow(
     transaction: TransactionDomain,
+    mainCurrency: CurrencyDomain,
     onClick: () -> Unit = {}
 ) {
     val color = transactionColor(transaction.transactionType)
@@ -69,9 +75,16 @@ fun TransactionRow(
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = formatAmount(transaction.amountInBaseCurrency, transaction.currency.symbol),
+                text = formatAmount(transaction.amount, transaction.currency.symbol),
                 color = color,
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "(${formatAmount(transaction.amountInBaseCurrency, mainCurrency.symbol)})",
+                color = DarkGrey,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold
             )
 

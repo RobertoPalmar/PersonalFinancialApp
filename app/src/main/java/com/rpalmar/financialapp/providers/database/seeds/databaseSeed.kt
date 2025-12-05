@@ -1,10 +1,20 @@
 package com.rpalmar.financialapp.providers.database.seeds
 
-import com.rpalmar.financialapp.models.ExchangeRateType
-import com.rpalmar.financialapp.models.RateMode
+import com.rpalmar.financialapp.models.CategoryType
+import com.rpalmar.financialapp.models.Constants.ADJUSTMENT_CATEGORY
+import com.rpalmar.financialapp.models.Constants.TRANSFER_CATEGORY
+import com.rpalmar.financialapp.models.database.CategoryEntity
 import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.database.ExchangeRateHistoryEntity
+import com.rpalmar.financialapp.models.database.StyleEntity
+import com.rpalmar.financialapp.views.ui.components.toHex
+import com.rpalmar.financialapp.views.ui.theme.AccentYellow
+import com.rpalmar.financialapp.views.ui.theme.Cyan
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.ExchangeAltSolid
+import compose.icons.lineawesomeicons.WrenchSolid
 import java.util.Date
+
 val currencySeeds = listOf(
     CurrencyEntity(
         id = 1,
@@ -52,4 +62,12 @@ val exchangeRateSeeds = listOf(
         rate = 0.854700855,
         createAt = Date()
     )
+)
+
+val categorySeeds = listOf(
+    //ADJUSTMENT CATEGORY
+    ADJUSTMENT_CATEGORY,
+
+    //TRANSFER CATEGORY
+    TRANSFER_CATEGORY
 )

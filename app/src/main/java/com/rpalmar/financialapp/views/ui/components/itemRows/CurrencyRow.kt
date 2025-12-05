@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components
+package com.rpalmar.financialapp.views.ui.components.itemRows
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,24 +14,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rpalmar.financialapp.models.domain.AccountDomain
-import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.PreferenceStarIcon
+import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
+import com.rpalmar.financialapp.views.ui.theme.Red
 
 
 @Composable
-fun AccountRow(
-    account: AccountDomain,
+fun CurrencyRow(
+    currency: CurrencyDomain,
     onClick: () -> Unit
 ) {
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
 
     Card(
         modifier = Modifier
@@ -50,11 +50,11 @@ fun AccountRow(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row {
-                //ACCOUNT ICON
+                //CURRENCY ICON
                 DefaultIcon(
-                    title = account.name,
-                    icon = account.style.uiIcon,
-                    color = account.style.uiColor,
+                    title = currency.name,
+                    textIcon = currency.symbol,
+                    color = Red,
                     circleSize = 40.dp,
                     iconSize = 25.dp
                 )
@@ -63,14 +63,33 @@ fun AccountRow(
 
                 //DETAIL DATA
                 Column {
+
+                    //MAIN CURRENCY ICON
+                    if(currency.mainCurrency){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = currency.name,
+                                color = DarkGrey,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            PreferenceStarIcon()
+                        }
+                    }
+                    else{
+                        Text(
+                            text = currency.name,
+                            color = DarkGrey,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+
                     Text(
-                        text = account.name,
-                        color = DarkGrey,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = account.description,
+                        text = currency.ISO,
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
@@ -84,13 +103,13 @@ fun AccountRow(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = formatAmount(account.balance, account.currency.symbol),
+                        text = formatAmount(currency.exchangeRate),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
                         color = DarkGrey
                     )
                     Text(
-                        text = formatAmount(account.balanceInMainCurrency, mainCurrency!!.symbol),
+                        text = "Exchange Rate",
                         color = Color.DarkGray,
                         style = MaterialTheme.typography.bodyMedium
                     )

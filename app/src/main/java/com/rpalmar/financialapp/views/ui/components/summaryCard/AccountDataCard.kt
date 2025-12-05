@@ -1,4 +1,4 @@
-package com.rpalmar.financialapp.views.ui.components
+package com.rpalmar.financialapp.views.ui.components.summaryCard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.White
 import compose.icons.Octicons
@@ -112,9 +114,6 @@ fun AccountDataCard(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-//                    //UI CREDIT CARD CANVAS
-//                    CreditCardIcon(size = 50.dp, modifier = Modifier.padding(start = 10.dp))
-
                     Column {
                         Text(
                             text = "Account Balance",

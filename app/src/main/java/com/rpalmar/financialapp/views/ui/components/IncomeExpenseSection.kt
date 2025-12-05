@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.utils.Utils.calculateExchangeRate
 import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Red
 import compose.icons.LineAwesomeIcons
@@ -25,13 +26,13 @@ fun IncomeExpenseSection(
     val formatIncome = formatAmount(income, firstCurrency.symbol)
     val formatIncomeAlt = if(altCurrency == null) null
     else formatAmount(
-        income * firstCurrency.exchangeRate / altCurrency.exchangeRate,
+        calculateExchangeRate(income,firstCurrency.exchangeRate,altCurrency.exchangeRate),
         altCurrency.symbol
     )
     val formatExpense = formatAmount(expenses, firstCurrency.symbol)
     val formatExpenseAlt = if(altCurrency == null) null
     else formatAmount(
-        income * firstCurrency.exchangeRate / altCurrency.exchangeRate,
+        calculateExchangeRate(expenses,firstCurrency.exchangeRate,altCurrency.exchangeRate),
         altCurrency.symbol
     )
 

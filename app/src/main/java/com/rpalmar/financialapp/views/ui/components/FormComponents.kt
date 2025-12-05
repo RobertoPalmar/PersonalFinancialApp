@@ -54,6 +54,20 @@ import com.rpalmar.financialapp.views.ui.theme.White
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.app.DatePickerDialog
+import android.util.Log
+import android.view.ContextThemeWrapper
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.platform.LocalContext
+import com.rpalmar.financialapp.R
+import com.rpalmar.financialapp.views.ui.theme.Red
+import java.util.Calendar
+import java.util.TimeZone
+import androidx.compose.material3.DatePickerDialog
 
 @Composable
 fun FormSectionTitle(
@@ -96,7 +110,9 @@ fun FormTextField(
     isPassword: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
     errorMessage: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    prefix: String? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -105,6 +121,7 @@ fun FormTextField(
             label = { Text(label, color = Color.White) },
             singleLine = true,
             enabled = enabled,
+            readOnly = readOnly,
             textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
@@ -117,11 +134,19 @@ fun FormTextField(
                 focusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
                 unfocusedPlaceholderColor = Color.White.copy(alpha = 0.3f),
                 errorBorderColor = Color.Red,
-                errorLabelColor = Color.Red
+                errorLabelColor = Color.Red,
+                focusedPrefixColor = Color.White,
+                unfocusedPrefixColor = Color.White.copy(alpha = 0.7f),
+                disabledTextColor = Color.White,
+                disabledBorderColor = Color.White.copy(alpha = 0.5f),
+                disabledLabelColor = Color.White.copy(alpha = 0.7f),
+                disabledPlaceholderColor = Color.White.copy(alpha = 0.3f),
+                disabledPrefixColor = Color.White.copy(alpha = 0.7f)
             ),
             shape = RoundedCornerShape(14.dp),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            prefix = prefix?.let { { Text(text = it, color = Color.White) } },
             modifier = Modifier.fillMaxWidth()
         )
         if (!errorMessage.isNullOrEmpty()) {
@@ -137,28 +162,54 @@ fun FormTextField(
 fun FormDoubleField(
     modifier: Modifier = Modifier,
     value: Double?,
-    onValueChange: (Double) -> Unit,
+    onValueChange: ((Double) -> Unit)? = null,
     label: String,
     errorMessage: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    prefix: String? = null
 ) {
     var text by remember { mutableStateOf(value?.toString() ?: "") }
+    
+    // Sync internal state with value prop ONLY when field is disabled (read-only)
+    // This prevents overwriting user input in editable fields
+    LaunchedEffect(value, enabled) {
+        if (!enabled) {
+            text = value?.toString() ?: ""
+        }
+    }
+    
     FormTextField(
         value = text,
-        onValueChange = {
-            text = it
-            it.toDoubleOrNull()?.let(onValueChange)
+        onValueChange = { newValue ->
+            // Regex pattern to validate double input:
+            // - Allow empty string
+            // - Allow optional minus sign at start
+            // - Allow digits before and after optional decimal point
+            // - Reject multiple decimal points or invalid characters
+            val validDoublePattern = "^-?\\d*\\.?\\d*$".toRegex()
+            
+            if (newValue.isEmpty() || newValue.matches(validDoublePattern)) {
+                text = newValue
+                // Only notify parent if there's a callback and the value is valid
+                onValueChange?.let { callback ->
+                    newValue.toDoubleOrNull()?.let(callback)
+                }
+            }
+            // If input doesn't match pattern, ignore it (don't update text)
         },
         label = label,
         keyboardType = KeyboardType.Number,
         errorMessage = errorMessage,
         modifier = modifier,
+        prefix = prefix,
+        enabled = enabled
     )
 }
 
 /** ---------------------------------------------
  * DATE FIELD (Muestra dd/MM/yyyy)
  * -------------------------------------------- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormDateField(
     modifier: Modifier = Modifier,
@@ -167,20 +218,110 @@ fun FormDateField(
     label: String,
     errorMessage: String? = null
 ) {
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    var text by remember { mutableStateOf(value?.let { formatter.format(it) } ?: "") }
+    // Estado para mostrar/ocultar el diálogo
+    var showDialog by remember { mutableStateOf(false) }
 
-    FormTextField(
-        value = text,
-        onValueChange = { /* no editable manual */ },
-        label = label,
-        keyboardType = KeyboardType.Text,
-        modifier = modifier.clickable {
-            // Aquí podrías abrir un DatePickerDialog si quieres
-        },
-        errorMessage = errorMessage
-    )
+    // Formateador
+    val formatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val textStr = value?.let { formatter.format(it) } ?: ""
+
+    // CAMPO DE TEXTO
+    Box(modifier = modifier) {
+        FormTextField(
+            value = textStr,
+            onValueChange = { },
+            label = label,
+            keyboardType = KeyboardType.Text,
+            enabled = false, // Deshabilitado para delegar el click
+            readOnly = true,
+            errorMessage = errorMessage,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDialog = true }
+        )
+        // Capa transparente para asegurar el click en toda el área
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { showDialog = true }
+        )
+    }
+
+    // LÓGICA DEL DIÁLOGO
+    if (showDialog) {
+        val dateState = rememberDatePickerState(
+            initialSelectedDateMillis = value?.time ?: System.currentTimeMillis()
+        )
+
+        val confirmEnabled = remember { derivedStateOf { dateState.selectedDateMillis != null } }
+
+        // --- TU CÓDIGO ACTUALIZADO ---
+        DatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        dateState.selectedDateMillis?.let { millis ->
+                            // AJUSTE DE ZONA HORARIA (CRUCIAL):
+                            val offset = TimeZone.getDefault().getOffset(millis)
+                            // Opción más segura usando Calendar:
+                            val calendar = Calendar.getInstance()
+                            calendar.timeInMillis = millis
+                            calendar.add(Calendar.MILLISECOND, offset)
+                            onValueChange(calendar.time)
+                        }
+                    },
+                    enabled = confirmEnabled.value
+                ) {
+                    Text("Aceptar", color = DarkGrey)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancelar", color = DarkGrey)
+                }
+            }
+        ) {
+            DatePicker(
+                state = dateState,
+//                colors = DatePickerDefaults.colors(
+//                    // --- HEADER ---
+//                    headerBackgroundColor = Red,
+//                    headerHeadlineContentColor = White,
+//
+//                    // --- CUERPO ---
+//                    containerColor = DarkGrey,
+//
+//                    // Títulos
+//                    titleContentColor = White,
+//                    weekdayContentColor = White,
+//
+//                    // Días
+//                    dayContentColor = White,
+//
+//                    // Selección
+//                    selectedDayContainerColor = Red,
+//                    selectedDayContentColor = White,
+//
+//                    // Hoy
+//                    todayDateBorderColor = Red,
+//                    todayContentColor = Red,
+//
+//                    // Navegación
+//                    navigationContentColor = White,
+//
+//                    // Año
+//                    yearContentColor = White,
+//                    currentYearContentColor = Red,
+//                    selectedYearContentColor = White,
+//                    selectedYearContainerColor = Red
+//                )
+            )
+        }
+    }
 }
+
 /** ---------------------------------------------
  * GENERIC DROPDOWN
  * -------------------------------------------- */
@@ -194,6 +335,7 @@ fun <T> FormDropdown(
     onItemSelected: (T) -> Unit,
     itemLabel: (T) -> String,
     itemDetail: ((T) -> String)? = null,
+    itemIcon: ((T) -> ImageVector)? = null,
     errorMessage: String? = null,
     enabled: Boolean = true
 ) {
@@ -241,6 +383,17 @@ fun <T> FormDropdown(
                     modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Icono del item seleccionado
+                    if (currentSelection != null && itemIcon != null) {
+                        Icon(
+                            imageVector = itemIcon(currentSelection!!),
+                            contentDescription = null,
+                            tint = if (enabled) Color.White else Color.Gray.copy(alpha = 0.6f),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(end = 12.dp)
+                        )
+                    }
 
                     Column {
                         Text(
@@ -291,14 +444,30 @@ fun <T> FormDropdown(
                 items.forEach { item ->
                     DropdownMenuItem(
                         text = {
-                            Column {
-                                Text(itemLabel(item), color = Color.White)
-                                if (itemDetail != null) {
-                                    Text(
-                                        text = itemDetail(item),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.White.copy(alpha = 0.7f)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                // Icono del item
+                                if (itemIcon != null) {
+                                    Icon(
+                                        imageVector = itemIcon(item),
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .padding(end = 12.dp)
                                     )
+                                }
+                                Column {
+                                    Text(itemLabel(item), color = Color.White)
+                                    if (itemDetail != null) {
+                                        Text(
+                                            text = itemDetail(item),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.White.copy(alpha = 0.7f)
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -525,6 +694,13 @@ fun FormComponentsPreview() {
             value = number,
             onValueChange = { number = it },
             label = "Number Field"
+        )
+
+        FormDoubleField(
+            value = number,
+            onValueChange = { number = it },
+            label = "Amount Field",
+            prefix = "$"
         )
 
         FormDateField(

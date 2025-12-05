@@ -14,6 +14,7 @@ import compose.icons.lineawesomeicons.ChartBarSolid
 import compose.icons.lineawesomeicons.CheckCircleSolid
 import compose.icons.lineawesomeicons.CreditCardSolid
 import compose.icons.lineawesomeicons.EnvelopeSolid
+import compose.icons.lineawesomeicons.ExchangeAltSolid
 import compose.icons.lineawesomeicons.GiftSolid
 import compose.icons.lineawesomeicons.HeartSolid
 import compose.icons.lineawesomeicons.HomeSolid
@@ -92,7 +93,9 @@ object IconMapper {
         "EnvelopeSolid" to LineAwesomeIcons.EnvelopeSolid,
         "CheckCircleSolid" to LineAwesomeIcons.CheckCircleSolid,
         "InfoCircleSolid" to LineAwesomeIcons.InfoCircleSolid,
-        "ToolsSolid" to LineAwesomeIcons.ToolsSolid
+        "ToolsSolid" to LineAwesomeIcons.ToolsSolid,
+        "WrenchSolid" to LineAwesomeIcons.ToolsSolid,
+        "ExchangeAltSolid" to LineAwesomeIcons.ExchangeAltSolid
     )
 
     fun fromName(name: String) = icons[name] ?: LineAwesomeIcons.QuestionSolid

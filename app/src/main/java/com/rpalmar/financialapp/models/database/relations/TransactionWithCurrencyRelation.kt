@@ -6,6 +6,7 @@ import com.rpalmar.financialapp.models.database.CurrencyEntity
 import com.rpalmar.financialapp.models.database.TransactionEntity
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
+import com.rpalmar.financialapp.utils.Utils.calculateExchangeRate
 
 data class TransactionWithCurrencyRelation(
     @Embedded val transaction: TransactionEntity,
@@ -21,7 +22,7 @@ data class TransactionWithCurrencyRelation(
             transactionCode = transaction.transactionCode,
             source =  auxSource,
             amount = transaction.amount,
-            amountInBaseCurrency = transaction.amount / currency.currentExchangeRate,
+            amountInBaseCurrency = calculateExchangeRate(transaction.amount, currency.currentExchangeRate),
             transactionType = transaction.transactionType,
             transactionDate = transaction.transactionDate,
             currency = currency.toDomain(),

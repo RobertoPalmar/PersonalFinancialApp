@@ -1,8 +1,52 @@
 package com.rpalmar.financialapp.models
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.rpalmar.financialapp.models.database.CategoryEntity
+import com.rpalmar.financialapp.models.database.StyleEntity
+import com.rpalmar.financialapp.models.domain.CategoryDomain
+import com.rpalmar.financialapp.models.domain.StyleDomain
+import com.rpalmar.financialapp.views.ui.components.toHex
+import com.rpalmar.financialapp.views.ui.theme.AccentYellow
+import com.rpalmar.financialapp.views.ui.theme.Blue
+import com.rpalmar.financialapp.views.ui.theme.Cyan
+import com.rpalmar.financialapp.views.ui.theme.Green
+import com.rpalmar.financialapp.views.ui.theme.Red
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.ArrowsAltSolid
+import compose.icons.lineawesomeicons.ChartBar
+import compose.icons.lineawesomeicons.ExchangeAltSolid
+import compose.icons.lineawesomeicons.MinusSolid
+import compose.icons.lineawesomeicons.MinusSquareSolid
+import compose.icons.lineawesomeicons.PlusSolid
+import compose.icons.lineawesomeicons.PlusSquareSolid
+import compose.icons.lineawesomeicons.WrenchSolid
+
 object Constants {
     //ROOM DB
     const val ROOM_DB_NAME = "FINANCIAL_DB"
+
+    val ADJUSTMENT_CATEGORY = CategoryEntity(
+        id = -1,
+        type = CategoryType.TRANSACTION,
+        name = "Adjustment",
+        style = StyleEntity(
+            stringColor = AccentYellow.toHex(),
+            icon = LineAwesomeIcons.WrenchSolid.name
+        ),
+        isDelete = false
+    )
+
+    val TRANSFER_CATEGORY = CategoryEntity(
+        id = -2,
+        type = CategoryType.TRANSACTION,
+        name = "Transfer",
+        style = StyleEntity(
+            stringColor = Cyan.toHex(),
+            icon = LineAwesomeIcons.ExchangeAltSolid.name
+        ),
+        isDelete = false
+    )
 }
 
 enum class EnvelopStatus {
@@ -34,7 +78,37 @@ enum class TransactionType{
     INCOME,
     EXPENSE,
     TRANSFER,
-    ADJUSTMENT
+    ADJUSTMENT;
+
+    fun resolveIcon(): ImageVector {
+        val icon = when (this) {
+            TransactionType.INCOME -> LineAwesomeIcons.PlusSquareSolid
+            TransactionType.EXPENSE -> LineAwesomeIcons.MinusSquareSolid
+            TransactionType.TRANSFER -> LineAwesomeIcons.ExchangeAltSolid
+            TransactionType.ADJUSTMENT -> LineAwesomeIcons.WrenchSolid
+        }
+        return icon;
+    }
+
+    fun resolveLabel(): String {
+        val label = when (this) {
+            TransactionType.INCOME -> "Ingreso"
+            TransactionType.EXPENSE -> "Gasto"
+            TransactionType.TRANSFER -> "Transferencia"
+            TransactionType.ADJUSTMENT -> "Ajuste"
+        }
+        return label;
+    }
+
+    fun resolveColor(): Color{
+        val color = when (this) {
+            TransactionType.INCOME -> Green
+            TransactionType.EXPENSE -> Red
+            TransactionType.TRANSFER -> Blue
+            TransactionType.ADJUSTMENT -> AccentYellow
+        }
+        return color;
+    }
 }
 
 enum class ExchangeRateApi{
@@ -67,3 +141,4 @@ enum class SummaryAnimationDirection {
     BACKWARD,
     NONE
 }
+
