@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -112,7 +113,8 @@ fun FormTextField(
     errorMessage: String? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    prefix: String? = null
+    prefix: String? = null,
+    onFocusChanged: ((Boolean) -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -147,7 +149,11 @@ fun FormTextField(
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             prefix = prefix?.let { { Text(text = it, color = Color.White) } },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    onFocusChanged?.invoke(focusState.isFocused)
+                }
         )
         if (!errorMessage.isNullOrEmpty()) {
             Text(text = errorMessage, color = Color.Red, fontSize = 12.sp)
@@ -169,17 +175,18 @@ fun FormDoubleField(
     prefix: String? = null
 ) {
     var text by remember { mutableStateOf(value?.toString() ?: "") }
+    var isFocused by remember { mutableStateOf(false) }
     
-    // Sync internal state with value prop ONLY when field is disabled (read-only)
-    // This prevents overwriting user input in editable fields
-    LaunchedEffect(value, enabled) {
-        if (!enabled) {
+    // Sync internal state with value prop when field is NOT being actively edited
+    LaunchedEffect(value) {
+        if (!isFocused) {
             text = value?.toString() ?: ""
         }
     }
     
     FormTextField(
         value = text,
+        onFocusChanged = { focused -> isFocused = focused },
         onValueChange = { newValue ->
             // Regex pattern to validate double input:
             // - Allow empty string

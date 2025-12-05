@@ -24,6 +24,7 @@ import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.usecases.category.GetCategoryListUseCase
 import com.rpalmar.financialapp.usecases.transaction.GetTransactionSourceListUseCase
+import com.rpalmar.financialapp.utils.Utils.formatDouble
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -173,8 +174,9 @@ class TransactionViewModel @Inject constructor(
         val destinationAmount = _transactionUIState.value.destinationAmount
         if (amount > 0) {
             val exchangeRate = destinationAmount / amount
+            val finalExchangeRate = formatDouble(exchangeRate,5)
             _transactionUIState.update {
-                it.copy(exchangeRate = exchangeRate)
+                it.copy(exchangeRate = finalExchangeRate)
             }
         }
     }
@@ -186,8 +188,9 @@ class TransactionViewModel @Inject constructor(
         val amount = _transactionUIState.value.amount
         val exchangeRate = _transactionUIState.value.exchangeRate
         val destinationAmount = amount * exchangeRate
+        val finalDestinationAmount = formatDouble(destinationAmount)
         _transactionUIState.update {
-            it.copy(destinationAmount = destinationAmount)
+            it.copy(destinationAmount = finalDestinationAmount)
         }
     }
 
@@ -195,7 +198,7 @@ class TransactionViewModel @Inject constructor(
         val realAmountValue = _transactionUIState.value.amount
         val currentBalance = _transactionUIState.value.originSource?.balance ?: 0.0
         val adjustment = realAmountValue - currentBalance
-        val finalAdjustment = adjustment.toBigDecimal().setScale(2, java.math.RoundingMode.HALF_UP).toDouble()
+        val finalAdjustment = formatDouble(adjustment)
         _transactionUIState.update {
             it.copy(adjustmentAmount = finalAdjustment)
         }
@@ -249,6 +252,7 @@ class TransactionViewModel @Inject constructor(
             id = null,
             originSource = null,
             destinationSource = null,
+            exchangeRate = 0.0,
             amount = 0.0,
             description = "",
             transactionType = typeToSet,
@@ -353,7 +357,7 @@ class TransactionViewModel @Inject constructor(
                         currency = _transactionUIState.value.destinationSource!!.currency,
                         exchangeRate = _transactionUIState.value.destinationSource!!.currency.exchangeRate,
                         description = _transactionUIState.value.description,
-                        category = _transactionUIState.value.category!!
+                        category = category
                     )
                 }
 

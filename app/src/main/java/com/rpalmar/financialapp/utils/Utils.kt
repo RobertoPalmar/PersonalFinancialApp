@@ -45,4 +45,11 @@ object Utils {
     fun calculateExchangeRate(amountOrigin: Double, sourceExchangeRate: Double, destinationExchangeRate: Double = 1.0): Double{
         return amountOrigin / (sourceExchangeRate * destinationExchangeRate);
     }
+
+    /**
+     * Format the Double value to 2 decimal places by default
+     */
+    fun formatDouble(value:Double, decimals:Int = 2):Double{
+        return value.toBigDecimal().setScale(decimals, java.math.RoundingMode.HALF_UP).toDouble()
+    }
 }

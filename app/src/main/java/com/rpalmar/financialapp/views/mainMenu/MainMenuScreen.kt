@@ -287,8 +287,9 @@ fun SummaryContent(
                 viewModel.loadAccountSummaryData(section.account)
             }
 
-            if (uiState.isLoading || uiState.accountSummaryData == null) {
-                LoadingScreen()
+            if (uiState.accountSummaryData == null ||
+                uiState.accountSummaryData!!.account.id != section.account.id) {
+                GeneralSummaryBalance(uiState)
             } else {
                 AccountSummaryBalance(
                     accountViewModel = accountViewModel,

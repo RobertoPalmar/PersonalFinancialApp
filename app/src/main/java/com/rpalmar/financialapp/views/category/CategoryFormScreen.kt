@@ -20,6 +20,19 @@ import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.ui.UIEvent
 import com.rpalmar.financialapp.views.ui.components.*
 import com.rpalmar.financialapp.views.ui.theme.Black
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.BellSolid
+import compose.icons.lineawesomeicons.CashRegisterSolid
+import compose.icons.lineawesomeicons.ChartBarSolid
+import compose.icons.lineawesomeicons.CheckCircleSolid
+import compose.icons.lineawesomeicons.CreditCardSolid
+import compose.icons.lineawesomeicons.EnvelopeSolid
+import compose.icons.lineawesomeicons.HeartSolid
+import compose.icons.lineawesomeicons.HomeSolid
+import compose.icons.lineawesomeicons.InfoCircleSolid
+import compose.icons.lineawesomeicons.ShoppingBagSolid
+import compose.icons.lineawesomeicons.StarSolid
+import compose.icons.lineawesomeicons.ToolsSolid
 
 @Composable
 fun CategoryFormScreen(
@@ -54,7 +67,14 @@ fun CategoryFormScreen(
     )
 
     //ICON LIST
-    val iconList = IconMapper.icons.values.toList()
+    val iconList = listOf(
+        LineAwesomeIcons.HomeSolid, LineAwesomeIcons.StarSolid,
+        LineAwesomeIcons.ChartBarSolid, LineAwesomeIcons.CashRegisterSolid,
+        LineAwesomeIcons.CreditCardSolid, LineAwesomeIcons.ShoppingBagSolid,
+        LineAwesomeIcons.HeartSolid, LineAwesomeIcons.BellSolid,
+        LineAwesomeIcons.EnvelopeSolid, LineAwesomeIcons.CheckCircleSolid,
+        LineAwesomeIcons.InfoCircleSolid, LineAwesomeIcons.ToolsSolid
+    )
 
     if (uiState.isLoading) {
         LoadingScreen()

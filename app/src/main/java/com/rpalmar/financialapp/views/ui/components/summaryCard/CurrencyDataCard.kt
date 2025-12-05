@@ -19,53 +19,38 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.mock.MockupProvider
-import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
-import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
+import com.rpalmar.financialapp.views.ui.theme.Red
 import com.rpalmar.financialapp.views.ui.theme.White
 import compose.icons.Octicons
 import compose.icons.octicons.Pencil24
-import compose.icons.octicons.PlusCircle24
 import compose.icons.octicons.Trash24
 
 @Composable
-fun AccountDataCard(
-    account: AccountDomain,
-    mainCurrency: CurrencyDomain,
-    onAddTransactionClick: (() -> Unit)? = null,
-    onDeleteAccountClick: (() -> Unit)? = null,
-    onEditAccountClick: (() -> Unit)? = null
+fun CurrencyDataCard(
+    currency: CurrencyDomain,
+    onDeleteCurrencyClick: (() -> Unit)? = null,
+    onEditCurrencyClick: (() -> Unit)? = null
 ) {
-
-    //FORMAT BALANCE
-    val balanceFormatted = formatAmount(
-        account.balance,
-        account.currency.symbol
-    )
-
-    //FORMAT BALANCE IN MAIN CURRENCY
-    val balanceInPrimaryFormatted = if (!account.currency.mainCurrency) {
-        formatAmount(
-            account.balanceInMainCurrency,
-            mainCurrency.symbol
-        )
-    } else null
+    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(173.dp)
+            .height(140.dp)
             .padding(bottom = 10.dp, start = 15.dp, end = 15.dp),
         colors = CardDefaults.cardColors(containerColor = DarkGrey),
         shape = RoundedCornerShape(14.dp)
@@ -79,7 +64,7 @@ fun AccountDataCard(
                     .height(42.dp)
                     .align(Alignment.TopCenter)
                     .padding(horizontal = 0.dp)
-                    .background(account.style.uiColor.copy(alpha = 0.10f))
+                    .background(Red.copy(alpha = 0.10f))
             )
 
             Box(
@@ -96,33 +81,26 @@ fun AccountDataCard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        //ACCOUNT DATA
+                        //CURRENCY DATA
                         Column {
                             Text(
-                                text = "Account",
+                                text = "Currency",
                                 color = LightGrey,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = account.name,
+                                text = currency.name,
                                 color = White,
                                 style = MaterialTheme.typography.titleLarge
                             )
-//                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = account.description,
-                                color = White,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Normal
-                            )
                         }
 
-                        // ACCOUNT ICON
+                        //CURRENCY ICON
                         DefaultIcon(
-                            title = "Account",
-                            icon = account.style.uiIcon,
-                            color = account.style.uiColor,
+                            title = currency.name,
+                            textIcon = currency.symbol,
+                            color = Red,
                             circleSize = 50.dp,
                             iconSize = 30.dp
                         )
@@ -137,27 +115,27 @@ fun AccountDataCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
+
                             Text(
-                                text = "Account Balance",
+                                text = "Exchange Rate",
                                 color = White,
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            Text(
-                                text = balanceFormatted,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = White,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            if (balanceInPrimaryFormatted != null) {
+                            Row{
                                 Text(
-                                    text = balanceInPrimaryFormatted,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = currency.exchangeRate.toString(),
+                                    style = MaterialTheme.typography.titleLarge,
                                     color = White,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
                                 )
+                                if(!currency.mainCurrency){
+                                    Text(
+                                        text = "x 1 ${mainCurrency!!.symbol}",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = White,
+                                        maxLines = 1,
+                                    )
+                                }
                             }
                         }
 
@@ -166,23 +144,9 @@ fun AccountDataCard(
                         //ACTION BUTTONS SECTION
                         Row {
 
-                            if (onAddTransactionClick != null) {
+                            if (onDeleteCurrencyClick != null) {
                                 IconButton(
-                                    onClick = onAddTransactionClick,
-                                    modifier = Modifier.size(35.dp)
-                                ) {
-                                    Icon(
-                                        painter = rememberVectorPainter(image = Octicons.PlusCircle24),
-                                        contentDescription = "Add",
-                                        tint = White,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                            }
-
-                            if (onDeleteAccountClick != null) {
-                                IconButton(
-                                    onClick = onDeleteAccountClick,
+                                    onClick = onDeleteCurrencyClick,
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -194,9 +158,9 @@ fun AccountDataCard(
                                 }
                             }
 
-                            if (onEditAccountClick != null) {
+                            if (onEditCurrencyClick != null) {
                                 IconButton(
-                                    onClick = onEditAccountClick,
+                                    onClick = onEditCurrencyClick,
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -218,15 +182,13 @@ fun AccountDataCard(
 
 @Preview(showBackground = false)
 @Composable
-fun AccountDataCardPreview() {
+fun CurrencyDataCardPreview() {
 
     MaterialTheme {
-        AccountDataCard(
-            account = MockupProvider.getMockAccounts()[0],
-            mainCurrency = MockupProvider.getMockCurrencies()[0],
-            onAddTransactionClick = {},
-            onDeleteAccountClick = {},
-            onEditAccountClick = {}
+        CurrencyDataCard(
+            currency = MockupProvider.getMockCurrencies()[0],
+            onDeleteCurrencyClick = {},
+            onEditCurrencyClick = {}
         )
     }
 }

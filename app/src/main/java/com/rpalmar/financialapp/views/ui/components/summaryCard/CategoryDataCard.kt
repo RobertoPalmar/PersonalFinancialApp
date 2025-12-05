@@ -1,5 +1,6 @@
 package com.rpalmar.financialapp.views.ui.components.summaryCard
 
+import com.rpalmar.financialapp.models.domain.CategoryDomain
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,10 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.mock.MockupProvider
-import com.rpalmar.financialapp.models.domain.AccountDomain
-import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
-import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
 import com.rpalmar.financialapp.views.ui.theme.White
@@ -40,32 +38,16 @@ import compose.icons.octicons.PlusCircle24
 import compose.icons.octicons.Trash24
 
 @Composable
-fun AccountDataCard(
-    account: AccountDomain,
-    mainCurrency: CurrencyDomain,
-    onAddTransactionClick: (() -> Unit)? = null,
-    onDeleteAccountClick: (() -> Unit)? = null,
-    onEditAccountClick: (() -> Unit)? = null
+fun CategoryDataCard(
+    category: CategoryDomain,
+    onDeleteCategoryClick: (() -> Unit)? = null,
+    onEditCategoryClick: (() -> Unit)? = null
 ) {
-
-    //FORMAT BALANCE
-    val balanceFormatted = formatAmount(
-        account.balance,
-        account.currency.symbol
-    )
-
-    //FORMAT BALANCE IN MAIN CURRENCY
-    val balanceInPrimaryFormatted = if (!account.currency.mainCurrency) {
-        formatAmount(
-            account.balanceInMainCurrency,
-            mainCurrency.symbol
-        )
-    } else null
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(173.dp)
+            .height(140.dp)
             .padding(bottom = 10.dp, start = 15.dp, end = 15.dp),
         colors = CardDefaults.cardColors(containerColor = DarkGrey),
         shape = RoundedCornerShape(14.dp)
@@ -79,7 +61,7 @@ fun AccountDataCard(
                     .height(42.dp)
                     .align(Alignment.TopCenter)
                     .padding(horizontal = 0.dp)
-                    .background(account.style.uiColor.copy(alpha = 0.10f))
+                    .background(category.style.uiColor.copy(alpha = 0.10f))
             )
 
             Box(
@@ -99,30 +81,23 @@ fun AccountDataCard(
                         //ACCOUNT DATA
                         Column {
                             Text(
-                                text = "Account",
+                                text = "Category",
                                 color = LightGrey,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = account.name,
+                                text = category.name,
                                 color = White,
                                 style = MaterialTheme.typography.titleLarge
                             )
-//                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = account.description,
-                                color = White,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Normal
-                            )
                         }
 
-                        // ACCOUNT ICON
+                        // CATEGORY ICON
                         DefaultIcon(
-                            title = "Account",
-                            icon = account.style.uiIcon,
-                            color = account.style.uiColor,
+                            title = "Category",
+                            icon = category.style.uiIcon,
+                            color = category.style.uiColor,
                             circleSize = 50.dp,
                             iconSize = 30.dp
                         )
@@ -137,28 +112,20 @@ fun AccountDataCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
-                            Text(
-                                text = "Account Balance",
-                                color = White,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = balanceFormatted,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = White,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
 
-                            if (balanceInPrimaryFormatted != null) {
-                                Text(
-                                    text = balanceInPrimaryFormatted,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                            //TODO
+//                            Text(
+//                                text = "Balance per Category",
+//                                color = White,
+//                                style = MaterialTheme.typography.bodyMedium
+//                            )
+//                            Text(
+//                                text = balanceFormatted,
+//                                style = MaterialTheme.typography.titleLarge,
+//                                color = White,
+//                                maxLines = 1,
+//                                overflow = TextOverflow.Ellipsis
+//                            )
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -166,23 +133,9 @@ fun AccountDataCard(
                         //ACTION BUTTONS SECTION
                         Row {
 
-                            if (onAddTransactionClick != null) {
+                            if (onDeleteCategoryClick != null) {
                                 IconButton(
-                                    onClick = onAddTransactionClick,
-                                    modifier = Modifier.size(35.dp)
-                                ) {
-                                    Icon(
-                                        painter = rememberVectorPainter(image = Octicons.PlusCircle24),
-                                        contentDescription = "Add",
-                                        tint = White,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                            }
-
-                            if (onDeleteAccountClick != null) {
-                                IconButton(
-                                    onClick = onDeleteAccountClick,
+                                    onClick = onDeleteCategoryClick,
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -194,9 +147,9 @@ fun AccountDataCard(
                                 }
                             }
 
-                            if (onEditAccountClick != null) {
+                            if (onEditCategoryClick != null) {
                                 IconButton(
-                                    onClick = onEditAccountClick,
+                                    onClick = onEditCategoryClick,
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -218,15 +171,13 @@ fun AccountDataCard(
 
 @Preview(showBackground = false)
 @Composable
-fun AccountDataCardPreview() {
+fun CategoryDataCardPreview() {
 
     MaterialTheme {
-        AccountDataCard(
-            account = MockupProvider.getMockAccounts()[0],
-            mainCurrency = MockupProvider.getMockCurrencies()[0],
-            onAddTransactionClick = {},
-            onDeleteAccountClick = {},
-            onEditAccountClick = {}
+        CategoryDataCard(
+            category = MockupProvider.getMockCategories()[0],
+            onDeleteCategoryClick = {},
+            onEditCategoryClick = {}
         )
     }
 }
