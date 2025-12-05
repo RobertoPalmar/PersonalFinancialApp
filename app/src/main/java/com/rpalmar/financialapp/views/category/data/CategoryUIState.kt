@@ -13,10 +13,10 @@ data class CategoryUIState(
     var categoryName: String = "",
     var color: Color = Color(0xFF81C784),
     var icon: ImageVector = LineAwesomeIcons.ShoppingBagSolid,
-    var errors: Map<String, String?> = emptyMap(),
-    var isEditing: Boolean = false,
 
     //AUX DATA
+    var errors: Map<String, String?> = emptyMap(),
+    var isEditing: Boolean = false,
     var isLoading: Boolean = false,
     var isSaving: Boolean = false
 ) {

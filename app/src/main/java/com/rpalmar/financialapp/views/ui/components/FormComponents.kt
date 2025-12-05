@@ -69,6 +69,7 @@ import com.rpalmar.financialapp.views.ui.theme.Red
 import java.util.Calendar
 import java.util.TimeZone
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Switch
 
 @Composable
 fun FormSectionTitle(
@@ -639,6 +640,51 @@ fun FormIconPicker(
                 color = Color.Red,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+/** ---------------------------------------------
+ * SWITCH
+ * -------------------------------------------- */
+@Composable
+fun FormSwitch(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
+        }
+
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }

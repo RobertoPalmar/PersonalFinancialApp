@@ -12,7 +12,7 @@ class GetCategoryByIDUseCase @Inject constructor(
 ) {
     val TAG = "GetCategoryByIDUseCase"
 
-    suspend operator fun invoke(categoryID:Long): CategoryDomain?{
+    operator fun invoke(categoryID:Long): CategoryDomain?{
         try {
             //GET CATEGORY
             val categoryEntity = categoryRepository.getByID(categoryID);

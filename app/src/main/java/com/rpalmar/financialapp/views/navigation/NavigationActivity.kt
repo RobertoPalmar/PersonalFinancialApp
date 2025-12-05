@@ -19,6 +19,8 @@ import com.rpalmar.financialapp.views.AppViewModel
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
 import com.rpalmar.financialapp.views.category.CategoryFormScreen
 import com.rpalmar.financialapp.views.category.data.CategoryViewModel
+import com.rpalmar.financialapp.views.currency.CurrencyFormScreen
+import com.rpalmar.financialapp.views.currency.data.CurrencyViewModel
 import com.rpalmar.financialapp.views.mainMenu.MainMenuScreen
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.components.AccountFormScreen
@@ -61,12 +63,14 @@ fun AppNavigation() {
                 val accountViewModel: AccountViewModel = hiltViewModel(backStackEntry)
                 val transactionViewModel : TransactionViewModel = hiltViewModel(backStackEntry)
                 val categoryViewModel: CategoryViewModel = hiltViewModel(backStackEntry)
+                val currencyViewModel: CurrencyViewModel = hiltViewModel(backStackEntry)
 
                 MainMenuScreen(
                     navController = navController,
                     accountViewModel = accountViewModel,
                     transactionViewModel = transactionViewModel,
-                    categoryViewModel = categoryViewModel
+                    categoryViewModel = categoryViewModel,
+                    currencyViewModel = currencyViewModel
                 )
             }
 
@@ -121,6 +125,18 @@ fun AppNavigation() {
                     categoryViewModel = categoryViewModel
                 )
             }
+
+            //CURRENCY FORM
+            composable(ScreenSections.CurrencyForm.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
+                val currencyViewModel: CurrencyViewModel = hiltViewModel(parentEntry)
+
+                CurrencyFormScreen(
+                    navController = navController,
+                    currencyViewModel = currencyViewModel
+                )
+            }
+
         }
     }
 }

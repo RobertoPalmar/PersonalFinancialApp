@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,6 +32,7 @@ import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.PreferenceStarIcon
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
 import com.rpalmar.financialapp.views.ui.theme.Red
@@ -51,7 +53,7 @@ fun CurrencyDataCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(140.dp)
-            .padding(bottom = 10.dp, start = 15.dp, end = 15.dp),
+            .padding(vertical = 10.dp, horizontal = 15.dp),
         colors = CardDefaults.cardColors(containerColor = DarkGrey),
         shape = RoundedCornerShape(14.dp)
     ) {
@@ -89,11 +91,23 @@ fun CurrencyDataCard(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = currency.name,
-                                color = White,
-                                style = MaterialTheme.typography.titleLarge
-                            )
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = currency.name,
+                                    color = White,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+
+                                if(currency.mainCurrency){
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    PreferenceStarIcon(
+                                        size = 25.dp
+                                    )
+                                }
+                            }
                         }
 
                         //CURRENCY ICON
@@ -121,18 +135,28 @@ fun CurrencyDataCard(
                                 color = White,
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            Row{
+                            Row(
+                                verticalAlignment = Alignment.Bottom
+                            ){
                                 Text(
-                                    text = currency.exchangeRate.toString(),
+                                    text = "${currency.exchangeRate} ${currency.symbol}",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = White,
                                     maxLines = 1,
                                 )
                                 if(!currency.mainCurrency){
                                     Text(
-                                        text = "x 1 ${mainCurrency!!.symbol}",
+                                        "x",
+                                        modifier = Modifier.padding(horizontal = 5.dp),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = White,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                    Text(
+                                        text = "1${mainCurrency!!.symbol}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = White,
+                                        fontWeight = FontWeight.Normal,
                                         maxLines = 1,
                                     )
                                 }

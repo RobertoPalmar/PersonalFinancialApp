@@ -36,4 +36,8 @@ class CurrencyRepository @Inject constructor(
     fun getMainCurrency(): CurrencyEntity?{
         return currencyDAO.getMainCurrency()
     }
+
+    fun getByID(id: Long): CurrencyEntity?{
+        return currencyDAO.getByID(id)
+    }
 }
