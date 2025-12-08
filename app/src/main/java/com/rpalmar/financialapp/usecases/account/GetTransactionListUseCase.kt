@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.rpalmar.financialapp.models.TransactionSourceType
+import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
+import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.providers.database.repositories.AccountRepository
 import com.rpalmar.financialapp.providers.database.repositories.TransactionRepository
 import kotlinx.coroutines.flow.Flow
@@ -43,15 +45,18 @@ class GetTransactionListUseCase @Inject constructor(
                         pagingData.map { transactionWithCurrency ->
                             //GET AUX DATA
                             val transaction = transactionWithCurrency.transaction;
-                            val auxOriginSource =
-                                when (transaction.sourceType) {
-                                    TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.sourceID]
-//                                    TransactionSourceType.ENVELOPE -> envelopeAuxMap[transaction.sourceID]
-                                    else -> null
-                                }
+                            val auxOriginSource = accountAuxMap[transaction.sourceID]
+
+                            //IF TRANSFER, GET RELATED TRANSACTION
+                            var linkedTransactionDomain: TransactionDomain? = null;
+                            if(transaction.transactionType == TransactionType.TRANSFER){
+                                val linkedTransaction = transactionRepository.getTransactionWithCurrencyByID(transaction.linkedTransactionID!!)
+                                val linkedTransactionSource = accountAuxMap[linkedTransaction!!.transaction.sourceID]
+                                linkedTransactionDomain = linkedTransaction.toDomain(linkedTransactionSource!!);
+                            }
 
                             //MAP TO DOMAIN
-                            transactionWithCurrency.toDomain(auxOriginSource!!)
+                            transactionWithCurrency.toDomain(auxOriginSource!!, linkedTransactionDomain)
                         }
                     }
 
@@ -73,13 +78,18 @@ class GetTransactionListUseCase @Inject constructor(
                     pagingData.map { transactionWithCurrency ->
                         //GET AUX DATA
                         val transaction = transactionWithCurrency.transaction;
-                        val auxOriginSource =
-                            when (transaction.sourceType) {
-                                TransactionSourceType.ACCOUNT -> accountAuxMap[transaction.sourceID]
-                            }
+                        val auxOriginSource = accountAuxMap[transaction.sourceID]
+
+                        //IF TRANSFER, GET RELATED TRANSACTION
+                        var linkedTransactionDomain: TransactionDomain? = null;
+                        if(transaction.transactionType == TransactionType.TRANSFER){
+                            val linkedTransaction = transactionRepository.getTransactionWithCurrencyByID(transaction.linkedTransactionID!!)
+                            val linkedTransactionSource = accountAuxMap[linkedTransaction!!.transaction.sourceID]
+                            linkedTransactionDomain = linkedTransaction.toDomain(linkedTransactionSource!!);
+                        }
 
                         //MAP TO DOMAIN
-                        transactionWithCurrency.toDomain(auxOriginSource!!)
+                        transactionWithCurrency.toDomain(auxOriginSource!!,linkedTransactionDomain)
                     }
                 }
 

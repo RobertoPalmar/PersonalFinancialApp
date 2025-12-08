@@ -83,6 +83,7 @@ import com.rpalmar.financialapp.views.ui.components.itemRows.TransactionRow
 import com.rpalmar.financialapp.views.ui.components.TransactionTypeDialog
 import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.components.summaryCard.TotalBalanceCard
+import com.rpalmar.financialapp.views.ui.components.summaryCard.TransactionDataCard
 import com.rpalmar.financialapp.views.ui.theme.Blue
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
@@ -361,7 +362,7 @@ fun SummaryContent(
         is MainSectionContent.CurrencyDetail -> {
             CurrencyDataCard(
                 currency = section.currency,
-                onDeleteCurrencyClick = {}, // TODO: Implement delete confirmation
+                onDeleteCurrencyClick = {},
                 onEditCurrencyClick = {
                     navController.navigate("${ScreenSections.CurrencyForm.route}?id=${section.currency.id}")
                 }
@@ -379,9 +380,11 @@ fun SummaryContent(
 
         //TRANSACTION DETAIL
         is MainSectionContent.TransactionDetail -> {
-            // For now, show general summary
-            // TODO: Implement TransactionSummaryBalance component
-            GeneralSummaryBalance(uiState)
+            TransactionDataCard(
+                transaction = section.transaction,
+                onDeleteTransactionClick = {},
+                onEditTransactionClick = {}
+            )
         }
     }
 }

@@ -170,6 +170,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
+            INNER JOIN accounts_table AS a ON t.sourceID = a.id
+            WHERE a.isDelete = 0
             ORDER BY t.transactionDate DESC
         """
     )

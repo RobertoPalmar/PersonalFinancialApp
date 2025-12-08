@@ -76,11 +76,14 @@ class CreateTransactionUseCase @Inject constructor(
                 //CREATE TRANSACTION
                 val newDestinationTransactionID = transactionRepository.insert(newDestinationTransaction)
 
-                //UPDATE ORIGIN SOURCE BALANCE
+                //UPDATE DESTINATION SOURCE BALANCE
                 updateSourceBalance(destinationTransaction.source.id, destinationTransaction.source.transactionEntityType, destinationTransactionAmount)
 
                 //RELATE ORIGIN TRANSACTION WITH DESTINATION
-                transactionRepository.update(newOriginTransaction.copy(linkedTransactionID = newDestinationTransactionID))
+                transactionRepository.update(newOriginTransaction.copy(
+                    id = newOriginTransactionID,
+                    linkedTransactionID = newDestinationTransactionID)
+                )
             }
 
             Log.i("CreateTransactionUseCase", "💳 Transaction created: $newOriginTransaction")

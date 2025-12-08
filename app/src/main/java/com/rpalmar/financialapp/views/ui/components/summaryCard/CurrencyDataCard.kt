@@ -22,6 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -32,6 +35,7 @@ import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.ModalDialog
 import com.rpalmar.financialapp.views.ui.components.PreferenceStarIcon
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
@@ -44,133 +48,149 @@ import compose.icons.octicons.Trash24
 @Composable
 fun CurrencyDataCard(
     currency: CurrencyDomain,
-    onDeleteCurrencyClick: (() -> Unit)? = null,
-    onEditCurrencyClick: (() -> Unit)? = null
+    onDeleteCurrencyClick: () -> Unit,
+    onEditCurrencyClick: () -> Unit
 ) {
     val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .padding(vertical = 10.dp, horizontal = 15.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkGrey),
-        shape = RoundedCornerShape(14.dp)
+    //DELETE DIALOG
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        ModalDialog(
+            title = "Delete Currency",
+            message = "Are you sure you want to delete this currency?",
+            onAccept = { onDeleteCurrencyClick() },
+            onDismiss = { showDeleteDialog = false }
+        )
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .padding(vertical = 10.dp, horizontal = 15.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkGrey),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
 
-            // 🔵 BANDA HORIZONTAL DE FONDO (tipo tarjeta de crédito)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(42.dp)
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 0.dp)
-                    .background(Red.copy(alpha = 0.10f))
-            )
+                // 🔵 BANDA HORIZONTAL DE FONDO (tipo tarjeta de crédito)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .align(Alignment.TopCenter)
+                        .padding(horizontal = 0.dp)
+                        .background(Red.copy(alpha = 0.10f))
+                )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 12.dp, horizontal = 18.dp)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 12.dp, horizontal = 18.dp)
                 ) {
-
-                    // HEADER
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        //CURRENCY DATA
-                        Column {
-                            Text(
-                                text = "Currency",
-                                color = LightGrey,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
+                        // HEADER
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            //CURRENCY DATA
+                            Column {
                                 Text(
-                                    text = currency.name,
-                                    color = White,
-                                    style = MaterialTheme.typography.titleLarge
+                                    text = "Currency",
+                                    color = LightGrey,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
                                 )
 
-                                if(currency.mainCurrency){
-                                    Spacer(modifier = Modifier.width(5.dp))
-                                    PreferenceStarIcon(
-                                        size = 25.dp
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = currency.name,
+                                        color = White,
+                                        style = MaterialTheme.typography.titleLarge
                                     )
+
+                                    if (currency.mainCurrency) {
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        PreferenceStarIcon(
+                                            size = 25.dp
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        //CURRENCY ICON
-                        DefaultIcon(
-                            title = currency.name,
-                            textIcon = currency.symbol,
-                            color = Red,
-                            circleSize = 50.dp,
-                            iconSize = 30.dp
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // FOOTER
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-
-                            Text(
-                                text = "Exchange Rate",
-                                color = White,
-                                style = MaterialTheme.typography.bodyMedium
+                            //CURRENCY ICON
+                            DefaultIcon(
+                                title = currency.name,
+                                textIcon = currency.symbol,
+                                color = Red,
+                                circleSize = 50.dp,
+                                iconSize = 30.dp
                             )
-                            Row(
-                                verticalAlignment = Alignment.Bottom
-                            ){
-                                Text(
-                                    text = "${currency.exchangeRate} ${currency.symbol}",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = White,
-                                    maxLines = 1,
-                                )
-                                if(!currency.mainCurrency){
-                                    Text(
-                                        "x",
-                                        modifier = Modifier.padding(horizontal = 5.dp),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = White,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                    Text(
-                                        text = "1${mainCurrency!!.symbol}",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = White,
-                                        fontWeight = FontWeight.Normal,
-                                        maxLines = 1,
-                                    )
-                                }
-                            }
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
 
-                        //ACTION BUTTONS SECTION
-                        Row {
+                        // FOOTER
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
 
-                            if (onDeleteCurrencyClick != null) {
+                                Text(
+                                    text = "Exchange Rate",
+                                    color = White,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Row(
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    Text(
+                                        text = "${currency.exchangeRate} ${currency.symbol}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = White,
+                                        maxLines = 1,
+                                    )
+                                    if (!currency.mainCurrency) {
+                                        Text(
+                                            "x",
+                                            modifier = Modifier.padding(horizontal = 5.dp),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = White,
+                                            fontWeight = FontWeight.Normal
+                                        )
+                                        Text(
+                                            text = "1${mainCurrency!!.symbol}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = White,
+                                            fontWeight = FontWeight.Normal,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            //ACTION BUTTONS SECTION
+                            Row {
+
                                 IconButton(
-                                    onClick = onDeleteCurrencyClick,
+                                    onClick = { showDeleteDialog = true },
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -180,9 +200,7 @@ fun CurrencyDataCard(
                                         modifier = Modifier.size(22.dp)
                                     )
                                 }
-                            }
 
-                            if (onEditCurrencyClick != null) {
                                 IconButton(
                                     onClick = onEditCurrencyClick,
                                     modifier = Modifier.size(35.dp)
@@ -198,8 +216,8 @@ fun CurrencyDataCard(
                         }
                     }
                 }
-            }
 
+            }
         }
     }
 }

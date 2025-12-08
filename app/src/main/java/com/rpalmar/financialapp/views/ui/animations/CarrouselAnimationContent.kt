@@ -2,6 +2,7 @@ package com.rpalmar.financialapp.views.ui.animations
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,13 +29,18 @@ fun CarouselAnimatedSummary(
     AnimatedContent(
         targetState = currentSection,
         transitionSpec = {
-            when (animationDirection) {
-                SummaryAnimationDirection.NONE -> fadeIn(tween(0)) with fadeOut(tween(0))
-                SummaryAnimationDirection.FORWARD -> slideInHorizontally { width -> width } + fadeIn() with
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                SummaryAnimationDirection.BACKWARD -> slideInHorizontally { width -> -width } + fadeIn() with
-                        slideOutHorizontally { width -> width } + fadeOut()
+            val animation = when (animationDirection) {
+                SummaryAnimationDirection.NONE -> fadeIn(tween(300)) with fadeOut(tween(300))
+                SummaryAnimationDirection.FORWARD -> (slideInHorizontally(tween(500)) { width -> width } + fadeIn(tween(500))) with
+                        (slideOutHorizontally(tween(500)) { width -> -width } + fadeOut(tween(500)))
+                SummaryAnimationDirection.BACKWARD -> (slideInHorizontally(tween(500)) { width -> -width } + fadeIn(tween(500))) with
+                        (slideOutHorizontally(tween(500)) { width -> width } + fadeOut(tween(500)))
             }
+            
+            animation using SizeTransform(
+                clip = false,
+                sizeAnimationSpec = { _, _ -> tween(500) }
+            )
         }
     ) { section ->
         content(section)
@@ -49,10 +55,14 @@ fun getSummaryAnimationDirection(
         MainSectionContent.Home::class,
         MainSectionContent.Accounts::class,
         MainSectionContent.Transactions::class,
-        MainSectionContent.Categories::class
+        MainSectionContent.Categories::class,
+        MainSectionContent.Currencies::class
     )
     val detailSections = listOf(
-        MainSectionContent.AccountDetail::class
+        MainSectionContent.AccountDetail::class,
+        MainSectionContent.TransactionDetail::class,
+        MainSectionContent.CategoryDetail::class,
+        MainSectionContent.CurrencyDetail::class
     )
 
     val oldClass = old::class
