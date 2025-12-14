@@ -8,7 +8,8 @@ data class CategoryDomain(
     val id: Long = 0,
     val type: CategoryType,
     val name: String,
-    val style: StyleDomain
+    val style: StyleDomain,
+    val isBaseCategory: Boolean = false
 ): IDomain{
     override fun toEntity(): CategoryEntity {
         return CategoryEntity(
@@ -16,7 +17,8 @@ data class CategoryDomain(
             type = type,
             name = name,
             style = style.toEntity(),
-            isDelete = false
+            isDelete = false,
+            isBaseCategory = isBaseCategory
         )
     }
 }

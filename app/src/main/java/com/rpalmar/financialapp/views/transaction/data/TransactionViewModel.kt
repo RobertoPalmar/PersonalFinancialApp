@@ -59,7 +59,9 @@ class TransactionViewModel @Inject constructor(
             val allSources = getTransactionSourceListUseCase() ?: emptyList()
 
             //CATEGORIES
-            val categories = getCategoryListUseCase()
+            val allCategories = getCategoryListUseCase();
+            val validCategories = allCategories!!.filter{ !it.isBaseCategory }
+
 
             //CURRENT DATE DEFAULT
             val dateFormat = SimpleDateFormat("yyyy-MM-dd")
@@ -68,7 +70,7 @@ class TransactionViewModel @Inject constructor(
             _transactionUIState.update {
                 it.copy(
                     transactionSources = allSources,
-                    categories = categories!!,
+                    categories = validCategories,
                     transactionDate = currentDate,
                     originSource = originSource,
                     isLoading = false

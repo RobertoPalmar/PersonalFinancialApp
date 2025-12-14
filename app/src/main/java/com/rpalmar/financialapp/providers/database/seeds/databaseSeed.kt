@@ -65,9 +65,6 @@ val exchangeRateSeeds = listOf(
 )
 
 val categorySeeds = listOf(
-    //ADJUSTMENT CATEGORY
     ADJUSTMENT_CATEGORY,
-
-    //TRANSFER CATEGORY
     TRANSFER_CATEGORY
 )

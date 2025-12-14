@@ -32,10 +32,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
 import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
 import com.rpalmar.financialapp.views.ui.components.PreferenceStarIcon
@@ -51,10 +53,17 @@ import compose.icons.octicons.Trash24
 @Composable
 fun TransactionDataCard(
     transaction: TransactionDomain,
-    onDeleteTransactionClick: () -> Unit,
-    onEditTransactionClick: () -> Unit
+    transactionViewModel: TransactionViewModel
 ) {
     val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+
+    fun onDeleteTransactionClick(){
+        //TODO
+    }
+
+    fun onEditTransactionClick(){
+        //TODO
+    }
 
     //DELETE DIALOG
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -225,7 +234,7 @@ fun TransactionDataCard(
                                 }
 
                                 IconButton(
-                                    onClick = onEditTransactionClick,
+                                    onClick = {onEditTransactionClick()},
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -252,8 +261,7 @@ fun TransactionDataCardPreview() {
     MaterialTheme {
         TransactionDataCard(
             transaction = MockupProvider.getMockTransactions()[0],
-            onDeleteTransactionClick = {},
-            onEditTransactionClick = {}
+            transactionViewModel = hiltViewModel()
         )
     }
 }

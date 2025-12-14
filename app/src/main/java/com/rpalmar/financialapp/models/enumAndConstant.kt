@@ -4,8 +4,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rpalmar.financialapp.models.database.CategoryEntity
 import com.rpalmar.financialapp.models.database.StyleEntity
-import com.rpalmar.financialapp.models.domain.CategoryDomain
-import com.rpalmar.financialapp.models.domain.StyleDomain
 import com.rpalmar.financialapp.views.ui.components.toHex
 import com.rpalmar.financialapp.views.ui.theme.AccentYellow
 import com.rpalmar.financialapp.views.ui.theme.Blue
@@ -13,12 +11,8 @@ import com.rpalmar.financialapp.views.ui.theme.Cyan
 import com.rpalmar.financialapp.views.ui.theme.Green
 import com.rpalmar.financialapp.views.ui.theme.Red
 import compose.icons.LineAwesomeIcons
-import compose.icons.lineawesomeicons.ArrowsAltSolid
-import compose.icons.lineawesomeicons.ChartBar
 import compose.icons.lineawesomeicons.ExchangeAltSolid
-import compose.icons.lineawesomeicons.MinusSolid
 import compose.icons.lineawesomeicons.MinusSquareSolid
-import compose.icons.lineawesomeicons.PlusSolid
 import compose.icons.lineawesomeicons.PlusSquareSolid
 import compose.icons.lineawesomeicons.WrenchSolid
 
@@ -34,7 +28,8 @@ object Constants {
             stringColor = AccentYellow.toHex(),
             icon = LineAwesomeIcons.WrenchSolid.name
         ),
-        isDelete = false
+        isDelete = false,
+        isBaseCategory = true
     )
 
     val TRANSFER_CATEGORY = CategoryEntity(
@@ -45,7 +40,8 @@ object Constants {
             stringColor = Cyan.toHex(),
             icon = LineAwesomeIcons.ExchangeAltSolid.name
         ),
-        isDelete = false
+        isDelete = false,
+        isBaseCategory = true
     )
 }
 

@@ -14,14 +14,16 @@ data class CategoryEntity (
     @ColumnInfo("type") val type: CategoryType,
     @ColumnInfo("name") val name: String,
     @ColumnInfo("style") val style: StyleEntity,
-    @ColumnInfo("isDelete") override val isDelete: Boolean
+    @ColumnInfo("isBaseCategory")  val isBaseCategory: Boolean = false,
+    @ColumnInfo("isDelete") override val isDelete: Boolean,
 ): IEntity, ISoftDelete{
     fun toDomain(): CategoryDomain{
         return CategoryDomain(
             id = id,
             type = type,
             name = name,
-            style = style.toDomain()
+            style = style.toDomain(),
+            isBaseCategory = isBaseCategory
         )
     }
 }

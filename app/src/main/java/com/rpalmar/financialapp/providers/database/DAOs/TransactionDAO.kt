@@ -33,7 +33,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -58,7 +59,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -83,7 +85,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -108,7 +111,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -138,7 +142,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -166,7 +171,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
@@ -193,7 +199,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
                 cat.type AS category_type,
                 cat.name AS category_name,
                 cat.style AS category_style,
-                cat.isDelete AS category_isDelete
+                cat.isDelete AS category_isDelete,
+                cat.isBaseCategory AS category_isBaseCategory
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id

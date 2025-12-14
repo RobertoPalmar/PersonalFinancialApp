@@ -136,10 +136,19 @@ fun CategoryFormScreen(
                     primary = true,
                     enable = !uiState.isSaving
                 )
+                //NAVIGATION STATE
+                var isNavigating by remember { mutableStateOf(false) }
+
                 FormButton(
                     text = "Cancel",
-                    onClick = { navController.popBackStack() },
-                    primary = false
+                    onClick = {
+                        if (!isNavigating) {
+                            isNavigating = true
+                            navController.popBackStack()
+                        }
+                    },
+                    primary = false,
+                    enable = !isNavigating
                 )
             }
         }

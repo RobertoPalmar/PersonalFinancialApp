@@ -31,7 +31,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.mock.MockupProvider
+import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
@@ -45,9 +47,16 @@ import compose.icons.octicons.Trash24
 @Composable
 fun CategoryDataCard(
     category: CategoryDomain,
-    onDeleteCategoryClick: () -> Unit,
-    onEditCategoryClick: () -> Unit,
+    categoryViewModel: CategoryViewModel
 ) {
+
+    fun onDeleteCategoryClick(){
+        //TODO
+    }
+
+    fun onEditCategoryClick(){
+        //TODO
+    }
 
     //DELETE DIALOG
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -157,7 +166,8 @@ fun CategoryDataCard(
 
                                 IconButton(
                                     onClick = { showDeleteDialog = true },
-                                    modifier = Modifier.size(35.dp)
+                                    modifier = Modifier.size(35.dp),
+                                    enabled = !category.isBaseCategory,
                                 ) {
                                     Icon(
                                         painter = rememberVectorPainter(image = Octicons.Trash24),
@@ -168,7 +178,7 @@ fun CategoryDataCard(
                                 }
 
                                 IconButton(
-                                    onClick = onEditCategoryClick,
+                                    onClick = {onEditCategoryClick()},
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -194,8 +204,7 @@ fun CategoryDataCardPreview() {
     MaterialTheme {
         CategoryDataCard(
             category = MockupProvider.getMockCategories()[0],
-            onDeleteCategoryClick = {},
-            onEditCategoryClick = {}
+            categoryViewModel = hiltViewModel()
         )
     }
 }

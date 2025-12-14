@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.currency.data.CurrencyViewModel
 import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
@@ -48,10 +50,17 @@ import compose.icons.octicons.Trash24
 @Composable
 fun CurrencyDataCard(
     currency: CurrencyDomain,
-    onDeleteCurrencyClick: () -> Unit,
-    onEditCurrencyClick: () -> Unit
+    currencyViewModel: CurrencyViewModel
 ) {
     val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+
+    fun onDeleteCurrencyClick(){
+        //TODO
+    }
+
+    fun onEditCurrencyClick(){
+        //TODO
+    }
 
     //DELETE DIALOG
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -202,7 +211,7 @@ fun CurrencyDataCard(
                                 }
 
                                 IconButton(
-                                    onClick = onEditCurrencyClick,
+                                    onClick = {onEditCurrencyClick()},
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -229,8 +238,7 @@ fun CurrencyDataCardPreview() {
     MaterialTheme {
         CurrencyDataCard(
             currency = MockupProvider.getMockCurrencies()[0],
-            onDeleteCurrencyClick = {},
-            onEditCurrencyClick = {}
+            currencyViewModel = hiltViewModel()
         )
     }
 }

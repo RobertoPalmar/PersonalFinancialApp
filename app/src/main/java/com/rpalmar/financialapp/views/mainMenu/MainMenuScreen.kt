@@ -362,10 +362,7 @@ fun SummaryContent(
         is MainSectionContent.CurrencyDetail -> {
             CurrencyDataCard(
                 currency = section.currency,
-                onDeleteCurrencyClick = {},
-                onEditCurrencyClick = {
-                    navController.navigate("${ScreenSections.CurrencyForm.route}?id=${section.currency.id}")
-                }
+                currencyViewModel = currencyViewModel
             )
         }
 
@@ -373,8 +370,7 @@ fun SummaryContent(
         is MainSectionContent.CategoryDetail -> {
             CategoryDataCard(
                 category = section.category,
-                onDeleteCategoryClick = {},
-                onEditCategoryClick = {}
+                categoryViewModel = categoryViewModel
             )
         }
 
@@ -382,8 +378,7 @@ fun SummaryContent(
         is MainSectionContent.TransactionDetail -> {
             TransactionDataCard(
                 transaction = section.transaction,
-                onDeleteTransactionClick = {},
-                onEditTransactionClick = {}
+                transactionViewModel = transactionViewModel
             )
         }
     }

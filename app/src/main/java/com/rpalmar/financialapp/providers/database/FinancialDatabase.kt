@@ -22,7 +22,7 @@ import com.rpalmar.financialapp.providers.database.DAOs.TransactionDAO
         ExchangeRateHistoryEntity::class,
         CategoryEntity::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 
