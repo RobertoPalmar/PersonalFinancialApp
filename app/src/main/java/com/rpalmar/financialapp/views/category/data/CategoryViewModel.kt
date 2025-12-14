@@ -8,6 +8,7 @@ import com.rpalmar.financialapp.models.CategoryType
 import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.StyleDomain
 import com.rpalmar.financialapp.usecases.category.CreateCategoryUseCase
+import com.rpalmar.financialapp.usecases.category.DeleteCategoryUseCase
 import com.rpalmar.financialapp.usecases.category.GetCategoryByIDUseCase
 import com.rpalmar.financialapp.usecases.category.UpdateCategoryUseCase
 import com.rpalmar.financialapp.views.ui.UIEvent
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class CategoryViewModel @Inject constructor(
     private val createCategoryUseCase: CreateCategoryUseCase,
     private val getCategoryByIDUseCase: GetCategoryByIDUseCase,
+    private val deleteCategoryUseCase: DeleteCategoryUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase
 ) : ViewModel() {
 
@@ -192,6 +194,18 @@ class CategoryViewModel @Inject constructor(
             errors = emptyMap(),
             isEditing = false
         )
+    }
+
+    /**
+     * Delete category and set null his UI state
+     */
+    fun handleDeleteCategory(accountID: Long) {
+        viewModelScope.launch {
+            deleteCategoryUseCase(accountID)
+            _categoryUIState.value = _categoryUIState.value.copy(
+                currentSelectedCategory = null
+            )
+        }
     }
 
     /**

@@ -11,10 +11,10 @@ interface CategoryDAO: BaseDao<CategoryEntity> {
     @Query("SELECT * FROM category_table WHERE id = :id")
     fun getByID(id: Long): CategoryEntity?
 
-    @Query("SELECT * FROM category_table")
+    @Query("SELECT * FROM category_table WHERE isDelete = 0")
     fun getAll():List<CategoryEntity>
 
-    @Query("SELECT * FROM category_table")
+    @Query("SELECT * FROM category_table WHERE isDelete = 0")
     fun getCategoryListPaginated(): PagingSource<Int, CategoryEntity>
 
     @Query("UPDATE category_table SET isDelete = 1 WHERE id = :id")

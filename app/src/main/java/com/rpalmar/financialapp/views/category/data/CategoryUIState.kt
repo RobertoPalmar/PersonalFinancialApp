@@ -2,6 +2,7 @@ package com.rpalmar.financialapp.views.category.data
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.StyleDomain
 import compose.icons.LineAwesomeIcons
@@ -18,7 +19,9 @@ data class CategoryUIState(
     var errors: Map<String, String?> = emptyMap(),
     var isEditing: Boolean = false,
     var isLoading: Boolean = false,
-    var isSaving: Boolean = false
+    var isSaving: Boolean = false,
+
+    var currentSelectedCategory: CategoryDomain? = null
 ) {
     fun toTemporalCategory(): CategoryDomain {
         return CategoryDomain(

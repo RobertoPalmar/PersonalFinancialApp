@@ -47,16 +47,21 @@ import compose.icons.octicons.Trash24
 @Composable
 fun CategoryDataCard(
     category: CategoryDomain,
-    categoryViewModel: CategoryViewModel
+    categoryViewModel: CategoryViewModel,
+    onBackNavigation: () -> Unit,
+    onEditNavigation: () -> Unit,
 ) {
 
     fun onDeleteCategoryClick(){
-        //TODO
+        categoryViewModel.handleDeleteCategory(category.id)
+        onBackNavigation();
     }
 
     fun onEditCategoryClick(){
-        //TODO
+        categoryViewModel.handleUpdateCategoryForm(category)
+        onEditNavigation();
     }
+
 
     //DELETE DIALOG
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -204,7 +209,9 @@ fun CategoryDataCardPreview() {
     MaterialTheme {
         CategoryDataCard(
             category = MockupProvider.getMockCategories()[0],
-            categoryViewModel = hiltViewModel()
+            categoryViewModel = hiltViewModel(),
+            onBackNavigation = {},
+            onEditNavigation = {}
         )
     }
 }

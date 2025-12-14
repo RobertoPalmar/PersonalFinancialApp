@@ -32,8 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,10 +71,8 @@ import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.animations.CarouselAnimatedSummary
 import com.rpalmar.financialapp.views.ui.components.summaryCard.AccountDataCard
-import com.rpalmar.financialapp.views.ui.components.summaryCard.CategoryDataCard
 import com.rpalmar.financialapp.views.ui.components.summaryCard.CurrencyDataCard
 import com.rpalmar.financialapp.views.ui.components.itemRows.AccountRow
-import com.rpalmar.financialapp.views.ui.components.CreditCardIcon
 import com.rpalmar.financialapp.views.ui.components.itemRows.CurrencyRow
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.IncomeExpenseSection
@@ -81,7 +81,7 @@ import com.rpalmar.financialapp.views.ui.components.MainLayout
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
 import com.rpalmar.financialapp.views.ui.components.itemRows.TransactionRow
 import com.rpalmar.financialapp.views.ui.components.TransactionTypeDialog
-import com.rpalmar.financialapp.views.ui.components.formatAmount
+import com.rpalmar.financialapp.views.ui.components.summaryCard.CategoryDataCard
 import com.rpalmar.financialapp.views.ui.components.summaryCard.TotalBalanceCard
 import com.rpalmar.financialapp.views.ui.components.summaryCard.TransactionDataCard
 import com.rpalmar.financialapp.views.ui.theme.Blue
@@ -129,9 +129,22 @@ fun MainMenuScreen(
         navController.navigate("${ScreenSections.CurrencyForm.route}?id=0")
     }
 
-    //SECTION UI
-    var currentSection by rememberSaveable(stateSaver = MainSectionContent.Saver) { 
-        mutableStateOf<MainSectionContent>(MainSectionContent.Home) 
+    //SECTION UI - NAVIGATION STACK
+    val navigationStack = remember {
+        mutableStateListOf<MainSectionContent>(MainSectionContent.Home)
+    }
+
+    val currentSection = navigationStack.last()
+
+    //NAVIGATION HELPERS
+    fun navigateTo(section: MainSectionContent) {
+        navigationStack.add(section)
+    }
+
+    fun navigateBack() {
+        if (navigationStack.size > 1) {
+            navigationStack.removeLast()
+        }
     }
 
     //ON BACK LOGIC
@@ -139,14 +152,10 @@ fun MainMenuScreen(
 
     //ANIMATION LOGIC
     BackHandler {
-        when (currentSection) {
-            MainSectionContent.Home -> {
-                showExitDialog = true
-            }
-
-            else -> {
-                currentSection = MainSectionContent.Home
-            }
+        if (navigationStack.size > 1) {
+            navigateBack()
+        } else {
+            showExitDialog = true
         }
     }
 
@@ -177,7 +186,10 @@ fun MainMenuScreen(
         Column {
 
             //---------------------------SUMMARY SECTION---------------------------//
-            CarouselAnimatedSummary(currentSection, previousSection) { section ->
+            CarouselAnimatedSummary(
+                currentSection = currentSection,
+                previousSection = previousSection
+            ) { section ->
                 if (uiState.isLoading) {
                     LoadingScreen()
                 } else {
@@ -185,10 +197,13 @@ fun MainMenuScreen(
                         viewModel = viewModel,
                         accountViewModel = accountViewModel,
                         transactionViewModel = transactionViewModel,
+                        categoryViewModel = categoryViewModel,
+                        currencyViewModel = currencyViewModel,
                         uiState = uiState,
                         navController = navController,
                         section = section,
-                        onNavigateToSection = { newSection -> currentSection = newSection }
+                        onNavigateToSection = { newSection -> navigateTo(newSection) },
+                        onNavigateBack = { navigateBack() }
                     )
                 }
             }
@@ -209,10 +224,10 @@ fun MainMenuScreen(
                             ),
                             onItemClick = { item ->
                                 when (item.title) {
-                                    "Accounts" -> currentSection = MainSectionContent.Accounts
-                                    "Transactions" -> currentSection = MainSectionContent.Transactions
-                                    "Currencies" -> currentSection = MainSectionContent.Currencies
-                                    "Categories" -> currentSection = MainSectionContent.Categories
+                                    "Accounts" -> navigateTo(MainSectionContent.Accounts)
+                                    "Transactions" -> navigateTo(MainSectionContent.Transactions)
+                                    "Currencies" -> navigateTo(MainSectionContent.Currencies)
+                                    "Categories" -> navigateTo(MainSectionContent.Categories)
                                 }
                             }
                         )
@@ -223,8 +238,8 @@ fun MainMenuScreen(
                         AccountsListSection(
                             viewModel = viewModel,
                             onAddClick = { onCreateAccountHandler() },
-                            onAccountClick = { account -> currentSection = MainSectionContent.AccountDetail(account) },
-                            onBackClick = { currentSection = MainSectionContent.Home }
+                            onAccountClick = { account -> navigateTo(MainSectionContent.AccountDetail(account)) },
+                            onBackClick = { navigateBack() }
                         )
                     }
 
@@ -233,8 +248,8 @@ fun MainMenuScreen(
                             title = "Account Transactions",
                             account = (currentSection as MainSectionContent.AccountDetail).account,
                             viewModel = viewModel,
-                            onClick = { transaction -> currentSection = MainSectionContent.TransactionDetail(transaction) },
-                            onBackClick = { currentSection = MainSectionContent.Accounts }
+                            onClick = { transaction -> navigateTo(MainSectionContent.TransactionDetail(transaction)) },
+                            onBackClick = { navigateBack() }
                         )
                     }
 
@@ -243,23 +258,23 @@ fun MainMenuScreen(
                         TransactionsListSection(
                             title = "Last Transactions",
                             viewModel = viewModel,
-                            onClick = { transaction -> currentSection = MainSectionContent.TransactionDetail(transaction) },
-                            onBackClick = { currentSection = MainSectionContent.Home }
+                            onClick = { transaction -> navigateTo(MainSectionContent.TransactionDetail(transaction)) },
+                            onBackClick = { navigateBack() }
                         )
                     }
 
                     is MainSectionContent.TransactionDetail -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(25.dp)
-                        ) {
-                            Text(
-                                text = "TODO: List transactions in this category",
-                                modifier = Modifier.padding(16.dp),
-                                color = DarkGrey
-                            )
-                        }
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(25.dp)
+//                        ) {
+//                            Text(
+//                                text = "TODO: List transactions in this category",
+//                                modifier = Modifier.padding(16.dp),
+//                                color = DarkGrey
+//                            )
+//                        }
                     }
 
                     //CATEGORY SECTION
@@ -267,24 +282,24 @@ fun MainMenuScreen(
                         CategoriesListSection(
                             viewModel = viewModel,
                             onAddClick = { onCreateCategoryHandler() },
-                            onClick = { category -> currentSection = MainSectionContent.CategoryDetail(category) },
-                            onBackClick = { currentSection = MainSectionContent.Home }
+                            onClick = { category -> navigateTo(MainSectionContent.CategoryDetail(category)) },
+                            onBackClick = { navigateBack() }
                         )
                     }
 
                     is MainSectionContent.CategoryDetail -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(25.dp, 5.dp)
-                                .padding(bottom = 30.dp)
-                        ) {
-                            Text(
-                                text = "TODO: List transactions in this category",
-                                modifier = Modifier.padding(16.dp),
-                                color = DarkGrey
-                            )
-                        }
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(25.dp, 5.dp)
+//                                .padding(bottom = 30.dp)
+//                        ) {
+//                            Text(
+//                                text = "TODO: List transactions in this category",
+//                                modifier = Modifier.padding(16.dp),
+//                                color = DarkGrey
+//                            )
+//                        }
                     }
 
                     //CURRENCY SECTION
@@ -292,24 +307,24 @@ fun MainMenuScreen(
                         CurrenciesListSection(
                             viewModel = viewModel,
                             onAddClick = { onCreateCurrencyHandler() },
-                            onClick = { currency -> currentSection = MainSectionContent.CurrencyDetail(currency) },
-                            onBackClick = { currentSection = MainSectionContent.Home }
+                            onClick = { currency -> navigateTo(MainSectionContent.CurrencyDetail(currency)) },
+                            onBackClick = { navigateBack() }
                         )
                     }
 
                     is MainSectionContent.CurrencyDetail -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(25.dp, 5.dp)
-                                .padding(bottom = 30.dp)
-                        ) {
-                            Text(
-                                text = "TODO: List accounts using this currency",
-                                modifier = Modifier.padding(16.dp),
-                                color = DarkGrey
-                            )
-                        }
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(25.dp, 5.dp)
+//                                .padding(bottom = 30.dp)
+//                        ) {
+//                            Text(
+//                                text = "TODO: List accounts using this currency",
+//                                modifier = Modifier.padding(16.dp),
+//                                color = DarkGrey
+//                            )
+//                        }
                     }
                 }
 
@@ -320,13 +335,20 @@ fun MainMenuScreen(
 
 @Composable
 fun SummaryContent(
+    //VIEW MODELS
     viewModel: MainMenuViewModel,
     accountViewModel: AccountViewModel,
+    categoryViewModel: CategoryViewModel,
+    currencyViewModel: CurrencyViewModel,
     transactionViewModel: TransactionViewModel,
+
+    //STATES
     uiState: MainMenuUIState,
+
     navController: NavController,
     section: MainSectionContent,
-    onNavigateToSection: (MainSectionContent) -> Unit
+    onNavigateToSection: (MainSectionContent) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     when (section) {
         is MainSectionContent.Home,
@@ -352,7 +374,7 @@ fun SummaryContent(
                     transactionViewModel = transactionViewModel,
                     accountSummaryData = uiState.accountSummaryData!!,
                     navController = navController,
-                    onBackNavigation = { onNavigateToSection(MainSectionContent.Accounts) },
+                    onBackNavigation = { onNavigateBack() },
                     onEditNavigation = { navController.navigate(ScreenSections.AccountForm.route) }
                 )
             }
@@ -370,7 +392,9 @@ fun SummaryContent(
         is MainSectionContent.CategoryDetail -> {
             CategoryDataCard(
                 category = section.category,
-                categoryViewModel = categoryViewModel
+                categoryViewModel = categoryViewModel,
+                onBackNavigation = { onNavigateBack() },
+                onEditNavigation = { navController.navigate(ScreenSections.CategoryForm.route) }
             )
         }
 

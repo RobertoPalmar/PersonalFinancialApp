@@ -311,7 +311,7 @@ class AccountViewModel @Inject constructor(
     }
 
     /**
-     * Set the current account fields to update
+     * Delete account and set null his UI state
      */
     fun handleDeleteAccount(accountID: Long) {
         viewModelScope.launch {
