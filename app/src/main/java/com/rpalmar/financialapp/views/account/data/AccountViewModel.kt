@@ -245,11 +245,7 @@ class AccountViewModel @Inject constructor(
 
             try {
                 val currencyList = getCurrencyListUseCase()!!.first()
-                val mainCurrency = currencyList.first {c -> c.mainCurrency}
-                _accountUIState.value = _accountUIState.value.copy(
-                    currencyList = currencyList,
-                    mainCurrency = mainCurrency
-                )
+                _accountUIState.value = _accountUIState.value.copy(currencyList = currencyList)
             } catch (e: Exception) {
                 Log.e(LOG_TAG, "Error loading currencies: ${e.message}")
             } finally {
@@ -290,35 +286,11 @@ class AccountViewModel @Inject constructor(
     }
 
     /**
-     * Set the current account to view
-     */
-    fun setCurrentAccount(accountID: Long) {
-        viewModelScope.launch {
-            try {
-                _accountUIState.value = _accountUIState.value.copy(
-                    isLoading = true,
-                    currentSelectedAccount = null,
-                )
-                val currentAccount = getAccountByIDUseCase(accountID)
-                if (currentAccount == null) Log.e("AccountViewModel", "Error al obtener la cuenta")
-                else _accountUIState.value = _accountUIState.value.copy(
-                    currentSelectedAccount = currentAccount,
-                )
-            } finally {
-                _accountUIState.value = _accountUIState.value.copy(isLoading = false)
-            }
-        }
-    }
-
-    /**
      * Delete account and set null his UI state
      */
     fun handleDeleteAccount(accountID: Long) {
         viewModelScope.launch {
             deleteAccountUseCase(accountID)
-            _accountUIState.value = _accountUIState.value.copy(
-                currentSelectedAccount = null
-            )
         }
     }
 

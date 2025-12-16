@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
@@ -82,6 +83,7 @@ fun CurrencyRow(
                     else{
                         Text(
                             text = currency.name,
+                            modifier = Modifier.fillMaxWidth(0.68f),
                             color = DarkGrey,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
@@ -103,7 +105,7 @@ fun CurrencyRow(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = formatAmount(currency.exchangeRate),
+                        text = formatAmount(currency.exchangeRate, decimals = 5),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
                         color = DarkGrey

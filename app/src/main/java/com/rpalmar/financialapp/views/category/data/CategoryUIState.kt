@@ -20,8 +20,6 @@ data class CategoryUIState(
     var isEditing: Boolean = false,
     var isLoading: Boolean = false,
     var isSaving: Boolean = false,
-
-    var currentSelectedCategory: CategoryDomain? = null
 ) {
     fun toTemporalCategory(): CategoryDomain {
         return CategoryDomain(

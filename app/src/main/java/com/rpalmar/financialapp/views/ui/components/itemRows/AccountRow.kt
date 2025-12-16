@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rpalmar.financialapp.models.domain.AccountDomain
-import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.views.navigation.LocalMainCurrency
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
@@ -33,7 +33,7 @@ fun AccountRow(
     account: AccountDomain,
     onClick: () -> Unit
 ) {
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+    val mainCurrency = LocalMainCurrency.current ?: return
 
     Card(
         modifier = Modifier
@@ -92,7 +92,7 @@ fun AccountRow(
                         color = DarkGrey
                     )
                     Text(
-                        text = formatAmount(account.balanceInMainCurrency, mainCurrency!!.symbol),
+                        text = formatAmount(account.balanceInMainCurrency, mainCurrency.symbol),
                         color = Color.DarkGray,
                         style = MaterialTheme.typography.bodyMedium
                     )

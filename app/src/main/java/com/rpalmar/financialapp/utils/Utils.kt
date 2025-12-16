@@ -43,7 +43,7 @@ object Utils {
      * Calculate exchange rate. If destinationExchangeRate is null, set 1.0 by default
      */
     fun calculateExchangeRate(amountOrigin: Double, sourceExchangeRate: Double, destinationExchangeRate: Double = 1.0): Double{
-        return amountOrigin / (sourceExchangeRate * destinationExchangeRate);
+        return amountOrigin * (sourceExchangeRate / destinationExchangeRate);
     }
 
     /**

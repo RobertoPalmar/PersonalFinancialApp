@@ -90,7 +90,6 @@ fun CategoryDataCard(
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
 
-                // 🔵 BANDA HORIZONTAL DE FONDO (tipo tarjeta de crédito)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -184,7 +183,8 @@ fun CategoryDataCard(
 
                                 IconButton(
                                     onClick = {onEditCategoryClick()},
-                                    modifier = Modifier.size(35.dp)
+                                    modifier = Modifier.size(35.dp),
+                                    enabled = !category.isBaseCategory,
                                 ) {
                                     Icon(
                                         painter = rememberVectorPainter(image = Octicons.Pencil24),

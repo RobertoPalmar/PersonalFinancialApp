@@ -22,13 +22,10 @@ data class AccountUIState(
 
     //AUX DATA
     var currencyList: List<CurrencyDomain> = emptyList(),
-    var mainCurrency: CurrencyDomain? = null,
     var accountList: List<AccountDomain> = emptyList(),
     var totalAccountBalance:Double = 0.0,
     var isLoading: Boolean = true,
     var isSaving: Boolean = false,
-
-    var currentSelectedAccount: AccountDomain? = null
 ){
     fun toTemporalAccount(): AccountDomain {
         return AccountDomain(

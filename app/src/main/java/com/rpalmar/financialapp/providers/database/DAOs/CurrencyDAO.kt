@@ -21,7 +21,13 @@ interface CurrencyDAO : BaseDao<CurrencyEntity> {
     @Query("SELECT * FROM currency_table WHERE mainCurrency = 1")
     fun getMainCurrency(): CurrencyEntity?
 
+    @Query("SELECT * FROM currency_table WHERE mainCurrency = 1")
+    fun getMainCurrencyAsFlow(): Flow<CurrencyEntity?>
+
     @Query("DELETE FROM currency_table")
     suspend fun deleteAll();
+
+    @Query("UPDATE currency_table SET isDelete = 1 WHERE id = :id")
+    suspend fun softDelete(id:Long)
 
 }

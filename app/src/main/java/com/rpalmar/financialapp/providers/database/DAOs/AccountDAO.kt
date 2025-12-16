@@ -16,6 +16,9 @@ interface AccountDAO: BaseDao<AccountEntity> {
     @Query("SELECT * FROM accounts_table WHERE isDelete = 0")
     fun getAll(): List<AccountEntity>
 
+    @Query("SELECT COUNT(*) FROM accounts_table WHERE currencyId = :currencyID")
+    fun getAccountsCountByCurrency(currencyID:Long):Int
+
     @Transaction
     @Query(
         """

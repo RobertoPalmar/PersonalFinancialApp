@@ -157,7 +157,8 @@ fun FormTextField(
                 }
         )
         if (!errorMessage.isNullOrEmpty()) {
-            Text(text = errorMessage, color = Color.Red, fontSize = 12.sp)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = errorMessage, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(0.dp))
         }
     }
 }
@@ -659,24 +660,39 @@ fun FormSwitch(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
     ) {
-
-        Row(
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            shape = RoundedCornerShape(14.dp)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DarkGrey
+                )
 
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
+                Switch(
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    colors = androidx.compose.material3.SwitchDefaults.colors(
+                        checkedThumbColor = com.rpalmar.financialapp.views.ui.theme.Orange,
+                        checkedTrackColor = com.rpalmar.financialapp.views.ui.theme.Orange.copy(alpha = 0.5f),
+                        uncheckedThumbColor = Color.Gray,
+                        uncheckedTrackColor = Color.LightGray
+                    )
+                )
+            }
         }
 
         if (errorMessage != null) {
@@ -684,7 +700,8 @@ fun FormSwitch(
             Text(
                 text = errorMessage,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp)
             )
         }
     }

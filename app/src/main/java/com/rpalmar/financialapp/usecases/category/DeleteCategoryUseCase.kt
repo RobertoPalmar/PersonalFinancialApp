@@ -14,11 +14,13 @@ class DeleteCategoryUseCase @Inject constructor(
         try {
             val categoryToDelete = categoryRepository.getByID(categoryID)
 
+            //VALIDATE CURRENCY EXIST
             if(categoryToDelete == null){
                 Log.i("DeleteCategoryUseCase", "Entity not found");
                 return false;
             }
 
+            //DELETE ENTITY
             categoryRepository.softDelete(categoryToDelete.id);
 
             Log.i("DeleteCategoryUseCase", "💳 Entity deleted")

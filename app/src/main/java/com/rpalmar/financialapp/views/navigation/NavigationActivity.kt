@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -14,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rpalmar.financialapp.models.TransactionType
+import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.providers.sealeds.ScreenSections
 import com.rpalmar.financialapp.views.AppViewModel
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
@@ -26,6 +28,7 @@ import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.components.AccountFormScreen
 import com.rpalmar.financialapp.views.ui.components.TransactionFormScreen
 import com.rpalmar.financialapp.views.ui.theme.FinancialTheme
+import androidx.compose.runtime.getValue
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,17 +45,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val LocalAppViewModel = staticCompositionLocalOf<AppViewModel> {
-    error("AppViewModel not provided")
-}
+val LocalMainCurrency = staticCompositionLocalOf<CurrencyDomain?> { null }
 
 @Composable
 fun AppNavigation() {
     val appViewModel: AppViewModel = hiltViewModel()
     val navController = rememberNavController()
 
+    val mainCurrency by appViewModel.mainCurrency.collectAsState()
+
     CompositionLocalProvider(
-        LocalAppViewModel provides appViewModel
+        LocalMainCurrency provides mainCurrency
     ) {
         NavHost(
             navController = navController,
@@ -85,39 +88,9 @@ fun AppNavigation() {
                 )
             }
 
-            composable(
-                route = "transactionForm/{transactionType}?sourceType={sourceType}&sourceId={sourceId}",
-                arguments = listOf(
-                    navArgument("sourceType") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    },
-                    navArgument("sourceId") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                )
-            ){ backStackEntry ->
-                //VIEWMODEL
-                val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
-                val transactionViewModel: TransactionViewModel = hiltViewModel(parentEntry)
-
-                //PARAMS
-                val transactionTypeEnum = TransactionType.valueOf(backStackEntry.arguments?.getString("transactionType")!!)
-                val sourceAccountID = backStackEntry.arguments?.getString("sourceId")
-                TransactionFormScreen(
-                    navController = navController,
-                    transactionViewModel = transactionViewModel,
-                    transactionType = transactionTypeEnum,
-                    sourceAccountID = sourceAccountID?.toLong()
-                )
-            }
-
             //CATEGORY FORM
             composable(ScreenSections.CategoryForm.route) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
+                val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(ScreenSections.Home.route) }
                 val categoryViewModel: CategoryViewModel = hiltViewModel(parentEntry)
 
                 CategoryFormScreen(
@@ -128,7 +101,7 @@ fun AppNavigation() {
 
             //CURRENCY FORM
             composable(ScreenSections.CurrencyForm.route) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {navController.getBackStackEntry(ScreenSections.Home.route)}
+                val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(ScreenSections.Home.route) }
                 val currencyViewModel: CurrencyViewModel = hiltViewModel(parentEntry)
 
                 CurrencyFormScreen(
@@ -137,9 +110,17 @@ fun AppNavigation() {
                 )
             }
 
+            //TRANSACTION FORM
+            composable(ScreenSections.TransactionForm.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(ScreenSections.Home.route) }
+                val transactionViewModel: TransactionViewModel = hiltViewModel(parentEntry)
+
+                TransactionFormScreen(
+                    navController = navController,
+                    transactionViewModel = transactionViewModel
+                )
+            }
+
         }
     }
 }
-
-
-

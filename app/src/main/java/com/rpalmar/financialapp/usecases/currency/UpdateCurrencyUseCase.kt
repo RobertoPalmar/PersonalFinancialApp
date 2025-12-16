@@ -15,10 +15,19 @@ class UpdateCurrencyUseCase @Inject constructor(
     suspend operator fun invoke(currency: CurrencyDomain): Boolean?{
         try {
             //MAP TO ENTITY
-            val categoryEntity = currency.toEntity();
+            val currencyEntity = currency.toEntity();
+
+            //VALIDATE IF IS SET MAIN CURRENCY
+            if(currencyEntity.mainCurrency){
+                val currentMainCurrency = currencyRepository.getMainCurrency()
+
+                //IF CURRENT MAIN CURRENCY IF FOUND AND IF OTHER, UPDATE IT TO FALSE
+                if(currentMainCurrency!!.id != currencyEntity.id)
+                    currencyRepository.update(currentMainCurrency.copy(mainCurrency = false))
+            }
 
             //UPDATE ENTITY
-            currencyRepository.update(categoryEntity);
+            currencyRepository.update(currencyEntity);
 
             Log.i(TAG, "💳 Entity updated");
             return true;

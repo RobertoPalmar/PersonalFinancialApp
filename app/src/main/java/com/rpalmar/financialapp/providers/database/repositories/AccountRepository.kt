@@ -27,6 +27,10 @@ class AccountRepository @Inject constructor(
         return accountDAO.getAll()
     }
 
+    fun getAccountsCountByCurrency(currencyID:Long): Int{
+        return accountDAO.getAccountsCountByCurrency(currencyID)
+    }
+
     fun getPaginated(pageSize:Int = 20):Flow<PagingData<AccountWithCurrencyRelation>>{
         return Pager(
             config = PagingConfig(

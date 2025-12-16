@@ -67,7 +67,7 @@ import com.rpalmar.financialapp.views.category.data.CategoryViewModel
 import com.rpalmar.financialapp.views.currency.data.CurrencyViewModel
 import com.rpalmar.financialapp.views.mainMenu.data.MainMenuUIState
 import com.rpalmar.financialapp.views.mainMenu.data.MainMenuViewModel
-import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.views.navigation.LocalMainCurrency
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.animations.CarouselAnimatedSummary
 import com.rpalmar.financialapp.views.ui.components.summaryCard.AccountDataCard
@@ -119,15 +119,21 @@ fun MainMenuScreen(
         navController.navigate(ScreenSections.AccountForm.route)
     }
 
-    fun onCreateCategoryHandler(){
+    fun onCreateCategoryHandler() {
         categoryViewModel.cleanForm()
         navController.navigate(ScreenSections.CategoryForm.route)
     }
 
-    fun onCreateCurrencyHandler(){
+    fun onCreateCurrencyHandler() {
         currencyViewModel.cleanForm()
         navController.navigate("${ScreenSections.CurrencyForm.route}?id=0")
     }
+
+//    fun onCreateTransactionHandler(){
+//        transactionViewModel.cleanForm()
+//        transactionViewModel.prepareCreateFromAccount()
+//        navController.navigate(ScreenSections.TransactionForm.route)
+//    }
 
     //SECTION UI - NAVIGATION STACK
     val navigationStack = remember {
@@ -259,7 +265,8 @@ fun MainMenuScreen(
                             title = "Last Transactions",
                             viewModel = viewModel,
                             onClick = { transaction -> navigateTo(MainSectionContent.TransactionDetail(transaction)) },
-                            onBackClick = { navigateBack() }
+                            onBackClick = { navigateBack() },
+//                            onAddClick = { onCreateTransactionHandler() }
                         )
                     }
 
@@ -366,7 +373,8 @@ fun SummaryContent(
             }
 
             if (uiState.accountSummaryData == null ||
-                uiState.accountSummaryData!!.account.id != section.account.id) {
+                uiState.accountSummaryData!!.account.id != section.account.id
+            ) {
                 GeneralSummaryBalance(uiState)
             } else {
                 AccountSummaryBalance(
@@ -384,7 +392,9 @@ fun SummaryContent(
         is MainSectionContent.CurrencyDetail -> {
             CurrencyDataCard(
                 currency = section.currency,
-                currencyViewModel = currencyViewModel
+                currencyViewModel = currencyViewModel,
+                onBackNavigation = { onNavigateBack() },
+                onEditNavigation = { navController.navigate(ScreenSections.CurrencyForm.route) }
             )
         }
 
@@ -402,7 +412,9 @@ fun SummaryContent(
         is MainSectionContent.TransactionDetail -> {
             TransactionDataCard(
                 transaction = section.transaction,
-                transactionViewModel = transactionViewModel
+                transactionViewModel = transactionViewModel,
+                onBackNavigation = { onNavigateBack() },
+                onEditNavigation = { navController.navigate(ScreenSections.TransactionForm.route) }
             )
         }
     }
@@ -413,8 +425,8 @@ fun SummaryContent(
 fun GeneralSummaryBalance(
     uiState: MainMenuUIState
 ) {
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
-    val currencySymbol = mainCurrency!!.symbol;
+    val mainCurrency = LocalMainCurrency.current ?: return
+    val currencySymbol = mainCurrency.symbol;
 
     Column(
         modifier = Modifier
@@ -430,7 +442,7 @@ fun GeneralSummaryBalance(
         IncomeExpenseSection(
             income = uiState.dashboardData.generalIncome,
             expenses = uiState.dashboardData.generalExpense,
-            firstCurrency = mainCurrency!!
+            firstCurrency = mainCurrency
         )
     }
 }
@@ -444,42 +456,28 @@ fun AccountSummaryBalance(
     onEditNavigation: () -> Unit,
     navController: NavController
 ) {
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+    val mainCurrency = LocalMainCurrency.current ?: return
 
     //DELETE DIALOG
-    var showDeleteDialog by remember { mutableStateOf(false) }
     var showTransactionDialog by remember { mutableStateOf(false) }
 
-    fun handleDeleteAccount() {
-        accountViewModel.handleDeleteAccount(accountSummaryData.account.id)
-        onBackNavigation();
-    }
-
-    fun handleEditAccount() {
-        accountViewModel.handleUpdateAccountForm(accountSummaryData.account)
-        onEditNavigation();
-    }
-
-    fun handleCreateAccountTransaction(transactionType: TransactionType){
-        val route = "transactionForm/${transactionType.name}?sourceType=${TransactionSourceType.ACCOUNT}&sourceId=${accountSummaryData.account.id}"
-        transactionViewModel.cleanForm(transactionType)
-        navController.navigate(route)
-        showTransactionDialog = false
-    }
-
-    if (showDeleteDialog) {
-        ModalDialog(
-            title = "Delete Account",
-            message = "Are you sure you want to delete this account?",
-            onAccept = { handleDeleteAccount() },
-            onDismiss = { showDeleteDialog = false }
+    fun handleCreateAccountTransaction(transactionType: TransactionType) {
+        //PREPARE TRANSACTION FORM STATE
+        transactionViewModel.prepareCreateFromAccount(
+            transactionType = transactionType,
+            accountId = accountSummaryData.account.id
         )
+
+        //NAVIGATE TO FORM
+        navController.navigate(ScreenSections.TransactionForm.route)
+
+        showTransactionDialog = false
     }
 
     if (showTransactionDialog) {
         TransactionTypeDialog(
             onDismiss = { showTransactionDialog = false },
-            onTypeSelected = { transactionType -> handleCreateAccountTransaction(transactionType)}
+            onTypeSelected = { transactionType -> handleCreateAccountTransaction(transactionType) }
         )
     }
 
@@ -491,17 +489,17 @@ fun AccountSummaryBalance(
     ) {
         AccountDataCard(
             account = accountSummaryData.account,
-            mainCurrency = mainCurrency!!,
+            accountViewModel = accountViewModel,
             onAddTransactionClick = { showTransactionDialog = true },
-            onDeleteAccountClick = { showDeleteDialog = true },
-            onEditAccountClick = { handleEditAccount() }
+            onBackNavigation = { onBackNavigation() },
+            onEditNavigation = { onEditNavigation() }
         )
         IncomeExpenseSection(
             income = accountSummaryData.income,
             expenses = accountSummaryData.expense,
             firstCurrency = accountSummaryData.account.currency,
             altCurrency =
-                if (accountSummaryData.account.currency.id != mainCurrency!!.id) mainCurrency
+                if (accountSummaryData.account.currency.id != mainCurrency.id) mainCurrency
                 else null
         )
     }
@@ -654,6 +652,7 @@ fun TransactionsListSection(
     account: AccountDomain? = null,
     viewModel: MainMenuViewModel,
     onClick: (TransactionDomain) -> Unit,
+    onAddClick: (() -> Unit)? = null,
     onBackClick: (() -> Unit)? = null
 ) {
     val transactions =
@@ -661,7 +660,7 @@ fun TransactionsListSection(
         else viewModel.getTransactionsPaginated().collectAsLazyPagingItems()
     val overscrollEffect = rememberOverscrollEffect()
 
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+    val mainCurrency = LocalMainCurrency.current ?: return
 
     Column(
         modifier = Modifier
@@ -671,7 +670,24 @@ fun TransactionsListSection(
             .padding(bottom = 30.dp)
     ) {
         //TITLE
-        SectionTitle(title, onBackClick)
+        SectionTitle(
+            title, onBackClick,
+            actionButton = {
+                if (onAddClick != null) {
+                    IconButton(
+                        onClick = { onAddClick() },
+                        modifier = Modifier.size(30.dp)
+                    ) {
+                        Icon(
+                            painter = rememberVectorPainter(image = Octicons.PlusCircle24),
+                            contentDescription = "Add",
+                            tint = DarkGrey,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+        )
 
         //ACCOUNT ROWS
         LazyColumn(
@@ -710,7 +726,7 @@ fun TransactionsListSection(
                         transaction?.let {
                             TransactionRow(
                                 transaction,
-                                mainCurrency = mainCurrency!!,
+                                mainCurrency = mainCurrency,
                                 onClick = { onClick(transaction) }
                             )
                         }
@@ -826,7 +842,7 @@ fun CategoriesListSection(
             onBackClick,
             actionButton = {
                 IconButton(
-                    onClick = {onAddClick()},
+                    onClick = { onAddClick() },
                     modifier = Modifier.size(30.dp)
                 ) {
                     Icon(

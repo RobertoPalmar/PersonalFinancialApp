@@ -199,12 +199,9 @@ class CategoryViewModel @Inject constructor(
     /**
      * Delete category and set null his UI state
      */
-    fun handleDeleteCategory(accountID: Long) {
+    fun handleDeleteCategory(categoryID: Long) {
         viewModelScope.launch {
-            deleteCategoryUseCase(accountID)
-            _categoryUIState.value = _categoryUIState.value.copy(
-                currentSelectedCategory = null
-            )
+            deleteCategoryUseCase(categoryID)
         }
     }
 

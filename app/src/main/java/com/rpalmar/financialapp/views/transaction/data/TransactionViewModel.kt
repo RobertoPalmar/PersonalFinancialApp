@@ -1,6 +1,5 @@
 package com.rpalmar.financialapp.views.transaction.data
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,16 +17,19 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
-import androidx.lifecycle.SavedStateHandle
 import com.rpalmar.financialapp.models.Constants
+import com.rpalmar.financialapp.models.TransactionSourceType
 import com.rpalmar.financialapp.models.domain.CategoryDomain
 import com.rpalmar.financialapp.models.domain.auxiliar.SimpleTransactionSourceAux
 import com.rpalmar.financialapp.usecases.category.GetCategoryListUseCase
+import com.rpalmar.financialapp.usecases.transaction.DeleteTransactionUseCase
 import com.rpalmar.financialapp.usecases.transaction.GetTransactionSourceListUseCase
+import com.rpalmar.financialapp.usecases.transaction.UpdateTransactionUseCase
 import com.rpalmar.financialapp.utils.Utils.formatDouble
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.abs
 
 @HiltViewModel
 class TransactionViewModel @Inject constructor(
@@ -35,7 +37,8 @@ class TransactionViewModel @Inject constructor(
     private val getTransactionSourceListUseCase: GetTransactionSourceListUseCase,
     private val createTransactionUseCase: CreateTransactionUseCase,
     private val getCategoryListUseCase: GetCategoryListUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val deleteTransactionUseCase: DeleteTransactionUseCase,
+    private val updateTransactionUseCase: UpdateTransactionUseCase
 ) : ViewModel() {
 
     //UI STATE
@@ -60,7 +63,7 @@ class TransactionViewModel @Inject constructor(
 
             //CATEGORIES
             val allCategories = getCategoryListUseCase();
-            val validCategories = allCategories!!.filter{ !it.isBaseCategory }
+            val validCategories = allCategories!!.filter { !it.isBaseCategory }
 
 
             //CURRENT DATE DEFAULT
@@ -176,7 +179,7 @@ class TransactionViewModel @Inject constructor(
         val destinationAmount = _transactionUIState.value.destinationAmount
         if (amount > 0) {
             val exchangeRate = destinationAmount / amount
-            val finalExchangeRate = formatDouble(exchangeRate,5)
+            val finalExchangeRate = formatDouble(exchangeRate, 5)
             _transactionUIState.update {
                 it.copy(exchangeRate = finalExchangeRate)
             }
@@ -216,7 +219,7 @@ class TransactionViewModel @Inject constructor(
         val isCrossCurrency = sourceCurrency != null && destinationCurrency != null && sourceCurrency.id != destinationCurrency.id
 
         var exchangeRate = 1.0
-        if (isCrossCurrency && sourceCurrency != null && destinationCurrency != null) {
+        if (isCrossCurrency) {
             // El exchangeRate representa cuántas unidades de moneda destino equivalen a 1 unidad de moneda origen
             // Si sourceCurrency.exchangeRate = 1.0 (USD base) y destinationCurrency.exchangeRate = 0.85 (EUR)
             // Entonces: 1 USD = 1.0/0.85 = 1.176 EUR
@@ -256,10 +259,36 @@ class TransactionViewModel @Inject constructor(
             destinationSource = null,
             exchangeRate = 0.0,
             amount = 0.0,
+            destinationAmount = 0.0,
             description = "",
             transactionType = typeToSet,
             errors = emptyMap()
         )
+    }
+
+    /**
+     * Set the transaction type in the UI state
+     */
+    fun prepareCreateFromAccount(
+        transactionType: TransactionType,
+        accountId: Long?
+    ) {
+        viewModelScope.launch {
+            cleanForm()
+
+            if (accountId != null) {
+                val account = getAccountByIDUseCase(accountId)
+                _transactionUIState.value = _transactionUIState.value.copy(
+                    transactionType = transactionType,
+                    originSource = account!!.toAuxDomain()
+                )
+            } else {
+                _transactionUIState.value = _transactionUIState.value.copy(
+                    transactionType = transactionType
+                )
+            }
+
+        }
     }
 
     fun validateFormFields(transactionType: TransactionType): Boolean {
@@ -388,75 +417,105 @@ class TransactionViewModel @Inject constructor(
     }
 
     /**
+     * Delete transaction and set null his UI state
+     */
+    fun handleDeleteTransaction(transactionID: Long) {
+        viewModelScope.launch {
+            deleteTransactionUseCase(transactionID)
+        }
+    }
+
+    /**
+     * Set the current transaction fields to update
+     */
+    fun handleUpdateTransactionForm(transaction: TransactionDomain) {
+        viewModelScope.launch {
+            _transactionUIState.value = _transactionUIState.value.copy(
+                id = transaction.id,
+                originSource = transaction.source,
+                destinationSource = transaction.linkedTransaction?.source,
+                exchangeRate = transaction.exchangeRate,
+                amount = abs(transaction.amount),
+                description = transaction.description,
+                transactionType = transaction.transactionType,
+                category = transaction.category,
+                errors = emptyMap(),
+                isEditing = true
+            )
+        }
+    }
+
+    /**
      * Update the transaction in the database
      */
     private fun updateTransaction(transactionType: TransactionType) {
-        TODO()
-//        viewModelScope.launch {
-//            try {
-//                //START LOADING
-//                _transactionUIState.value = _transactionUIState.value.copy(
-//                    isSaving = true
-//                )
-//
-//                //VALIDATE FIEDLS
-//                var validForm = validateFormFields(transactionType)
-//                if (!validForm) {
-//                    Log.e("TransactionViewModel", "Formulario Invalido")
-//                    return@launch
-//                }
-//
-//                var originTransaction:TransactionDomain? = null;
-//                var destinationTransaction:TransactionDomain? = null;
-//
-//                //MAP TRANSACTION SOURCE TO DOMAIN ENTITY
-//                originTransaction = TransactionDomain(
-//                    transactionCode = UUID.randomUUID(),
-//                    source = _transactionUIState.value.sourceAccount!!.toAuxDomain(),
-//                    amount = _transactionUIState.value.amount.toDouble(),
-//                    amountInBaseCurrency = 0.0,
-//                    transactionType = transactionType,
-//                    transactionDate = Date(),
-//                    currency = _transactionUIState.value.sourceAccount!!.currency,
-//                    exchangeRate = _transactionUIState.value.sourceAccount!!.currency.exchangeRate,
-//                    description = _transactionUIState.value.description
-//                )
-//
-//                //MAP TRANSACTION DESTINATION TO DOMAIN ENTITY
-//                if(transactionType == TransactionType.TRANSFER){
-//                    destinationTransaction = TransactionDomain(
-//                        transactionCode = UUID.randomUUID(),
-//                        source = _transactionUIState.value.destinationAccount!!.toAuxDomain(),
-//                        transactionType = transactionType,
-//                        transactionDate = Date(),
-//                        currency = _transactionUIState.value.destinationAccount!!.currency,
-//                        exchangeRate = _transactionUIState.value.destinationAccount!!.currency.exchangeRate,
-//                        description = _transactionUIState.value.description
-//                    )
-//                }
-//
-//                //CREATE TRANSACTION
-//                updateTransactionUseCase(
-//                    originTransaction,
-//                    _transactionUIState.value.sourceAccount!!,
-//                    destinationTransaction,
-//                    _transactionUIState.value.destinationAccount,
-//                    if(_transactionUIState.value.isCrossCurrencyTransaction) _transactionUIState.value.exchangeRate.toDouble() else 1.0
-//                )
-//
-//                //NOTIFY SUCCESS CREATION
-//                _uiEvent.send(UIEvent.Success)
-//            } catch (e: Exception) {
-//                Log.e("TransactionViewModel", e.message.toString())
-//
-//                //NOTIFY ERROR CREATION
-//                _uiEvent.send(UIEvent.ShowError("Error al Crear Transaccion"))
-//
-//            } finally {
-//                //FINISH LOADING
-//                _transactionUIState.value = _transactionUIState.value.copy(isSaving = false)
-//            }
-//        }
+        viewModelScope.launch {
+            try {
+                //START LOADING
+                _transactionUIState.value = _transactionUIState.value.copy(
+                    isSaving = true
+                )
+
+                //VALIDATE FIEDLS
+                var validForm = validateFormFields(transactionType)
+                if (!validForm) {
+                    Log.e("TransactionViewModel", "Formulario Invalido")
+                    return@launch
+                }
+
+                var originTransaction: TransactionDomain? = null;
+                var destinationTransaction: TransactionDomain? = null;
+
+                //MAP TRANSACTION SOURCE TO DOMAIN ENTITY
+                originTransaction = TransactionDomain(
+                    transactionCode = UUID.randomUUID(),
+                    source = _transactionUIState.value.originSource!!,
+                    amount = _transactionUIState.value.amount.toDouble(),
+                    amountInBaseCurrency = 0.0,
+                    transactionType = transactionType,
+                    transactionDate = Date(),
+                    currency = _transactionUIState.value.originSource!!.currency,
+                    exchangeRate = _transactionUIState.value.originSource!!.currency.exchangeRate,
+                    description = _transactionUIState.value.description,
+                    category = _transactionUIState.value.category!!
+                )
+
+                //MAP TRANSACTION DESTINATION TO DOMAIN ENTITY
+                if (transactionType == TransactionType.TRANSFER) {
+                    destinationTransaction = TransactionDomain(
+                        transactionCode = UUID.randomUUID(),
+                        source = _transactionUIState.value.destinationSource!!,
+                        transactionType = transactionType,
+                        transactionDate = Date(),
+                        currency = _transactionUIState.value.destinationSource!!.currency,
+                        exchangeRate = _transactionUIState.value.destinationSource!!.currency.exchangeRate,
+                        description = _transactionUIState.value.description,
+                        category = _transactionUIState.value.category!!
+                    )
+                }
+
+                //CREATE TRANSACTION
+                updateTransactionUseCase(
+                    _transactionUIState.value.id!!,
+                    originTransaction,
+                    _transactionUIState.value.originSource!!,
+                    destinationTransaction,
+                    _transactionUIState.value.destinationSource,
+                    if (_transactionUIState.value.isCrossCurrencyTransaction) _transactionUIState.value.exchangeRate.toDouble() else 1.0
+                )
+
+                //NOTIFY SUCCESS UPDATE
+                _uiEvent.send(UIEvent.Success)
+            } catch (e: Exception) {
+                Log.e("TransactionViewModel", e.message.toString())
+
+                //NOTIFY ERROR CREATION
+                _uiEvent.send(UIEvent.ShowError("Error al Crear Transaccion"))
+            } finally {
+                //FINISH LOADING
+                _transactionUIState.value = _transactionUIState.value.copy(isSaving = false)
+            }
+        }
     }
 
 }

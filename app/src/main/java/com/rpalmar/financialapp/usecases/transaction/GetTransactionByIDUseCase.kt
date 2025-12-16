@@ -24,10 +24,6 @@ class GetTransactionByIDUseCase @Inject constructor(
                     val account = accountRepository.getAccountWithCurrencyByID(transaction.sourceID)
                     account?.toDomain()?.toAuxDomain()
                 }
-//                TransactionSourceType.ENVELOPE -> {
-//                    val envelope = envelopeRepository.getEnvelopeWithCurrencyByID(transaction.sourceID)
-//                    envelope?.toDomain()?.toAuxDomain()
-//                }
             }
 
             var linkedTransactionDomain: TransactionDomain? = null

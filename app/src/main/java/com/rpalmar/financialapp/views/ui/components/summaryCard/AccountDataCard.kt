@@ -19,6 +19,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -26,10 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.domain.AccountDomain
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.navigation.LocalMainCurrency
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
+import com.rpalmar.financialapp.views.ui.components.ModalDialog
 import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
@@ -42,11 +50,38 @@ import compose.icons.octicons.Trash24
 @Composable
 fun AccountDataCard(
     account: AccountDomain,
-    mainCurrency: CurrencyDomain,
+    accountViewModel: AccountViewModel,
     onAddTransactionClick: (() -> Unit)? = null,
-    onDeleteAccountClick: (() -> Unit)? = null,
-    onEditAccountClick: (() -> Unit)? = null
+    onBackNavigation: (() -> Unit)? = null,
+    onEditNavigation: (() -> Unit)? = null,
+    onlyPreview: Boolean = false
 ) {
+
+    val mainCurrency = LocalMainCurrency.current ?: return
+
+    fun onDeleteAccountClick() {
+        accountViewModel.handleDeleteAccount(account.id)
+        if (onBackNavigation != null)
+            onBackNavigation();
+    }
+
+    fun onEditAccountClick() {
+        accountViewModel.handleUpdateAccountForm(account)
+        if (onEditNavigation != null)
+            onEditNavigation();
+    }
+
+    //DELETE DIALOG
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        ModalDialog(
+            title = "Delete Transaction",
+            message = "Are you sure you want to delete this transaction?",
+            onAccept = { onDeleteAccountClick() },
+            onDismiss = { showDeleteDialog = false }
+        )
+    }
 
     //FORMAT BALANCE
     val balanceFormatted = formatAmount(
@@ -72,7 +107,6 @@ fun AccountDataCard(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
-            // 🔵 BANDA HORIZONTAL DE FONDO (tipo tarjeta de crédito)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,7 +143,6 @@ fun AccountDataCard(
                                 color = White,
                                 style = MaterialTheme.typography.titleLarge
                             )
-//                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = account.description,
                                 color = White,
@@ -180,9 +213,9 @@ fun AccountDataCard(
                                 }
                             }
 
-                            if (onDeleteAccountClick != null) {
+                            if (!onlyPreview) {
                                 IconButton(
-                                    onClick = onDeleteAccountClick,
+                                    onClick = { showDeleteDialog = true },
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -192,11 +225,9 @@ fun AccountDataCard(
                                         modifier = Modifier.size(22.dp)
                                     )
                                 }
-                            }
 
-                            if (onEditAccountClick != null) {
                                 IconButton(
-                                    onClick = onEditAccountClick,
+                                    onClick = { onEditAccountClick() },
                                     modifier = Modifier.size(35.dp)
                                 ) {
                                     Icon(
@@ -223,10 +254,10 @@ fun AccountDataCardPreview() {
     MaterialTheme {
         AccountDataCard(
             account = MockupProvider.getMockAccounts()[0],
-            mainCurrency = MockupProvider.getMockCurrencies()[0],
             onAddTransactionClick = {},
-            onDeleteAccountClick = {},
-            onEditAccountClick = {}
+            onBackNavigation = {},
+            onEditNavigation = {},
+            accountViewModel = hiltViewModel()
         )
     }
 }

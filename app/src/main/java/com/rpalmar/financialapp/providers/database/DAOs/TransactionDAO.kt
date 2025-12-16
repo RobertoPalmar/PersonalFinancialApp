@@ -64,7 +64,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            WHERE t.transactionDate BETWEEN :startDate AND :endDate
+            WHERE t.transactionDate BETWEEN :startDate AND :endDate 
+            AND t.isDelete = 0
         """
     )
     fun getTransactionWithCurrencyByDateRange(startDate:Date, endDate:Date):List<TransactionWithCurrencyRelation>
@@ -90,7 +91,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            WHERE t.transactionDate BETWEEN :startDate AND :endDate AND t.sourceID = :accountID
+            WHERE t.transactionDate BETWEEN :startDate AND :endDate AND t.sourceID = :accountID 
+            AND t.isDelete = 0
         """
     )
     fun getTransactionWithCurrencyByDateRangeAndAccountID(startDate:Date, endDate:Date, accountID:Long):List<TransactionWithCurrencyRelation>
@@ -116,7 +118,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
+            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT' 
+            AND t.isDelete = 0
             LIMIT :rows OFFSET (:page * :rows)
         """
     )
@@ -147,7 +150,8 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             FROM transaction_table AS t
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
-            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT'
+            WHERE t.sourceID = :accountID AND t.sourceType = 'ACCOUNT' 
+            AND t.isDelete = 0
             ORDER BY t.transactionDate DESC
         """
     )
@@ -178,6 +182,7 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
             INNER JOIN accounts_table AS a ON t.sourceID = a.id
             WHERE a.isDelete = 0
+            AND t.isDelete = 0
             ORDER BY t.transactionDate DESC
         """
     )
@@ -205,6 +210,7 @@ interface TransactionDAO: BaseDao<TransactionEntity> {
             INNER JOIN currency_table AS c ON t.currencyId = c.id
             LEFT JOIN category_table AS cat ON t.categoryID = cat.id
             WHERE t.sourceID = :envelopeID AND t.sourceType = 'ENVELOPE'
+            AND t.isDelete = 0
             ORDER BY t.transactionDate DESC
         """
     )

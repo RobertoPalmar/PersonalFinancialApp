@@ -41,9 +41,9 @@ fun transactionColor(type: TransactionType): Color {
     }
 }
 
-fun formatAmount(amount: Double, currencySymbol: String? = null): String {
-    if (currencySymbol == null) return amount.toString()
-    return "$currencySymbol " + String.format("%,.2f", amount)
+fun formatAmount(amount: Double, currencySymbol: String? = null, decimals:Int = 2): String {
+    if (currencySymbol == null) return String.format("%,.${decimals}f", amount)
+    return "$currencySymbol " + String.format("%,.${decimals}f", amount)
 }
 
 fun formatDate(date: Date): String {

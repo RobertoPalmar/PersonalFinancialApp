@@ -4,6 +4,8 @@ import android.util.Log
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
 import com.rpalmar.financialapp.providers.database.repositories.CurrencyRepository
 import com.rpalmar.financialapp.providers.database.repositories.ExchangeRateRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,7 +14,7 @@ class GetMainCurrencyUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val exchangeRateRepository: ExchangeRateRepository
 ) {
-    suspend operator fun invoke(): CurrencyDomain? {
+    operator fun invoke(): CurrencyDomain? {
         try {
             //GET BASE CURRENCY
             val mainCurrency = currencyRepository.getMainCurrency();

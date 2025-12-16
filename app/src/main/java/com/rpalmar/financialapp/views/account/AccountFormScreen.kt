@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rpalmar.financialapp.views.account.data.AccountFormEvent
 import com.rpalmar.financialapp.views.account.data.AccountViewModel
+import com.rpalmar.financialapp.views.navigation.LocalMainCurrency
 import com.rpalmar.financialapp.views.ui.UIEvent
 import com.rpalmar.financialapp.views.ui.components.summaryCard.AccountDataCard
 import com.rpalmar.financialapp.views.ui.theme.Black
@@ -38,6 +39,7 @@ fun AccountFormScreen(
     val context = LocalContext.current;
     val uiState by accountViewModel.accountUIState.collectAsState()
     val previewAccount = uiState.toTemporalAccount()
+    val mainCurrency = LocalMainCurrency.current ?: return
 
     //HANDLE ACCOUNT CREATION EVENTS
     LaunchedEffect(true) {
@@ -98,7 +100,8 @@ fun AccountFormScreen(
 
                 AccountDataCard(
                     account = previewAccount,
-                    mainCurrency = uiState.mainCurrency!!
+                    accountViewModel = accountViewModel,
+                    onlyPreview = true
                 )
             }
 

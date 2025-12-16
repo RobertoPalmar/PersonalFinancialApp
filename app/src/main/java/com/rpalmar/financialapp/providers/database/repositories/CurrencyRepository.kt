@@ -37,7 +37,15 @@ class CurrencyRepository @Inject constructor(
         return currencyDAO.getMainCurrency()
     }
 
+    fun getMainCurrencyAsFlow(): Flow<CurrencyEntity?>{
+        return currencyDAO.getMainCurrencyAsFlow()
+    }
+
     fun getByID(id: Long): CurrencyEntity?{
         return currencyDAO.getByID(id)
+    }
+
+    suspend fun softDelete(ID:Long){
+        currencyDAO.softDelete(ID);
     }
 }

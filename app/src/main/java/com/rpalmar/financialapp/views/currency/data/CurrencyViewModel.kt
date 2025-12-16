@@ -3,19 +3,23 @@ package com.rpalmar.financialapp.views.currency.data
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rpalmar.financialapp.models.CurrencyDeletionValidation
 import com.rpalmar.financialapp.models.domain.CurrencyDomain
+import com.rpalmar.financialapp.usecases.account.GetAccountsCountByCurrencyUseCase
 import com.rpalmar.financialapp.usecases.currency.CreateCurrencyUseCase
+import com.rpalmar.financialapp.usecases.currency.DeleteCurrencyUseCase
 import com.rpalmar.financialapp.usecases.currency.GetCurrencyByIDUseCase
+import com.rpalmar.financialapp.usecases.currency.GetCurrencyListUseCase
 import com.rpalmar.financialapp.usecases.currency.UpdateCurrencyUseCase
-import com.rpalmar.financialapp.views.category.data.CategoryFormEvent
+import com.rpalmar.financialapp.usecases.preferences.GetWarningPreferenceUseCase
+import com.rpalmar.financialapp.usecases.preferences.SetWarningPreferenceUseCase
 import com.rpalmar.financialapp.views.ui.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +27,11 @@ import javax.inject.Inject
 class CurrencyViewModel @Inject constructor(
     private val createCurrencyUseCase: CreateCurrencyUseCase,
     private val updateCurrencyUseCase: UpdateCurrencyUseCase,
-    private val getCurrencyByIDUseCase: GetCurrencyByIDUseCase
+    private val deleteCurrencyUseCase: DeleteCurrencyUseCase,
+    private val getAccountsCountByCurrencyUseCase: GetAccountsCountByCurrencyUseCase,
+    private val getCurrencyListUseCase: GetCurrencyListUseCase,
+    private val getWarningPreferenceUseCase: GetWarningPreferenceUseCase,
+    private val setWarningPreferenceUseCase: SetWarningPreferenceUseCase
 ) : ViewModel() {
 
     val LOG_TAG = "CurrencyViewModel"
@@ -234,5 +242,64 @@ class CurrencyViewModel @Inject constructor(
             errors = emptyMap(),
             isEditing = false
         )
+    }
+
+    /**
+     * Validate if a currency can be deleted
+     */
+    suspend fun validateCurrencyDeletion(currencyId: Long): CurrencyDeletionValidation {
+        //VALIDATE ACCOUNT ASSOCIATED
+        val accountsCount = getAccountsCountByCurrencyUseCase(currencyId) ?: 0
+        if (accountsCount > 0)
+            return CurrencyDeletionValidation.HasAccounts(accountsCount)
+
+        //VALIDATE LAST ACTIVE CURRENCY
+        val activeCurrencies = getCurrencyListUseCase.invoke()!!.first()
+        if (activeCurrencies.size == 1 && activeCurrencies[0].id == currencyId) {
+            return CurrencyDeletionValidation.LastActiveCurrency
+        }
+        
+        //VALIDATE MAIN CURRENCY
+        val currency = activeCurrencies.find { it.id == currencyId }
+        if (currency?.mainCurrency == true && activeCurrencies.size > 1) {
+            return CurrencyDeletionValidation.IsMainCurrency
+        }
+        
+        return CurrencyDeletionValidation.CanDelete
+    }
+
+    /**
+     * Delete currency
+     */
+    fun handleDeleteCurrency(currencyID: Long) {
+        viewModelScope.launch {
+            deleteCurrencyUseCase(currencyID)
+        }
+    }
+
+    /**
+     * Set the current currency fields to update
+     */
+    fun handleUpdateCurrencyForm(currency: CurrencyDomain) {
+        viewModelScope.launch {
+            _currencyUIState.value = _currencyUIState.value.copy(
+                id = currency.id,
+                name = currency.name,
+                ISO = currency.ISO,
+                symbol = currency.symbol,
+                exchangeRate = currency.exchangeRate,
+                isMainCurrency = currency.mainCurrency,
+                errors = emptyMap(),
+                isEditing = true
+            )
+        }
+    }
+
+    fun shouldShowWarning(key: String): Boolean {
+        return getWarningPreferenceUseCase(key)
+    }
+
+    fun setWarningPreference(key: String, show: Boolean) {
+        setWarningPreferenceUseCase(key, show)
     }
 }

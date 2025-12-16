@@ -35,8 +35,6 @@ import kotlinx.coroutines.flow.first
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
-    private val splashViewModel: SplashViewModel by viewModels()
-
     override fun onCreate(saveInstanceState: Bundle?) {
         super.onCreate(saveInstanceState)
 
@@ -64,17 +62,13 @@ fun SplashScreen(
     //INITIALIZATION
     val isInitialized by appViewModel.isAppInitialized.collectAsState()
 
-    LaunchedEffect(Unit) {
-        delay(2000)
+    LaunchedEffect(isInitialized) {
         if (isInitialized) {
-            goToNextActivity()
-        } else {
-            appViewModel.isAppInitialized
-                .filter { it }
-                .first()
+            delay(1000)
             goToNextActivity()
         }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Black

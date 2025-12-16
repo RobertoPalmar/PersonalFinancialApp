@@ -60,4 +60,8 @@ class TransactionRepository @Inject constructor(
         transactionDAO.deleteAll()
     }
 
+    suspend fun softDelete(ID:Long){
+        transactionDAO.softDelete(ID);
+    }
+
 }

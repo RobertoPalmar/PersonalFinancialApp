@@ -33,12 +33,11 @@ import java.util.Locale
 @Composable
 fun TransactionFormScreen(
     navController: NavHostController,
-    transactionViewModel: TransactionViewModel,
-    transactionType: TransactionType,
-    sourceAccountID:Long? = null
+    transactionViewModel: TransactionViewModel
 ) {
     val context = LocalContext.current
     val uiState by transactionViewModel.transactionUIState.collectAsState()
+    val transactionType = uiState.transactionType!!;
 
     //HANDLE TRANSACTION CREATION EVENTS
     LaunchedEffect(true) {
@@ -59,7 +58,7 @@ fun TransactionFormScreen(
     }
 
     LaunchedEffect(true) {
-        transactionViewModel.loadInitialData(sourceAccountID);
+        transactionViewModel.loadInitialData(uiState.originSource!!.id);
     }
 
     if (uiState.isLoading) {
@@ -118,7 +117,7 @@ fun TransactionFormScreen(
                             onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
                             itemLabel = { it.name },
                             itemDetail = { "${it.balance} ${it.currency.symbol}" },
-                            enabled = sourceAccountID == null
+                            enabled = uiState.originSource == null
                         )
                         FormDoubleField(
                             label = "Amount",
@@ -144,7 +143,7 @@ fun TransactionFormScreen(
                             onItemSelected = { transactionViewModel.onTransactionFormEvent(TransactionFormEvent.OnOriginSourceChange(it)) },
                             itemLabel = { it.name },
                             itemDetail = { "${it.balance} ${it.currency.symbol}" },
-                            enabled = sourceAccountID == null
+                            enabled = uiState.originSource == null
                         )
                         FormDropdown(
                             label = "Destination Account",
@@ -278,7 +277,6 @@ fun TransactionDataCardPreview() {
 
     MaterialTheme {
         TransactionFormScreen(
-            transactionType = TransactionType.INCOME,
             navController = NavHostController(LocalContext.current),
             transactionViewModel = hiltViewModel()
         )

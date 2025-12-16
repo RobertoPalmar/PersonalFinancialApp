@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,15 +34,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rpalmar.financialapp.mock.MockupProvider
 import com.rpalmar.financialapp.models.TransactionType
 import com.rpalmar.financialapp.models.domain.TransactionDomain
-import com.rpalmar.financialapp.views.navigation.LocalAppViewModel
+import com.rpalmar.financialapp.views.navigation.LocalMainCurrency
 import com.rpalmar.financialapp.views.transaction.data.TransactionViewModel
 import com.rpalmar.financialapp.views.ui.components.DefaultIcon
 import com.rpalmar.financialapp.views.ui.components.ModalDialog
-import com.rpalmar.financialapp.views.ui.components.PreferenceStarIcon
 import com.rpalmar.financialapp.views.ui.components.formatAmount
 import com.rpalmar.financialapp.views.ui.theme.DarkGrey
 import com.rpalmar.financialapp.views.ui.theme.LightGrey
-import com.rpalmar.financialapp.views.ui.theme.Red
 import com.rpalmar.financialapp.views.ui.theme.White
 import compose.icons.Octicons
 import compose.icons.octicons.Pencil24
@@ -53,16 +49,20 @@ import compose.icons.octicons.Trash24
 @Composable
 fun TransactionDataCard(
     transaction: TransactionDomain,
-    transactionViewModel: TransactionViewModel
+    transactionViewModel: TransactionViewModel,
+    onBackNavigation: () -> Unit,
+    onEditNavigation: () -> Unit,
 ) {
-    val mainCurrency by LocalAppViewModel.current.mainCurrency.collectAsState()
+    val mainCurrency = LocalMainCurrency.current ?: return
 
     fun onDeleteTransactionClick(){
-        //TODO
+        transactionViewModel.handleDeleteTransaction(transaction.id)
+        onBackNavigation();
     }
 
     fun onEditTransactionClick(){
-        //TODO
+        transactionViewModel.handleUpdateTransactionForm(transaction)
+        onEditNavigation();
     }
 
     //DELETE DIALOG
@@ -142,7 +142,7 @@ fun TransactionDataCard(
                                     if (!transaction.currency.mainCurrency) {
                                         Spacer(modifier = Modifier.width(5.dp))
                                         Text(
-                                            text = formatAmount(transaction.amountInBaseCurrency, mainCurrency!!.symbol),
+                                            text = formatAmount(transaction.amountInBaseCurrency, mainCurrency.symbol),
                                             color = White,
                                             style = MaterialTheme.typography.titleSmall
                                         )
@@ -261,7 +261,9 @@ fun TransactionDataCardPreview() {
     MaterialTheme {
         TransactionDataCard(
             transaction = MockupProvider.getMockTransactions()[0],
-            transactionViewModel = hiltViewModel()
+            transactionViewModel = hiltViewModel(),
+            onBackNavigation = {},
+            onEditNavigation = {}
         )
     }
 }
